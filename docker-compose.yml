@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: nextstopturkey-postgres
+    environment:
+      POSTGRES_DB: nextstopturkey
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/migrations:/docker-entrypoint-initdb.d
+    networks:
+      - tours-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Express.js Backend API
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: tours-backend
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://postgres:postgres123@postgres:5432/nextstopturkey
+      JWT_SECRET: your-super-secret-jwt-key-change-this-in-production
+      PORT: 3001
+      FRONTEND_URL: http://localhost:5173
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - tours-network
+    command: npm run dev
+
+  # React Frontend (Vite)
+  frontend:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: tours-frontend
+    environment:
+      VITE_API_BASE_URL: http://localhost:3001
+      VITE_APP_NAME: NextStopTurkey
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    networks:
+      - tours-network
+    command: npm run dev
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+
+networks:
+  tours-network:
+    driver: bridge

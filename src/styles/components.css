@@ -1,0 +1,123 @@
+
+@layer components {
+  .container {
+    @apply px-4 md:px-6 lg:px-8 mx-auto max-w-7xl;
+  }
+  
+  /* Enhanced Button Variants */
+  .btn-primary {
+    @apply bg-primary text-primary-foreground 
+           rounded-lg px-6 py-3 font-semibold text-base transition-all duration-200 
+           shadow-md hover:shadow-lg hover:bg-primary/90 active:scale-[0.98]
+           focus:outline-none focus:ring-2 focus:ring-primary/50;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary text-secondary-foreground 
+           rounded-lg px-6 py-3 font-semibold text-base transition-all duration-200 
+           shadow-md hover:shadow-lg hover:bg-secondary/90 active:scale-[0.98]
+           focus:outline-none focus:ring-2 focus:ring-secondary/50;
+  }
+
+  .btn-outline {
+    @apply border border-primary text-primary bg-transparent 
+           rounded-lg px-6 py-3 font-semibold text-base transition-all duration-200 
+           hover:bg-primary hover:text-primary-foreground active:scale-[0.98]
+           focus:outline-none focus:ring-2 focus:ring-primary/50;
+  }
+
+  .btn-ghost {
+    @apply text-primary bg-transparent hover:bg-primary/10 
+           rounded-lg px-4 py-2 font-medium transition-all duration-200 
+           active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-primary/50;
+  }
+  
+  /* Enhanced Card Variants */
+  .card-elevated {
+    @apply bg-card border border-border/50 rounded-xl shadow-lg 
+           hover:shadow-xl hover:shadow-primary/5 transition-all duration-300
+           hover:-translate-y-1;
+  }
+
+  .card-container {
+    @apply bg-card border border-border/30 rounded-xl shadow-sm 
+           hover:shadow-md hover:shadow-primary/5 transition-all duration-300;
+  }
+
+  .glass-card {
+    @apply bg-card/80 backdrop-blur-xl border border-border/20 
+           rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300
+           hover:-translate-y-1;
+  }
+
+  .glass-navbar {
+    @apply bg-background/80 backdrop-blur-xl border-b border-border/20;
+  }
+  
+  /* Enhanced Section Spacing */
+  .section {
+    @apply py-20 md:py-24 lg:py-32;
+  }
+
+  .section-sm {
+    @apply py-16 md:py-20 lg:py-24;
+  }
+
+  /* Enhanced Form Elements */
+  .form-input {
+    @apply w-full px-4 py-3 rounded-xl border border-border/50 bg-surface-elevated
+           focus:border-accent-vibrant focus:ring-2 focus:ring-accent-vibrant/20
+           transition-all duration-200 placeholder:text-text-tertiary;
+  }
+
+  .form-label {
+    @apply block text-sm font-semibold text-text-primary mb-2;
+  }
+
+  /* Modern Tour Card */
+  .tour-card {
+    @apply relative overflow-hidden rounded-xl bg-card border border-border/30
+           shadow-lg hover:shadow-xl hover:shadow-primary/10
+           transition-all duration-500 hover:-translate-y-2;
+  }
+
+  .tour-card-image {
+    @apply relative overflow-hidden h-64 md:h-72;
+  }
+
+  .tour-card-overlay {
+    @apply absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/80
+           transition-all duration-500;
+  }
+
+  /* Enhanced Admin Styles */
+  .admin-sidebar {
+    @apply bg-surface-elevated border-r border-border/30 h-full;
+  }
+
+  .admin-content {
+    @apply bg-background min-h-screen;
+  }
+
+  .admin-card {
+    @apply bg-surface-elevated border border-border/30 rounded-xl shadow-sm
+           hover:shadow-md transition-all duration-200;
+  }
+
+  /* Data Table Styles */
+  .data-table {
+    @apply bg-surface-elevated rounded-xl border border-border/30 overflow-hidden;
+  }
+
+  .data-table-header {
+    @apply bg-surface-container px-6 py-4 border-b border-border/30;
+  }
+
+  .data-table-row {
+    @apply border-b border-border/20 hover:bg-surface-container/50 transition-colors duration-150;
+  }
+
+  .data-table-cell {
+    @apply px-6 py-4 text-sm;
+  }
+}

@@ -1,0 +1,61 @@
+version: '3.8'
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: nextstopturkey-postgres-dev
+    environment:
+      POSTGRES_DB: nextstopturkey
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres123
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/migrations:/docker-entrypoint-initdb.d
+    networks:
+      - tours-network
+
+  # Express.js Backend API
+  backend:
+    build: ./backend
+    container_name: tours-backend
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://postgres:postgres123@postgres:5432/nextstopturkey
+      JWT_SECRET: your-super-secret-jwt-key
+      PORT: 3001
+    ports:
+      - "3001:3001"
+    depends_on:
+      - postgres
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    networks:
+      - tours-network
+    command: npm run dev
+
+  # React Frontend (Vite)
+  frontend:
+    build: 
+      context: .
+      dockerfile: Dockerfile.frontend
+    container_name: tours-frontend
+    environment:
+      VITE_API_URL: http://localhost:3001
+    ports:
+      - "5173:5173"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    networks:
+      - tours-network
+    command: npm run dev
+
+volumes:
+  postgres_data:
+
+networks:
+  tours-network:
+    driver: bridge

@@ -1,0 +1,23 @@
+# Development stage for React + Vite application
+FROM node:18-alpine
+
+# Set working directory
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies (including dev dependencies for development)
+RUN npm install
+
+# Copy source code
+COPY . .
+
+# Expose port 5173 for Vite dev server
+EXPOSE 5173
+
+# Start development server
+CMD ["npm", "run", "dev", "--", "--host"]
+
+# Start nginx
+CMD ["nginx", "-g", "daemon off;"]
