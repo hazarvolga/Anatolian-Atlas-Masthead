@@ -11,7 +11,8 @@ export const useTours = () => {
       console.log('Fetching all tours...');
       try {
         const response = await axios.get(`${API_BASE_URL}/api/tours`);
-        const toursArray = Array.isArray(response.data) ? response.data : [];
+        // Backend returns { tours: [...], total: ..., limit: ..., offset: ... }
+        const toursArray = Array.isArray(response.data.tours) ? response.data.tours : [];
         console.log('Tours fetched successfully, count:', toursArray.length);
         return toursArray;
       } catch (error: any) {

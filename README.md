@@ -98,21 +98,29 @@ npm run migrate
 cd ..
 ```
 
-4. **Start Backend API**
+4. **Seed the Database (Optional)**
+```bash
+# Populate the database with sample tours and destinations
+cd backend
+npm run seed
+cd ..
+```
+
+5. **Start Backend API**
 ```bash
 cd backend
 npm run dev
 cd ..
 ```
 
-5. **Setup Frontend Environment**
+6. **Setup Frontend Environment**
 ```bash
 # Copy and configure frontend environment
 cp .env.example .env.local
 # Edit .env.local with your API URL
 ```
 
-6. **Start Frontend Development Server**
+7. **Start Frontend Development Server**
 ```bash
 npm run dev
 ```
