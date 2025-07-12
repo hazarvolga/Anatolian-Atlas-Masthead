@@ -36,22 +36,35 @@ export default function TourCard({ tour }: TourCardProps) {
   return (
     <div 
       className={cn(
-        "group tour-card transition-all duration-500",
-        isHovered ? "shadow-2xl shadow-primary/15" : ""
+        // Modern Blue Theme Card with enhanced hover effects
+        "group relative overflow-hidden rounded-2xl bg-card border border-border/30",
+        "shadow-lg hover:shadow-2xl hover:shadow-primary/15",
+        "transition-all duration-500 hover:-translate-y-3 transform",
+        "cursor-pointer",
+        isHovered ? "shadow-2xl shadow-primary/20 border-primary/30" : ""
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      {/* Image Section */}
+      {/* Image Section with enhanced overlay */}
       <TourCardImage tour={tour} isHovered={isHovered} />
       
-      {/* Content Section */}
-      <div className="p-6 space-y-4">
+      {/* Content Section with modern spacing */}
+      <div className="p-6 space-y-5">
         <TourCardContent tour={tour} />
         
-        {/* Action Buttons */}
+        {/* Action Buttons with modern styling */}
         <TourCardActions tourId={tour.id} />
       </div>
+      
+      {/* Subtle accent border on hover */}
+      <div 
+        className={cn(
+          "absolute inset-0 rounded-2xl border-2 border-transparent",
+          "transition-all duration-500",
+          isHovered ? "border-primary/20" : ""
+        )}
+      />
     </div>
   );
 }

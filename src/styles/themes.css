@@ -1,124 +1,123 @@
 
 @layer base {
   :root {
-    /* Light Theme - Base Colors */
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-
-    /* Light Theme - Surface Colors */
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    /* Custom Color Palette */
-    --primary: 189 73% 85%; /* #3BBCD9 - Fresh Blue */
-    --primary-foreground: 210 40% 98%;
-    --secondary: 184 80% 95%; /* #88E8F2 - Light Aqua */
-    --secondary-foreground: 222.2 84% 4.9%;
-    --accent: 44 95% 96%; /* #F2B705 - Golden Yellow */
-    --accent-foreground: 210 40% 98%;
-    --neutral: 22 40% 80%; /* #BF9075 - Earthy Brown */
-    --neutral-foreground: 222.2 84% 4.9%;
-    --alert: 0 89% 95%; /* #F24141 - Bright Red */
-    --alert-foreground: 210 40% 98%;
-
+    /* Modern Blue Theme - Light Mode */
+    
+    /* Primary Blue Color System */
+    --blue-light: 202 91% 88%; /* #9498F2 - Light Blue-Purple */
+    --blue-medium: 203 54% 32%; /* #115D8C - Medium Blue */
+    --blue-dark: 205 72% 20%; /* #0B3B59 - Dark Blue */
+    --blue-vibrant: 191 94% 49%; /* #05DBF2 - Vibrant Turquoise */
+    --neutral-light: 210 22% 95%; /* #F0F1F2 - Light Neutral */
+    
+    /* Base Colors */
+    --background: var(--neutral-light);
+    --foreground: var(--blue-dark);
+    
+    /* Surface Colors */
+    --card: var(--neutral-light);
+    --card-foreground: var(--blue-dark);
+    --popover: var(--neutral-light);
+    --popover-foreground: var(--blue-dark);
+    
+    /* Semantic Colors */
+    --primary: var(--blue-vibrant);
+    --primary-foreground: var(--neutral-light);
+    --secondary: var(--blue-light);
+    --secondary-foreground: var(--blue-dark);
+    --accent: var(--blue-vibrant);
+    --accent-foreground: var(--neutral-light);
+    
+    /* Text Hierarchy */
+    --text-primary: var(--blue-dark);
+    --text-secondary: var(--blue-medium);
+    --text-tertiary: var(--blue-light);
+    --text-disabled: 210 22% 70%;
+    
+    /* Interactive States */
+    --muted: var(--blue-light);
+    --muted-foreground: var(--blue-medium);
+    --border: var(--blue-light);
+    --input: var(--blue-light);
+    --ring: var(--blue-vibrant);
+    
     /* Status Colors */
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: var(--neutral-light);
     --success: 142.1 76.2% 36.3%;
-    --success-foreground: 210 40% 98%;
+    --success-foreground: var(--neutral-light);
     --warning: 47.9 95.8% 53.1%;
-    --warning-foreground: 222.2 84% 4.9%;
-
-    /* Enhanced Neutral Colors */
-    --muted: 210 40% 98%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    /* Border & Input */
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 262.1 83.3% 57.8%;
-
-    /* Enhanced Surface Variants */
-    --surface-elevated: 0 0% 99%;
-    --surface-container: 210 40% 97%;
-    --surface-container-high: 214.3 31.8% 94%;
-    --surface-glass: 0 0% 100% / 0.8;
-
-    /* Enhanced Text Hierarchy */
-    --text-primary: 222.2 84% 4.9%;
-    --text-secondary: 215.4 16.3% 46.9%;
-    --text-tertiary: 215.4 16.3% 65%;
-    --text-disabled: 215.4 16.3% 75%;
-
-    /* Enhanced Shadows */
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
-    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
-    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 10px 10px -5px rgb(0 0 0 / 0.04);
-
+    --warning-foreground: var(--blue-dark);
+    
+    /* Surface Variants */
+    --surface-elevated: 210 22% 98%;
+    --surface-container: var(--blue-light);
+    --surface-container-high: 202 91% 95%;
+    --surface-glass: 210 22% 95% / 0.8;
+    
+    /* Enhanced Shadows with Blue Tint */
+    --shadow-sm: 0 1px 2px 0 hsl(var(--blue-medium) / 0.05);
+    --shadow: 0 1px 3px 0 hsl(var(--blue-medium) / 0.1), 0 1px 2px -1px hsl(var(--blue-medium) / 0.1);
+    --shadow-md: 0 4px 6px -1px hsl(var(--blue-medium) / 0.1), 0 2px 4px -2px hsl(var(--blue-medium) / 0.1);
+    --shadow-lg: 0 10px 15px -3px hsl(var(--blue-medium) / 0.1), 0 4px 6px -4px hsl(var(--blue-medium) / 0.1);
+    --shadow-xl: 0 20px 25px -5px hsl(var(--blue-medium) / 0.1), 0 10px 10px -5px hsl(var(--blue-medium) / 0.04);
+    
     --radius: 0.75rem;
   }
 
   .dark {
-    /* Dark Theme - Base Colors */
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-
-    /* Dark Theme - Surface Colors */
-    --card: 217.2 32.6% 17.5%;
-    --card-foreground: 210 40% 98%;
-    --popover: 217.2 32.6% 17.5%;
-    --popover-foreground: 210 40% 98%;
-
-    /* Custom Dark Color Palette */
-    --primary: 189 73% 75%; /* Darker Fresh Blue */
-    --primary-foreground: 222.2 84% 4.9%;
-    --secondary: 184 80% 85%; /* Darker Light Aqua */
-    --secondary-foreground: 210 40% 98%;
-    --accent: 44 95% 86%; /* Darker Golden Yellow */
-    --accent-foreground: 222.2 84% 4.9%;
-    --neutral: 22 40% 70%; /* Darker Earthy Brown */
-    --neutral-foreground: 210 40% 98%;
-    --alert: 0 89% 85%; /* Darker Bright Red */
-    --alert-foreground: 210 40% 98%;
-
-    /* Dark Status Colors */
+    /* Modern Blue Theme - Dark Mode */
+    
+    /* Base Colors */
+    --background: var(--blue-dark);
+    --foreground: var(--neutral-light);
+    
+    /* Surface Colors */
+    --card: var(--blue-medium);
+    --card-foreground: var(--neutral-light);
+    --popover: var(--blue-medium);
+    --popover-foreground: var(--neutral-light);
+    
+    /* Semantic Colors */
+    --primary: var(--blue-vibrant);
+    --primary-foreground: var(--blue-dark);
+    --secondary: var(--blue-medium);
+    --secondary-foreground: var(--blue-light);
+    --accent: var(--blue-vibrant);
+    --accent-foreground: var(--blue-dark);
+    
+    /* Text Hierarchy */
+    --text-primary: var(--neutral-light);
+    --text-secondary: var(--blue-light);
+    --text-tertiary: var(--blue-medium);
+    --text-disabled: 205 72% 45%;
+    
+    /* Interactive States */
+    --muted: var(--blue-medium);
+    --muted-foreground: var(--blue-light);
+    --border: var(--blue-light);
+    --input: var(--blue-dark);
+    --ring: var(--blue-vibrant);
+    
+    /* Status Colors */
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: var(--neutral-light);
     --success: 142.1 80% 45%;
-    --success-foreground: 222.2 84% 4.9%;
+    --success-foreground: var(--blue-dark);
     --warning: 47.9 95.8% 53.1%;
-    --warning-foreground: 222.2 84% 4.9%;
-
-    /* Dark Neutral Colors */
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    /* Dark Border & Input */
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 270 100% 70%;
-
-    /* Dark Surface Variants */
-    --surface-elevated: 217.2 32.6% 20%;
-    --surface-container: 217.2 32.6% 15%;
-    --surface-container-high: 217.2 32.6% 22%;
-    --surface-glass: 217.2 32.6% 17.5% / 0.8;
-
-    /* Dark Text Hierarchy */
-    --text-primary: 210 40% 98%;
-    --text-secondary: 215 20.2% 65.1%;
-    --text-tertiary: 215 20.2% 50%;
-    --text-disabled: 215 20.2% 35%;
-
+    --warning-foreground: var(--blue-dark);
+    
+    /* Surface Variants */
+    --surface-elevated: 205 72% 25%;
+    --surface-container: var(--blue-medium);
+    --surface-container-high: 205 72% 30%;
+    --surface-glass: var(--blue-medium) / 0.8;
+    
     /* Enhanced Dark Shadows */
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
-    --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.4);
-    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.4);
-    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.4);
-    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.4), 0 10px 10px -5px rgb(0 0 0 / 0.04);
+    --shadow-sm: 0 1px 2px 0 hsl(var(--blue-dark) / 0.3);
+    --shadow: 0 1px 3px 0 hsl(var(--blue-dark) / 0.4), 0 1px 2px -1px hsl(var(--blue-dark) / 0.4);
+    --shadow-md: 0 4px 6px -1px hsl(var(--blue-dark) / 0.4), 0 2px 4px -2px hsl(var(--blue-dark) / 0.4);
+    --shadow-lg: 0 10px 15px -3px hsl(var(--blue-dark) / 0.4), 0 4px 6px -4px hsl(var(--blue-dark) / 0.4);
+    --shadow-xl: 0 20px 25px -5px hsl(var(--blue-dark) / 0.4), 0 10px 10px -5px hsl(var(--blue-dark) / 0.04);
   }
 }

@@ -14,7 +14,27 @@ export const useTours = () => {
         // Backend returns { tours: [...], total: ..., limit: ..., offset: ... }
         const toursArray = Array.isArray(response.data.tours) ? response.data.tours : [];
         console.log('Tours fetched successfully, count:', toursArray.length);
-        return toursArray;
+        
+        // Map backend fields to frontend expected fields
+        const mappedTours = toursArray.map((tour: any) => ({
+          ...tour,
+          name: tour.title || tour.name, // Map title to name
+          max_group_size: tour.max_participants || tour.max_group_size || 20,
+          highlights: tour.includes || tour.highlights || [],
+          rating: tour.rating || 4.5, // Default rating
+          difficulty: tour.difficulty_level || 'easy',
+          location: tour.destination_name || tour.location || 'Unknown',
+          price: parseFloat(tour.price) || 0,
+          destinations: tour.destination_id ? {
+            id: tour.destination_id,
+            name: tour.destination_name,
+            city: tour.city,
+            country: tour.country
+          } : undefined
+        }));
+        
+        console.log('Mapped tours:', mappedTours);
+        return mappedTours;
       } catch (error: any) {
         console.error('Tours fetch error:', error.response?.data || error.message);
         return []; // Return empty array on error

@@ -4,50 +4,54 @@
     @apply px-4 md:px-6 lg:px-8 mx-auto max-w-7xl;
   }
   
-  /* Enhanced Button Variants */
+  /* Modern Blue Theme Button System */
   .btn-primary {
     @apply bg-primary text-primary-foreground 
-           rounded-lg px-6 py-3 font-semibold text-base transition-all duration-200 
-           shadow-md hover:shadow-lg hover:bg-primary/90 active:scale-[0.98]
+           rounded-xl px-8 py-4 font-semibold text-base transition-all duration-300 
+           shadow-lg hover:shadow-xl hover:shadow-primary/25 hover:bg-primary/90 
+           active:scale-[0.98] transform hover:-translate-y-0.5
            focus:outline-none focus:ring-2 focus:ring-primary/50;
   }
 
   .btn-secondary {
     @apply bg-secondary text-secondary-foreground 
-           rounded-lg px-6 py-3 font-semibold text-base transition-all duration-200 
-           shadow-md hover:shadow-lg hover:bg-secondary/90 active:scale-[0.98]
+           rounded-xl px-8 py-4 font-semibold text-base transition-all duration-300 
+           shadow-md hover:shadow-lg hover:shadow-secondary/20 hover:bg-secondary/90 
+           active:scale-[0.98] transform hover:-translate-y-0.5
            focus:outline-none focus:ring-2 focus:ring-secondary/50;
   }
 
   .btn-outline {
-    @apply border border-primary text-primary bg-transparent 
-           rounded-lg px-6 py-3 font-semibold text-base transition-all duration-200 
-           hover:bg-primary hover:text-primary-foreground active:scale-[0.98]
+    @apply border-2 border-primary text-primary bg-transparent 
+           rounded-xl px-8 py-4 font-semibold text-base transition-all duration-300 
+           hover:bg-primary hover:text-primary-foreground hover:shadow-lg hover:shadow-primary/25
+           active:scale-[0.98] transform hover:-translate-y-0.5
            focus:outline-none focus:ring-2 focus:ring-primary/50;
   }
 
   .btn-ghost {
     @apply text-primary bg-transparent hover:bg-primary/10 
-           rounded-lg px-4 py-2 font-medium transition-all duration-200 
+           rounded-xl px-6 py-3 font-medium transition-all duration-300 
            active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-primary/50;
   }
   
-  /* Enhanced Card Variants */
+  /* Modern Card System with Blue Theme */
   .card-elevated {
-    @apply bg-card border border-border/50 rounded-xl shadow-lg 
-           hover:shadow-xl hover:shadow-primary/5 transition-all duration-300
-           hover:-translate-y-1;
+    @apply bg-card border border-border/50 rounded-2xl shadow-lg 
+           hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500
+           hover:-translate-y-2 transform;
   }
 
   .card-container {
-    @apply bg-card border border-border/30 rounded-xl shadow-sm 
-           hover:shadow-md hover:shadow-primary/5 transition-all duration-300;
+    @apply bg-card border border-border/30 rounded-2xl shadow-sm 
+           hover:shadow-lg hover:shadow-primary/5 transition-all duration-300
+           hover:-translate-y-1 transform;
   }
 
   .glass-card {
     @apply bg-card/80 backdrop-blur-xl border border-border/20 
-           rounded-xl shadow-xl hover:shadow-2xl transition-all duration-300
-           hover:-translate-y-1;
+           rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500
+           hover:-translate-y-2 transform;
   }
 
   .glass-navbar {
@@ -63,22 +67,24 @@
     @apply py-16 md:py-20 lg:py-24;
   }
 
-  /* Enhanced Form Elements */
+  /* Modern Form Elements */
   .form-input {
-    @apply w-full px-4 py-3 rounded-xl border border-border/50 bg-surface-elevated
-           focus:border-accent-vibrant focus:ring-2 focus:ring-accent-vibrant/20
-           transition-all duration-200 placeholder:text-text-tertiary;
+    @apply w-full px-6 py-4 rounded-xl border-2 border-border/50 bg-surface-elevated
+           focus:border-primary focus:ring-4 focus:ring-primary/20
+           transition-all duration-300 placeholder:text-text-tertiary
+           text-text-primary font-medium;
   }
 
   .form-label {
-    @apply block text-sm font-semibold text-text-primary mb-2;
+    @apply block text-sm font-bold text-text-primary mb-3 tracking-wide;
   }
 
-  /* Modern Tour Card */
+  /* Premium Tour Card Design */
   .tour-card {
-    @apply relative overflow-hidden rounded-xl bg-card border border-border/30
-           shadow-lg hover:shadow-xl hover:shadow-primary/10
-           transition-all duration-500 hover:-translate-y-2;
+    @apply relative overflow-hidden rounded-2xl bg-card border border-border/30
+           shadow-lg hover:shadow-2xl hover:shadow-primary/15
+           transition-all duration-500 hover:-translate-y-3 transform
+           group cursor-pointer;
   }
 
   .tour-card-image {
@@ -87,7 +93,27 @@
 
   .tour-card-overlay {
     @apply absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/80
-           transition-all duration-500;
+           transition-all duration-500 group-hover:to-black/60;
+  }
+
+  .tour-card-content {
+    @apply absolute bottom-0 left-0 right-0 p-6 text-white z-10;
+  }
+
+  .tour-card-title {
+    @apply text-xl md:text-2xl font-bold mb-2 line-clamp-2;
+  }
+
+  .tour-card-price {
+    @apply text-2xl md:text-3xl font-bold text-primary mb-4;
+  }
+
+  .tour-card-features {
+    @apply flex flex-wrap gap-2 mb-4;
+  }
+
+  .tour-card-feature {
+    @apply px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-sm font-medium;
   }
 
   /* Enhanced Admin Styles */
@@ -100,13 +126,13 @@
   }
 
   .admin-card {
-    @apply bg-surface-elevated border border-border/30 rounded-xl shadow-sm
-           hover:shadow-md transition-all duration-200;
+    @apply bg-surface-elevated border border-border/30 rounded-2xl shadow-sm
+           hover:shadow-lg hover:shadow-primary/5 transition-all duration-300;
   }
 
-  /* Data Table Styles */
+  /* Modern Data Table */
   .data-table {
-    @apply bg-surface-elevated rounded-xl border border-border/30 overflow-hidden;
+    @apply bg-surface-elevated rounded-2xl border border-border/30 overflow-hidden;
   }
 
   .data-table-header {
@@ -114,10 +140,47 @@
   }
 
   .data-table-row {
-    @apply border-b border-border/20 hover:bg-surface-container/50 transition-colors duration-150;
+    @apply border-b border-border/20 hover:bg-surface-container/50 transition-colors duration-200;
   }
 
   .data-table-cell {
     @apply px-6 py-4 text-sm;
+  }
+
+  /* Hero Section Styles */
+  .hero-gradient {
+    @apply bg-gradient-to-br from-background via-surface-container to-surface-container-high;
+  }
+
+  .hero-title {
+    @apply text-4xl md:text-5xl lg:text-6xl font-bold text-text-primary mb-6;
+  }
+
+  .hero-subtitle {
+    @apply text-xl md:text-2xl text-text-secondary mb-8 max-w-2xl;
+  }
+
+  /* Filter Styles */
+  .filter-container {
+    @apply bg-surface-container rounded-2xl p-6 border border-border/30;
+  }
+
+  .filter-item {
+    @apply p-3 rounded-xl border border-border/30 hover:border-primary/50 
+           transition-all duration-200 cursor-pointer;
+  }
+
+  .filter-item.active {
+    @apply border-primary bg-primary/10 text-primary;
+  }
+
+  /* Navigation Styles */
+  .nav-link {
+    @apply px-4 py-2 rounded-lg font-medium text-text-secondary 
+           hover:text-primary hover:bg-primary/10 transition-all duration-200;
+  }
+
+  .nav-link.active {
+    @apply text-primary bg-primary/10;
   }
 }
