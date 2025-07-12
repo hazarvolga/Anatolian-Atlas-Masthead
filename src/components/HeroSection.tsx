@@ -59,20 +59,20 @@ export default function HeroSection() {
       </div>
       
       {/* Enhanced Multi-layer Overlays */}
-      <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-accent-vibrant/20 to-black/70" />
+      <div className="absolute inset-0 bg-gradient-to-br from-black/60 via-primary-500/20 to-black/70" />
       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent" />
-      <div className="absolute inset-0 bg-gradient-to-r from-accent-coral/10 via-transparent to-accent-emerald/10" />
+      <div className="absolute inset-0 bg-gradient-to-r from-accent-vibrant/10 via-transparent to-primary-400/10" />
       
       {/* Animated Floating Elements */}
-      <div className="absolute top-20 right-20 w-32 h-32 bg-accent-coral/20 rounded-full blur-3xl animate-float" />
-      <div className="absolute bottom-40 left-20 w-24 h-24 bg-accent-emerald/20 rounded-full blur-2xl animate-float [animation-delay:2s]" />
-      <div className="absolute top-1/2 left-1/4 w-16 h-16 bg-accent-sky/30 rounded-full blur-xl animate-float [animation-delay:4s]" />
+      <div className="absolute top-20 right-20 w-32 h-32 bg-accent-vibrant/20 rounded-full blur-3xl animate-float" />
+      <div className="absolute bottom-40 left-20 w-24 h-24 bg-primary-400/20 rounded-full blur-2xl animate-float [animation-delay:2s]" />
+      <div className="absolute top-1/2 left-1/4 w-16 h-16 bg-primary-500/30 rounded-full blur-xl animate-float [animation-delay:4s]" />
       
       {/* Decorative Elements */}
       <div className="absolute top-0 left-0 w-full h-full">
         <div className="absolute top-32 left-12 w-2 h-2 bg-accent-vibrant rounded-full animate-pulse" />
-        <div className="absolute top-48 right-24 w-1 h-1 bg-accent-coral rounded-full animate-pulse [animation-delay:1s]" />
-        <div className="absolute bottom-32 left-1/3 w-1.5 h-1.5 bg-accent-emerald rounded-full animate-pulse [animation-delay:2s]" />
+        <div className="absolute top-48 right-24 w-1 h-1 bg-primary-400 rounded-full animate-pulse [animation-delay:1s]" />
+        <div className="absolute bottom-32 left-1/3 w-1.5 h-1.5 bg-primary-500 rounded-full animate-pulse [animation-delay:2s]" />
       </div>
       
       {/* Content */}
@@ -83,7 +83,7 @@ export default function HeroSection() {
         <div className="max-w-6xl animate-fade-in">
           {/* Enhanced Premium Badge */}
           <div className="inline-flex items-center px-8 py-4 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full text-white/90 text-sm font-medium mb-8 animate-scale-in [animation-delay:200ms] hover:bg-white/15 transition-all duration-300 group">
-            <Sparkles className="w-5 h-5 mr-3 text-accent-coral animate-pulse group-hover:animate-spin" />
+            <Sparkles className="w-5 h-5 mr-3 text-accent-vibrant animate-pulse group-hover:animate-spin" />
             <span className="mr-3">{t.hero.subtitle}</span>
             <Star className="w-4 h-4 text-yellow-400 fill-current" />
             <span className="ml-1 text-xs">4.9/5</span>
@@ -91,7 +91,7 @@ export default function HeroSection() {
           
           {/* Enhanced Main Heading with Text Effects */}
           <h1 className="text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-white mb-8 animate-fade-in [animation-delay:400ms] leading-tight">
-            <span className="bg-gradient-to-r from-white via-accent-vibrant to-accent-coral bg-clip-text text-transparent drop-shadow-2xl">
+            <span className="bg-gradient-to-r from-white via-accent-vibrant to-primary-400 bg-clip-text text-transparent drop-shadow-2xl">
               {t.hero.title}
             </span>
           </h1>
@@ -107,7 +107,7 @@ export default function HeroSection() {
               <Link to="/booking" className="flex items-center">
                 <span className="relative z-10">{t.hero.bookStay}</span>
                 <span className="ml-3 transition-transform group-hover:translate-x-1 text-2xl relative z-10">→</span>
-                <div className="absolute inset-0 bg-gradient-to-r from-accent-vibrant/20 to-accent-coral/20 translate-x-full group-hover:translate-x-0 transition-transform duration-500" />
+                <div className="absolute inset-0 bg-gradient-to-r from-accent-vibrant/20 to-primary-400/20 translate-x-full group-hover:translate-x-0 transition-transform duration-500" />
               </Link>
             </Button>
             
@@ -122,9 +122,9 @@ export default function HeroSection() {
           {/* Enhanced Stats with Better Visual Hierarchy */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 max-w-2xl mx-auto animate-fade-in [animation-delay:1000ms]">
             {[
-              { icon: Users, label: "Happy Travelers", value: "10K+", color: "text-accent-coral" },
-              { icon: Award, label: "Amazing Tours", value: "500+", color: "text-accent-vibrant" },
-              { icon: Star, label: "Countries", value: "25+", color: "text-accent-emerald" }
+              { icon: Users, label: "Happy Travelers", value: "10K+", color: "text-accent-vibrant" },
+              { icon: Award, label: "Amazing Tours", value: "500+", color: "text-primary-400" },
+              { icon: Star, label: "Countries", value: "25+", color: "text-primary-500" }
             ].map((stat, index) => (
               <div key={index} className="text-center group cursor-pointer">
                 <div className="flex items-center justify-center mb-3">
