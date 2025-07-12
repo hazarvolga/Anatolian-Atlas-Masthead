@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 import HeroSection from "@/components/HeroSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import WelcomeSection from "@/components/home/WelcomeSection";
+import DestinationsSection from "@/components/home/DestinationsSection";
 import ToursSection from "@/components/home/ToursSection";
 import CTASection from "@/components/home/CTASection";
 
@@ -23,6 +24,7 @@ export default function Index() {
         <main className="flex-1">
           <HeroSection />
           <WelcomeSection />
+          <DestinationsSection />
           <ToursSection />
           <TestimonialsSection />
           <CTASection />
