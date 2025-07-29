@@ -1,0 +1,179 @@
+import { useState, useEffect } from "re    if (templateId) {
+      setActiveTab("email-template-detail");
+    } else if (tab && ["stats", "destinations", "tours", "calendar", "reservations", "users", "reviews", "pages", "navigation", "translations", "emails", "email-test", "email-services", "stripe", "ai", "site-settings"].includes(tab)) {
+      setActiveTab(tab);
+    }
+import { useSearchParams } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { useIsAdmin } from "@/hooks/useUserRole";
+import { Navigate } from "react-router-dom";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
+import AdminSidebar from "@/components/admin/AdminSidebar";
+import AdminStats from "@/components/admin/AdminStats";
+import AdminTours from "@/components/admin/AdminTours";
+import AdminReservations from "@/components/admin/AdminReservations";
+import AdminUsers from "@/components/admin/AdminUsers";
+import AdminReviews from "@/components/admin/AdminReviews";
+import AdminPages from "@/components/admin/AdminPages";
+import AdminNavigation from "@/components/admin/AdminNavigation";
+import AdminDestinations from "@/components/admin/AdminDestinations";
+import AdminTranslations from "@/components/admin/AdminTranslations";
+import AdminCalendar from "@/components/admin/AdminCalendar";
+import AdminStripeSettings from "@/components/admin/AdminStripeSettings";
+import Footer from "@/components/Footer";
+import AISettings from "@/components/admin/AISettings";
+import AdminSiteSettings from "@/components/admin/AdminSiteSettings";
+import AdminEmailManagement from "@/pages/AdminEmailManagement";
+import EmailTemplateDetail from "@/pages/EmailTemplateDetail";
+import EmailTestPage from "@/pages/EmailTestPage";
+import EmailServiceSettings from "@/components/admin/email/EmailServiceSettings";
+
+export default function Admin() {
+  const { user } = useAuth();
+  const isAdmin = useIsAdmin();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState("stats");
+
+  // Update active tab based on URL parameters
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    const templateId = searchParams.get("templateId");
+    
+    if (templateId) {
+      setActiveTab("email-template-detail");
+    } else if (tab && ["stats", "destinations", "tours", "calendar", "reservations", "users", "reviews", "pages", "navigation", "translations", "emails", "email-test", "stripe", "ai", "site-settings", "email-services"].includes(tab)) {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
+
+  // Update URL when tab changes
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
+    setSearchParams({ tab });
+  };
+
+  if (!user) {
+    return <Navigate to="/auth" replace />;
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen flex flex-col bg-background">
+        <main className="flex-1 flex items-center justify-center p-4">
+          <Card className="w-full max-w-md mx-auto">
+            <CardHeader className="text-center">
+              <CardTitle>Access Denied</CardTitle>
+              <CardDescription>
+                You don't have permission to access this page.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button 
+                onClick={() => window.history.back()} 
+                className="w-full"
+              >
+                Go Back
+              </Button>
+            </CardContent>
+          </Card>
+        </main>
+      </div>
+    );
+  }
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case "stats":
+        return <AdminStats />;
+      case "destinations":
+        return <AdminDestinations />;
+      case "tours":
+        return <AdminTours />;
+      case "calendar":
+        return <AdminCalendar />;
+      case "reservations":
+        return <AdminReservations />;
+      case "users":
+        return <AdminUsers />;
+      case "reviews":
+        return <AdminReviews />;
+      case "pages":
+        return <AdminPages />;
+      case "navigation":
+        return <AdminNavigation />;
+      case "translations":
+        return <AdminTranslations />;
+      case "emails":
+        return <AdminEmailManagement />;
+      case "email-test":
+        return <EmailTestPage />;
+      case "email-template-detail":
+        return <EmailTemplateDetail />;
+      case "stripe":
+        return <AdminStripeSettings />;
+      case "ai":
+        return <AISettings />;
+      case "site-settings":
+        return <AdminSiteSettings />;
+      case "email-services":
+        return <EmailServiceSettings />;
+      default:
+        return <AdminStats />;
+    }
+  };
+
+  const getTabTitle = () => {
+    switch (activeTab) {
+      case "stats": return "Statistics and Overview";
+      case "destinations": return "Destination Management";
+      case "tours": return "Tour Management";
+      case "calendar": return "Calendar and Availability Management";
+      case "reservations": return "Reservation Management";
+      case "users": return "User Management";
+      case "reviews": return "Review Management";
+      case "pages": return "Page Management";
+      case "navigation": return "Navigation Management";
+      case "translations": return "Translation Management";
+      case "emails": return "Email Template Management";
+      case "email-test": return "Email Template Testing";
+      case "email-template-detail": return "Email Template Detail";
+      case "stripe": return "Stripe Payment Settings";
+      case "ai": return "Yapay Zeka Ayarları";
+      case "site-settings": return "Site Ayarları & SEO Yönetimi";
+      case "email-services": return "Email Service Settings";
+      default: return "Admin Panel";
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col bg-background">
+      <SidebarProvider>
+        <div className="min-h-screen flex w-full">
+          <AdminSidebar activeTab={activeTab} onTabChange={handleTabChange} />
+          
+          <SidebarInset className="flex-1 flex flex-col">
+            <header className="flex h-14 md:h-16 shrink-0 items-center gap-2 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-3 md:px-6">
+              <SidebarTrigger className="-ml-1" />
+              <div className="flex flex-col min-w-0 flex-1">
+                <h1 className="text-lg md:text-xl font-semibold truncate">Admin Panel</h1>
+                <p className="text-xs md:text-sm text-muted-foreground truncate">
+                  {getTabTitle()}
+                </p>
+              </div>
+            </header>
+            
+            <main className="flex-1 p-3 md:p-6 space-y-4 md:space-y-6 overflow-auto">
+              <div className="w-full max-w-7xl mx-auto">
+                {renderContent()}
+              </div>
+            </main>
+          </SidebarInset>
+        </div>
+      </SidebarProvider>
+      
+      <Footer />
+    </div>
+  );
+}

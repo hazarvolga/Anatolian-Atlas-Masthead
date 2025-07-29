@@ -1,0 +1,124 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+model EmailTemplate {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @unique
+  subject     String
+  html        String
+  text        String?
+  type        String   // booking_confirmation, password_reset, etc.
+  is_active   Boolean  @default(true)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  logs        EmailLog[]
+}
+
+model EmailLog {
+  id            String   @id @default(uuid()) @db.Uuid
+  to            String
+  template_id   String   @db.Uuid
+  status        String   // sent, failed, etc.
+  error         String?
+  sent_at       DateTime @default(now())
+  booking_id    String?  @db.Uuid
+  template      EmailTemplate @relation(fields: [template_id], references: [id])
+}
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String   @id @default(uuid()) @db.Uuid
+  email          String   @unique
+  password_hash  String
+  role           String
+  first_name     String
+  last_name      String
+  phone          String?
+  avatar_url     String?
+  email_verified Boolean  @default(false)
+  is_active      Boolean  @default(true)
+  last_login_at  DateTime?
+  metadata       Json     @default("{}")
+  created_at     DateTime @default(now())
+  updated_at     DateTime @updatedAt
+  guidedTours    Tour[]   @relation("TourGuide")
+  createdTours   Tour[]   @relation("TourCreatedBy")
+}
+
+model Category {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String
+  slug        String   @unique
+  description String?
+  image_url   String?
+  is_active   Boolean  @default(true)
+  sort_order  Int      @default(0)
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  tours       Tour[]
+}
+
+model Destination {
+  id                String   @id @default(uuid()) @db.Uuid
+  name              String
+  slug              String   @unique
+  country_id        String
+  city_id           String?
+  short_description String?
+  description       String
+  featured          Boolean  @default(false)
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+  tours             Tour[]
+}
+
+model Tour {
+  id               String   @id @default(uuid()) @db.Uuid
+  title            String
+  slug             String   @unique
+  description      String
+  short_description String?
+  category_id      String   @db.Uuid
+  destination_id   String   @db.Uuid
+  guide_id         String?  @db.Uuid
+  created_by_id    String?  @db.Uuid
+  status           String
+  duration_hours   Int
+  max_participants Int
+  min_participants Int      @default(1)
+  price_adult      Float
+  price_child      Float?
+  price_currency   String   @default("TRY")
+  difficulty_level Int?
+  age_limit        Int?
+  featured         Boolean  @default(false)
+  includes         String[]
+  excludes         String[]
+  requirements     String[]
+  cancellation_policy String?
+  images           Json     @default("[]")
+  metadata         Json     @default("{}")
+  seo_title        String?
+  seo_description  String?
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+  deleted_at       DateTime?
+  category         Category @relation(fields: [category_id], references: [id])
+  destination      Destination @relation(fields: [destination_id], references: [id])
+  guide            User? @relation("TourGuide", fields: [guide_id], references: [id])
+  created_by       User? @relation("TourCreatedBy", fields: [created_by_id], references: [id])
+}

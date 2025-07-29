@@ -1,0 +1,51 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Environment files
+.env
+.env.local
+.env.development
+.env.production
+.env.docker
+
+# Database and migration related files (from Supabase migration)
+*.sql
+progress_notes.md
+README_MIGRATION_NOTE.txt
+REMOVE_ME_MANUALLY.txt
+
+# Test and debug files
+test-*.js
+create-payment-*.js
+m-6005-main.zip
+
+# Docker and deployment files (keep only the ones we need)
+docker-start.sh
+README-DOCKER.md
+
+# Other temporary files
+# nginx.conf (commented out - needed for Docker deployment)
+
+/generated/prisma
