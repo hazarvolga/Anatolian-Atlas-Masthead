@@ -10,7 +10,7 @@ router.get('/', async (req, res) => {
       SELECT d.*, 
              COUNT(t.id) as tour_count
       FROM destinations d
-      LEFT JOIN tours t ON d.id = t.destination_id AND t.is_active = true
+      LEFT JOIN tours t ON d.id = t.destination_id AND t.status = 'active'
       GROUP BY d.id
       ORDER BY d.featured DESC, d.name ASC
     `);

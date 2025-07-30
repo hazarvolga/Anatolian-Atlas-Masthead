@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import rateLimit from 'express-rate-limit';
+import { PrismaClient } from '@prisma/client';
 
 // Route imports
 import authRoutes from './routes/auth.js';
@@ -12,9 +13,10 @@ import reservationsRoutes from './routes/reservations.js';
 import destinationsRoutes from './routes/destinations.js';
 import adminRoutes from './routes/admin.js';
 import usersRoutes from './routes/users.js';
+import reviewsRoutes from './routes/reviews.js'; // Import new reviews routes
 
 // Database connection
-import { pool } from './config/database.js';
+const prisma = new PrismaClient();
 
 dotenv.config();
 
@@ -56,11 +58,12 @@ app.use(morgan('combined'));
 // Test database connection
 app.get('/health', async (req, res) => {
   try {
-    const result = await pool.query('SELECT NOW()');
+    // Use Prisma's built-in health check
+    await prisma.$queryRaw`SELECT 1`;
     res.json({
       status: 'healthy',
       database: 'connected',
-      timestamp: result.rows[0].now
+      timestamp: new Date().toISOString()
     });
   } catch (error) {
     res.status(500).json({
@@ -78,6 +81,7 @@ app.use('/api/reservations', reservationsRoutes);
 app.use('/api/destinations', destinationsRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/users', usersRoutes);
+app.use('/api/reviews', reviewsRoutes); // Use new reviews routes
 
 // Error handling middleware
 app.use((err, req, res, next) => {
