@@ -1,49 +1,60 @@
 import express from 'express';
-import { pool } from '../config/database.js';
+import { PrismaClient } from '@prisma/client';
 
+const prisma = new PrismaClient();
 const router = express.Router();
 
-// Get all destinations
+// GET /api/destinations - Get all destinations with their tour counts
 router.get('/', async (req, res) => {
   try {
-    const result = await pool.query(`
-      SELECT d.*, 
-             COUNT(t.id) as tour_count
-      FROM destinations d
-      LEFT JOIN tours t ON d.id = t.destination_id AND t.status = 'active'
-      GROUP BY d.id
-      ORDER BY d.featured DESC, d.name ASC
-    `);
+    const destinations = await prisma.destination.findMany({
+      include: {
+        _count: { // Use Prisma's built-in count aggregation
+          select: { tours: { where: { status: 'active' } } },
+        },
+      },
+      orderBy: [
+        { featured: 'desc' },
+        { name: 'asc' },
+      ],
+    });
 
-    res.json(result.rows);
+    // Rename _count.tours to tour_count to match frontend expectations
+    const formattedDestinations = destinations.map(({ _count, ...dest }) => ({
+      ...dest,
+      tour_count: _count.tours,
+    }));
+
+    res.json(formattedDestinations);
   } catch (error) {
     console.error('Error fetching destinations:', error);
     res.status(500).json({ message: 'Error fetching destinations' });
   }
 });
 
-// Get single destination with tours
+// GET /api/destinations/:id - Get a single destination with its active tours
 router.get('/:id', async (req, res) => {
+  const { id } = req.params;
   try {
-    const { id } = req.params;
-    
-    // Get destination
-    const destResult = await pool.query('SELECT * FROM destinations WHERE id = $1', [id]);
-    
-    if (destResult.rows.length === 0) {
+    const destination = await prisma.destination.findFirst({
+      where: {
+        OR: [
+          { id: id },
+          { slug: id },
+        ],
+      },
+      include: {
+        tours: {
+          where: { status: 'active' },
+          orderBy: { createdAt: 'desc' },
+        },
+      },
+    });
+
+    if (!destination) {
       return res.status(404).json({ message: 'Destination not found' });
     }
-    
-    // Get tours for this destination
-    const toursResult = await pool.query(`
-      SELECT * FROM tours 
-      WHERE destination_id = $1 AND is_active = true
-      ORDER BY created_at DESC
-    `, [id]);
-    
-    const destination = destResult.rows[0];
-    destination.tours = toursResult.rows;
-    
+
     res.json(destination);
   } catch (error) {
     console.error('Error fetching destination:', error);
