@@ -9,7 +9,7 @@ router.get('/', async (req, res) => {
   try {
     const destinations = await prisma.destination.findMany({
       include: {
-        _count: { // Use Prisma's built-in count aggregation
+        _count: { 
           select: { tours: { where: { status: 'active' } } },
         },
       },
@@ -46,7 +46,7 @@ router.get('/:id', async (req, res) => {
       include: {
         tours: {
           where: { status: 'active' },
-          orderBy: { createdAt: 'desc' },
+          orderBy: { created_at: 'desc' }, // Corrected field name
         },
       },
     });
