@@ -1,22 +1,43 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
 import { toast } from "@/components/ui/use-toast";
 
 export interface CreateTourData {
-  name: string;
+  // Frontend fields (primary)
+  name?: string;
+  title?: string;
   description: string;
-  price: number;
-  duration: number;
-  max_group_size: number;
-  location: string;
-  difficulty: 'easy' | 'moderate' | 'challenging';
+  price?: number;
+  duration?: number;
+  max_group_size?: number;
+  destination_id: string;
+  difficulty?: 'easy' | 'moderate' | 'challenging';
   tour_type?: 'multiple_day' | 'one_day' | 'date_range';
   start_date?: string;
   end_date?: string;
-  highlights: string[];
+  highlights?: string[];
   image_url?: string;
   is_active?: boolean;
-  destination_id?: string;
+  deposit?: number;
+  departure_location?: string;
+  departure_time?: string;
+  return_time?: string;
+  included?: string[];
+  excluded?: string[];
+  benefits?: string[];
+  itinerary?: Array<{ day: number; title: string; description: string; }>;
+  location?: string;
+  
+  // Backend fields (optional for compatibility)
+  price_adult?: number;
+  duration_hours?: number;
+  max_participants?: number;
+  difficulty_level?: string;
+  status?: string;
+  includes?: string[];
+  excludes?: string[];
+  images?: string[];
 }
 
 export const useCreateTour = () => {

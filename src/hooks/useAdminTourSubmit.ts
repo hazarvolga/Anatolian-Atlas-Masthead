@@ -28,14 +28,14 @@ export const useAdminTourSubmit = ({ tour, onSuccess }: UseAdminTourSubmitProps)
       const isMultiDayTour = data.tour_type === "multiple_day" || data.tour_type === "date_range";
       
       const tourData = {
-        name: data.name,
+        title: data.name, // Frontend'de 'name' ama backend'de 'title' bekleniyor
         description: data.description,
         // For multi-day tours, set price to 0 as it's managed in pricing tab with room prices
-        price: isMultiDayTour ? 0 : Number(data.price) || 0,
-        duration: Number(data.duration) || 1,
-        max_group_size: Number(data.max_group_size) || 10,
+        price_adult: isMultiDayTour ? 0 : Number(data.price) || 0,
+        duration_hours: Number(data.duration) || 1,
+        max_participants: Number(data.max_group_size) || 10,
         destination_id: data.destination_id && data.destination_id !== "" ? data.destination_id : null,
-        difficulty: data.difficulty,
+        difficulty: data.difficulty, // Frontend'den 'difficulty' olarak gönder, backend convert edecek
         tour_type: data.tour_type,
         image_url: data.image_url || "",
         start_date: data.start_date && data.start_date !== "" ? data.start_date : null,
@@ -44,13 +44,13 @@ export const useAdminTourSubmit = ({ tour, onSuccess }: UseAdminTourSubmitProps)
         departure_location: data.departure_location,
         departure_time: data.departure_time && data.departure_time !== "" ? data.departure_time : null,
         return_time: data.return_time && data.return_time !== "" ? data.return_time : null,
-        included: Array.isArray(additionalData.included) ? additionalData.included : [],
-        excluded: Array.isArray(additionalData.excluded) ? additionalData.excluded : [],
+        includes: Array.isArray(additionalData.included) ? additionalData.included : [],
+        excludes: Array.isArray(additionalData.excluded) ? additionalData.excluded : [],
         benefits: Array.isArray(additionalData.benefits) ? additionalData.benefits : [],
         itinerary: Array.isArray(additionalData.itinerary) ? additionalData.itinerary : [],
-        deposit: Number(data.deposit) || 0, // Ensure deposit is saved correctly
+        deposit: Number(data.deposit) || 0,
         location: data.destination_id && data.destination_id !== "" ? data.destination_id : "Unknown Location",
-        is_active: typeof data.is_active === "boolean" ? data.is_active : true
+        status: typeof data.is_active === "boolean" && data.is_active ? "active" : "inactive"
       };
 
       let savedTour;
@@ -58,11 +58,6 @@ export const useAdminTourSubmit = ({ tour, onSuccess }: UseAdminTourSubmitProps)
         savedTour = await updateTourMutation.mutateAsync({ 
           tourId: tour.id, 
           tourData 
-        });
-        toast({
-          title: "Tur Güncellendi",
-          description: "Tur başarıyla güncellendi.",
-          variant: "default"
         });
       } else {
         savedTour = await createTourMutation.mutateAsync(tourData);
@@ -80,12 +75,6 @@ export const useAdminTourSubmit = ({ tour, onSuccess }: UseAdminTourSubmitProps)
       
       if (additionalData.shouldClose) {
         onSuccess?.();
-      } else {
-        toast({
-          title: tour ? "Tur Güncellendi" : "Tur Oluşturuldu",
-          description: tour ? "Tur başarıyla güncellendi." : "Yeni tur başarıyla oluşturuldu.",
-          variant: "default"
-        });
       }
     } catch (error: any) {
       console.error("Error saving tour:", error);

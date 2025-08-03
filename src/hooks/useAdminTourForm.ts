@@ -71,54 +71,83 @@ export const useAdminTourForm = ({ tour, onSuccess }: UseAdminTourFormProps) => 
 
   const form: UseFormReturn<TourFormData> = useForm<TourFormData>({
     resolver: zodResolver(tourSchema),
-    defaultValues: tour
-      ? {
-          name: tour.name || "",
-          description: tour.description || "",
-          price: typeof tour.price === "number" ? tour.price : 0,
-          duration: Number(tour.duration) || 1, // Ensure duration is converted to a number
-          max_group_size: typeof tour.max_group_size === "number" ? tour.max_group_size : 10,
-          destination_id: tour.destination_id || "",
-          difficulty: tour.difficulty || "easy",
-          tour_type: tour.tour_type || "one_day",
-          image_url: tour.image_url || "",
-          start_date: tour.start_date || "",
-          end_date: tour.end_date || "",
-          highlights: Array.isArray(tour.highlights) ? tour.highlights : [],
-          departure_location: tour.departure_location || "",
-          departure_time: tour.departure_time || "",
-          return_time: tour.return_time || "",
-          included: Array.isArray(tour.included) ? tour.included : [],
-          excluded: Array.isArray(tour.excluded) ? tour.excluded : [],
-          benefits: Array.isArray(tour.benefits) ? tour.benefits : [],
-          itinerary: getValidItinerary(tour.itinerary),
-          is_active: typeof tour.is_active === "boolean" ? tour.is_active : true, // <--- ADD THIS LINE
-          deposit: typeof tour.deposit === "number" ? tour.deposit : 0, // Added deposit field
-        }
-      : {
-          name: "",
-          description: "",
-          price: 0,
-          duration: 1,
-          max_group_size: 10,
-          destination_id: "",
-          difficulty: "easy",
-          tour_type: "one_day",
-          image_url: "",
-          start_date: "",
-          end_date: "",
-          highlights: [],
-          departure_location: "",
-          departure_time: "",
-          return_time: "",
-          included: [],
-          excluded: [],
-          benefits: [],
-          itinerary: [],
-          is_active: true, // <--- ADD THIS LINE
-          deposit: 0, // Added deposit field
-        },
+    defaultValues: {
+      name: "",
+      description: "",
+      price: 0,
+      duration: 1,
+      max_group_size: 10,
+      destination_id: "",
+      difficulty: "easy",
+      tour_type: "one_day",
+      image_url: "",
+      start_date: "",
+      end_date: "",
+      highlights: [],
+      departure_location: "",
+      departure_time: "",
+      return_time: "",
+      included: [],
+      excluded: [],
+      benefits: [],
+      itinerary: [],
+      is_active: true,
+      deposit: 0,
+    },
   });
+
+  // Reset form with tour data when tour changes
+  useEffect(() => {
+    if (tour) {
+      form.reset({
+        name: tour.name || "",
+        description: tour.description || "",
+        price: typeof tour.price === "number" ? tour.price : 0,
+        duration: Number(tour.duration) || 1,
+        max_group_size: typeof tour.max_group_size === "number" ? tour.max_group_size : 10,
+        destination_id: tour.destination_id || "",
+        difficulty: tour.difficulty || "easy",
+        tour_type: tour.tour_type || "one_day",
+        image_url: tour.image_url || "",
+        start_date: tour.start_date || "",
+        end_date: tour.end_date || "",
+        highlights: Array.isArray(tour.highlights) ? tour.highlights : [],
+        departure_location: tour.departure_location || "",
+        departure_time: tour.departure_time || "",
+        return_time: tour.return_time || "",
+        included: Array.isArray(tour.included) ? tour.included : [],
+        excluded: Array.isArray(tour.excluded) ? tour.excluded : [],
+        benefits: Array.isArray(tour.benefits) ? tour.benefits : [],
+        itinerary: getValidItinerary(tour.itinerary),
+        is_active: typeof tour.is_active === "boolean" ? tour.is_active : true,
+        deposit: typeof tour.deposit === "number" ? tour.deposit : 0,
+      });
+    } else {
+      form.reset({
+        name: "",
+        description: "",
+        price: 0,
+        duration: 1,
+        max_group_size: 10,
+        destination_id: "",
+        difficulty: "easy",
+        tour_type: "one_day",
+        image_url: "",
+        start_date: "",
+        end_date: "",
+        highlights: [],
+        departure_location: "",
+        departure_time: "",
+        return_time: "",
+        included: [],
+        excluded: [],
+        benefits: [],
+        itinerary: [],
+        is_active: true,
+        deposit: 0,
+      });
+    }
+  }, [tour, form]);
 
   const basePrice = form.watch("price");
 

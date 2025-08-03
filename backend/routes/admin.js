@@ -55,37 +55,338 @@ router.get('/tours', async (req, res) => {
     }
 });
 
+router.get('/tours/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const tour = await prisma.tour.findUnique({
+            where: { id },
+            include: {
+                destination: { select: { name: true } },
+            }
+        });
+        if (!tour) {
+            return res.status(404).json({ message: 'Tour not found' });
+        }
+        
+        // Map backend fields to frontend expected format
+        const getDifficultyString = (level) => {
+            switch (level) {
+                case 1: return 'easy';
+                case 2: return 'moderate';
+                case 3: return 'challenging';
+                default: return null;
+            }
+        };
+
+        const formattedTour = {
+            id: tour.id,
+            name: tour.title, // Backend'de title, frontend'de name
+            title: tour.title,
+            description: tour.description,
+            price: tour.price_adult, // Backend'de price_adult, frontend'de price
+            duration: tour.duration_hours, // Backend'de duration_hours, frontend'de duration
+            max_group_size: tour.max_participants, // Backend'de max_participants, frontend'de max_group_size
+            destination_id: tour.destination_id,
+            difficulty: getDifficultyString(tour.difficulty_level), // Backend'de difficulty_level (int), frontend'de difficulty (string)
+            tour_type: tour.tour_type,
+            image_url: tour.images ? (Array.isArray(tour.images) ? tour.images[0] : tour.images) : "",
+            start_date: tour.start_date,
+            end_date: tour.end_date,
+            highlights: tour.includes || [],
+            departure_location: tour.departure_location,
+            departure_time: tour.departure_time,
+            return_time: tour.return_time,
+            included: tour.includes || [],
+            excluded: tour.excludes || [],
+            benefits: tour.benefits || [],
+            itinerary: tour.itinerary || [],
+            is_active: tour.status === 'active',
+            deposit: tour.deposit || 0,
+            status: tour.status,
+            destination_name: tour.destination?.name || 'N/A'
+        };
+        
+        res.json(formattedTour);
+    } catch (error) {
+        console.error(`Error fetching tour ${id}:`, error);
+        res.status(500).json({ message: 'Error fetching tour' });
+    }
+});
+
 router.post('/tours', async (req, res) => {
     try {
-        const { title, slug, description, category_id, destination_id, status, duration_hours, max_participants, price_adult } = req.body;
+        console.log('POST /tours - Request body:', JSON.stringify(req.body, null, 2));
+        
+        // Frontend formatını backend formatına dönüştür
+        const { 
+            title, name, description, price, price_adult, duration, duration_hours,
+            max_group_size, max_participants, destination_id, difficulty, difficulty_level,
+            tour_type, image_url, images, start_date, end_date, highlights, includes,
+            departure_location, departure_time, return_time, included, excluded, 
+            benefits, itinerary, is_active, status, deposit, location,
+            // Backend alanları
+            slug, short_description, category_id, guide_id, min_participants, 
+            price_child, price_currency, age_limit, featured, excludes, requirements, 
+            cancellation_policy, metadata, seo_title, seo_description 
+        } = req.body;
+
+        // Frontend'den gelen verileri backend formatına dönüştür
+        const tourTitle = title || name;
+        const tourPrice = price_adult || price || 0;
+        const tourDuration = duration_hours || duration || 1;
+        const tourMaxParticipants = max_participants || max_group_size || 10;
+        const tourDifficulty = difficulty_level || difficulty;
+        const tourStatus = status || (is_active === false ? 'inactive' : 'active');
+        const tourImages = images || (image_url ? [image_url] : []);
+        const tourIncludes = includes || included || highlights || [];
+        const tourExcludes = excludes || excluded || [];
+
+        // Convert difficulty to integer (1=easy, 2=moderate, 3=challenging)
+        const getDifficultyLevel = (diff) => {
+            if (!diff) return null;
+            switch (diff.toLowerCase()) {
+                case 'easy': return 1;
+                case 'moderate': return 2;
+                case 'challenging': return 3;
+                default: return null;
+            }
+        };
+
+        // Use default category if not provided
+        const finalCategoryId = category_id || '51638acc-0ee6-437b-8bd7-128f58145938'; // Cultural category as default
+        const finalDifficultyLevel = getDifficultyLevel(tourDifficulty);
+        
+        // Generate unique slug
+        const generateUniqueSlug = async (baseTitle) => {
+            const baseSlug = baseTitle.toLowerCase()
+                .replace(/\s+/g, '-')
+                .replace(/[^a-z0-9-]/g, '')
+                .replace(/-+/g, '-')
+                .replace(/^-|-$/g, '');
+            
+            let slug = baseSlug;
+            let counter = 1;
+            
+            while (true) {
+                const existingTour = await prisma.tour.findUnique({
+                    where: { slug }
+                });
+                
+                if (!existingTour) {
+                    return slug;
+                }
+                
+                slug = `${baseSlug}-${counter}`;
+                counter++;
+            }
+        };
+        
+        const finalSlug = slug || await generateUniqueSlug(tourTitle);
+        
+        console.log('POST /tours - Tour creation debug:');
+        console.log('Original category_id:', category_id);
+        console.log('finalCategoryId:', finalCategoryId);
+        console.log('Original difficulty_level:', difficulty_level);
+        console.log('Original difficulty:', difficulty);
+        console.log('tourDifficulty:', tourDifficulty);
+        console.log('finalDifficultyLevel:', finalDifficultyLevel);
+        console.log('Generated slug:', finalSlug);
+
+        // Basic validation for required fields
+        if (!tourTitle || !description || !destination_id) {
+            return res.status(400).json({ message: 'Missing required fields: title/name, description, destination_id are required.' });
+        }
+
         const newTour = await prisma.tour.create({ 
-            data: { title, slug, description, category_id, destination_id, status, duration_hours, max_participants, price_adult }
+            data: {
+                title: tourTitle,
+                slug: finalSlug,
+                description,
+                short_description,
+                category_id: finalCategoryId,
+                destination_id,
+                guide_id,
+                status: tourStatus,
+                duration_hours: parseInt(tourDuration),
+                max_participants: parseInt(tourMaxParticipants),
+                min_participants: min_participants ? parseInt(min_participants) : 1,
+                price_adult: parseFloat(tourPrice),
+                price_child: price_child ? parseFloat(price_child) : 0.0,
+                price_currency: price_currency || 'USD',
+                difficulty_level: finalDifficultyLevel,
+                age_limit,
+                featured: featured || false,
+                includes: tourIncludes,
+                excludes: tourExcludes,
+                // NOT: benefits, itinerary ve diğer schema'da olmayan field'lar kaldırıldı
+                requirements,
+                cancellation_policy,
+                images: tourImages,
+                metadata,
+                seo_title,
+                seo_description,
+                created_by_id: req.user.userId,
+            }
         });
-        res.status(201).json(newTour);
+        
+        // Frontend formatında döndür
+        const getDifficultyString = (level) => {
+            switch (level) {
+                case 1: return 'easy';
+                case 2: return 'moderate';
+                case 3: return 'challenging';
+                default: return null;
+            }
+        };
+
+        const formattedTour = {
+            id: newTour.id,
+            name: newTour.title,
+            title: newTour.title,
+            description: newTour.description,
+            price: newTour.price_adult,
+            duration: newTour.duration_hours,
+            max_group_size: newTour.max_participants,
+            destination_id: newTour.destination_id,
+            difficulty: getDifficultyString(newTour.difficulty_level),
+            tour_type: newTour.tour_type,
+            image_url: newTour.images ? (Array.isArray(newTour.images) ? newTour.images[0] : newTour.images) : "",
+            start_date: newTour.start_date,
+            end_date: newTour.end_date,
+            highlights: newTour.includes || [],
+            departure_location: newTour.departure_location,
+            departure_time: newTour.departure_time,
+            return_time: newTour.return_time,
+            included: newTour.includes || [],
+            excluded: newTour.excludes || [],
+            benefits: newTour.benefits || [],
+            itinerary: newTour.itinerary || [],
+            is_active: newTour.status === 'active',
+            deposit: newTour.deposit || 0,
+            status: newTour.status
+        };
+        
+        res.status(201).json(formattedTour);
     } catch (error) {
         console.error('Error creating tour:', error);
-        res.status(500).json({ message: 'Error creating tour' });
+        res.status(500).json({ message: 'Error creating tour', error: error.message });
     }
 });
 
 router.put('/tours/:id', async (req, res) => {
     const { id } = req.params;
+    console.log('=== PUT /tours/:id DEBUG START ===');
+    console.log('Body received:', JSON.stringify(req.body, null, 2));
     try {
+        // Frontend formatını backend formatına dönüştür
         const { 
-            title, slug, description, short_description, category_id, destination_id, 
-            guide_id, status, duration_hours, max_participants, min_participants, 
-            price_adult, price_child, price_currency, difficulty_level, age_limit, 
-            featured, includes, excludes, requirements, cancellation_policy, 
-            images, metadata, seo_title, seo_description 
+            title, name, description, price, price_adult, duration, duration_hours,
+            max_group_size, max_participants, destination_id, difficulty, difficulty_level,
+            tour_type, image_url, images, start_date, end_date, highlights, includes,
+            departure_location, departure_time, return_time, included, excluded, 
+            benefits, itinerary, is_active, status, deposit, location,
+            // Backend alanları
+            slug, short_description, category_id, guide_id, min_participants, 
+            price_child, price_currency, age_limit, featured, excludes, requirements, 
+            cancellation_policy, metadata, seo_title, seo_description 
         } = req.body;
 
-        const dataToUpdate = { 
-            title, slug, description, short_description, category_id, destination_id, 
-            guide_id, status, duration_hours, max_participants, min_participants, 
-            price_adult, price_child, price_currency, difficulty_level, age_limit, 
-            featured, includes, excludes, requirements, cancellation_policy, 
-            images, metadata, seo_title, seo_description 
+        // Frontend'den gelen verileri backend formatına dönüştür
+        const tourTitle = title || name;
+        const tourPrice = price_adult || price;
+        const tourDuration = duration_hours || duration;
+        const tourMaxParticipants = max_participants || max_group_size;
+        const tourDifficulty = difficulty_level || difficulty;
+        const tourStatus = status || (is_active === false ? 'inactive' : (is_active === true ? 'active' : undefined));
+        const tourImages = images || (image_url ? [image_url] : undefined);
+        const tourIncludes = includes || included || highlights;
+        const tourExcludes = excludes || excluded;
+
+        // Convert difficulty to integer (1=easy, 2=moderate, 3=challenging)
+        const getDifficultyLevel = (diff) => {
+            if (!diff) return undefined;
+            console.log('getDifficultyLevel called with:', diff);
+            switch (diff.toLowerCase()) {
+                case 'easy': 
+                    console.log('Converting "easy" to 1');
+                    return 1;
+                case 'moderate': 
+                    console.log('Converting "moderate" to 2');
+                    return 2;
+                case 'challenging': 
+                    console.log('Converting "challenging" to 3');
+                    return 3;
+                default: 
+                    console.log('Unknown difficulty, returning undefined');
+                    return undefined;
+            }
         };
+
+        const finalDifficultyLevel = getDifficultyLevel(tourDifficulty);
+        
+        console.log('=== DIFFICULTY CONVERSION DEBUG ===');
+        console.log('Raw difficulty from body:', difficulty);
+        console.log('Raw difficulty_level from body:', difficulty_level);
+        console.log('tourDifficulty resolved to:', tourDifficulty);
+        console.log('finalDifficultyLevel converted to:', finalDifficultyLevel);
+        console.log('Type of finalDifficultyLevel:', typeof finalDifficultyLevel);
+
+        const dataToUpdate = { 
+            title: tourTitle,
+            slug, 
+            description, 
+            short_description, 
+            category_id, 
+            // destination_id Prisma field'ı değil, destination relation'ı kullan
+            ...(destination_id && { destination: { connect: { id: destination_id } } }),
+            guide_id, 
+            status: tourStatus, 
+            duration_hours: tourDuration ? parseInt(tourDuration) : undefined,
+            max_participants: tourMaxParticipants ? parseInt(tourMaxParticipants) : undefined,
+            min_participants: min_participants ? parseInt(min_participants) : undefined,
+            price_adult: tourPrice ? parseFloat(tourPrice) : undefined,
+            price_child: price_child ? parseFloat(price_child) : undefined,
+            price_currency, 
+            difficulty_level: finalDifficultyLevel, 
+            age_limit, 
+            featured, 
+            includes: tourIncludes, 
+            excludes: tourExcludes, 
+            benefits,
+            itinerary,
+            requirements, 
+            cancellation_policy, 
+            images: tourImages,
+            departure_location,
+            departure_time,
+            return_time,
+            deposit: deposit ? parseFloat(deposit) : undefined,
+            metadata, 
+            seo_title, 
+            seo_description 
+        };
+        
+        console.log('=== DATA TO UPDATE DEBUG ===');
+        console.log('dataToUpdate object before cleanup:', JSON.stringify(dataToUpdate, null, 2));
+        console.log('difficulty_level in dataToUpdate:', dataToUpdate.difficulty_level);
+        console.log('Type of difficulty_level in dataToUpdate:', typeof dataToUpdate.difficulty_level);
+        
+        // Remove fields that don't exist in the schema and undefined values
+        const fieldsToRemove = ['benefits', 'itinerary', 'images', 'tour_type', 'start_date', 'end_date', 'highlights', 'departure_location', 'departure_time', 'return_time', 'deposit', 'location'];
+        fieldsToRemove.forEach(field => {
+          if (dataToUpdate.hasOwnProperty(field)) {
+            delete dataToUpdate[field];
+          }
+        });
+        
+        Object.keys(dataToUpdate).forEach(key => dataToUpdate[key] === undefined && delete dataToUpdate[key]);
+
+        console.log('=== DATA TO UPDATE AFTER CLEANUP ===');
+        console.log('dataToUpdate after cleanup:', JSON.stringify(dataToUpdate, null, 2));
+        console.log('difficulty_level after cleanup:', dataToUpdate.difficulty_level);
+
+        console.log('=== ABOUT TO CALL PRISMA UPDATE ===');
+        console.log('Calling prisma.tour.update with data:', JSON.stringify(dataToUpdate, null, 2));
 
         await prisma.tour.update({ where: { id }, data: dataToUpdate });
 
@@ -97,8 +398,41 @@ router.put('/tours/:id', async (req, res) => {
             }
         });
 
+        // Frontend formatında döndür
+        const getDifficultyString = (level) => {
+            switch (level) {
+                case 1: return 'easy';
+                case 2: return 'moderate';
+                case 3: return 'challenging';
+                default: return null;
+            }
+        };
+
         const formattedTour = {
-            ...updatedTour,
+            id: updatedTour.id,
+            name: updatedTour.title,
+            title: updatedTour.title,
+            description: updatedTour.description,
+            price: updatedTour.price_adult,
+            duration: updatedTour.duration_hours,
+            max_group_size: updatedTour.max_participants,
+            destination_id: updatedTour.destination_id,
+            difficulty: getDifficultyString(updatedTour.difficulty_level),
+            tour_type: updatedTour.tour_type,
+            image_url: updatedTour.images ? (Array.isArray(updatedTour.images) ? updatedTour.images[0] : updatedTour.images) : "",
+            start_date: updatedTour.start_date,
+            end_date: updatedTour.end_date,
+            highlights: updatedTour.includes || [],
+            departure_location: updatedTour.departure_location,
+            departure_time: updatedTour.departure_time,
+            return_time: updatedTour.return_time,
+            included: updatedTour.includes || [],
+            excluded: updatedTour.excludes || [],
+            benefits: updatedTour.benefits || [],
+            itinerary: updatedTour.itinerary || [],
+            is_active: updatedTour.status === 'active',
+            deposit: updatedTour.deposit || 0,
+            status: updatedTour.status,
             destination_name: updatedTour.destination ? updatedTour.destination.name : 'N/A',
             reservation_count: updatedTour._count.reservations
         };
@@ -106,7 +440,139 @@ router.put('/tours/:id', async (req, res) => {
         res.json(formattedTour);
     } catch (error) {
         console.error(`Error updating tour ${id}:`, error);
-        res.status(500).json({ message: 'Error updating tour' });
+        res.status(500).json({ message: 'Error updating tour', error: error.message });
+    }
+});
+
+router.get('/tours/:id/pricing-data', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const tourWithPricing = await prisma.tour.findUnique({
+            where: { id },
+            include: {
+                pricingData: true,
+                timeSlots: true,
+                seasonalPricing: true,
+                groupDiscounts: true,
+            }
+        });
+
+        if (!tourWithPricing) {
+            return res.status(404).json({ message: 'Tour pricing data not found' });
+        }
+
+        const response = {
+            price_adult: tourWithPricing.price_adult,
+            price_child: tourWithPricing.price_child,
+            price_currency: tourWithPricing.price_currency,
+            tourPricing: tourWithPricing.pricingData,
+            timeSlots: tourWithPricing.timeSlots,
+            seasonalPricing: tourWithPricing.seasonalPricing,
+            groupDiscounts: tourWithPricing.groupDiscounts,
+        };
+
+        res.json(response);
+    } catch (error) {
+        console.error(`Error fetching tour pricing data for tour ${id}:`, error);
+        res.status(500).json({ message: 'Error fetching tour pricing data' });
+    }
+});
+
+router.put('/tours/:id/pricing-data', async (req, res) => {
+    const { id } = req.params;
+    const { 
+        price_adult, 
+        price_child, 
+        price_currency, 
+        tourPricing, 
+        timeSlots, 
+        seasonalPricing, 
+        groupDiscounts 
+    } = req.body;
+
+    try {
+        await prisma.$transaction(async (tx) => {
+            // Update the basic pricing fields on the tour itself
+            await tx.tour.update({
+                where: { id },
+                data: {
+                    price_adult: price_adult ? parseFloat(price_adult) : undefined,
+                    price_child: price_child ? parseFloat(price_child) : undefined,
+                    price_currency: price_currency || undefined,
+                },
+            });
+
+            // Handle tourPricing updates
+            if (tourPricing && Array.isArray(tourPricing)) {
+                await tx.tourPricing.deleteMany({ where: { tour_id: id } });
+                if (tourPricing.length > 0) {
+                    await tx.tourPricing.createMany({
+                        data: tourPricing.map(pricing => ({
+                            tour_id: id,
+                            customer_type: pricing.customer_type,
+                            base_price: parseFloat(pricing.base_price),
+                            accommodation_type: pricing.accommodation_type,
+                        })),
+                    });
+                }
+            }
+
+            // Handle timeSlots updates
+            if (timeSlots && Array.isArray(timeSlots)) {
+                await tx.timeSlot.deleteMany({ where: { tour_id: id } });
+                if (timeSlots.length > 0) {
+                    await tx.timeSlot.createMany({
+                        data: timeSlots.map(slot => ({
+                            tour_id: id,
+                            start_time: slot.start_time,
+                            end_time: slot.end_time,
+                            max_capacity: parseInt(slot.max_capacity),
+                        })),
+                    });
+                }
+            }
+
+            // Handle seasonalPricing updates
+            if (seasonalPricing && Array.isArray(seasonalPricing)) {
+                await tx.seasonalPricing.deleteMany({ where: { tour_id: id } });
+                if (seasonalPricing.length > 0) {
+                    await tx.seasonalPricing.createMany({
+                        data: seasonalPricing.map(season => ({
+                            tour_id: id,
+                            customer_type: season.customer_type,
+                            start_date: new Date(season.start_date),
+                            end_date: new Date(season.end_date),
+                            price_adjustment: parseFloat(season.price_adjustment),
+                            adjustment_type: season.adjustment_type,
+                        })),
+                    });
+                }
+            }
+
+            // Handle groupDiscounts updates
+            if (groupDiscounts && Array.isArray(groupDiscounts)) {
+                await tx.groupDiscount.deleteMany({ where: { tour_id: id } });
+                if (groupDiscounts.length > 0) {
+                    await tx.groupDiscount.createMany({
+                        data: groupDiscounts.map(discount => ({
+                            tour_id: id,
+                            customer_type: discount.customer_type,
+                            min_group_size: parseInt(discount.min_group_size),
+                            max_group_size: discount.max_group_size ? parseInt(discount.max_group_size) : null,
+                            discount_type: discount.discount_type,
+                            discount_percentage: discount.discount_percentage ? parseFloat(discount.discount_percentage) : null,
+                            discount_amount: discount.discount_amount ? parseFloat(discount.discount_amount) : null,
+                            discount_reason: discount.discount_reason,
+                        })),
+                    });
+                }
+            }
+        });
+
+        res.json({ message: 'Tour pricing data updated successfully' });
+    } catch (error) {
+        console.error(`Error updating tour pricing data for tour ${id}:`, error);
+        res.status(500).json({ message: 'Error updating tour pricing data', error: error.message });
     }
 });
 
@@ -114,13 +580,24 @@ router.delete('/tours/:id', async (req, res) => {
     const { id } = req.params;
     try {
         await prisma.$transaction(async (tx) => {
+            // Delete related pricing data first
+            await tx.tourPricing.deleteMany({ where: { tour_id: id } });
+            await tx.timeSlot.deleteMany({ where: { tour_id: id } });
+            await tx.seasonalPricing.deleteMany({ where: { tour_id: id } });
+            await tx.groupDiscount.deleteMany({ where: { tour_id: id } });
+            
+            // Delete reviews
             await tx.review.deleteMany({ where: { tourId: id } });
+            
+            // Delete reservations and their payments
             const reservations = await tx.reservation.findMany({ where: { tourId: id }, select: { id: true } });
             const reservationIds = reservations.map(r => r.id);
             if (reservationIds.length > 0) {
                 await tx.payment.deleteMany({ where: { reservationId: { in: reservationIds } } });
                 await tx.reservation.deleteMany({ where: { id: { in: reservationIds } } });
             }
+            
+            // Finally delete the tour
             await tx.tour.delete({ where: { id } });
         });
         res.status(204).send();
@@ -130,6 +607,208 @@ router.delete('/tours/:id', async (req, res) => {
     }
 });
 
+// --- DESTINATION MANAGEMENT --- //
+router.get('/destinations', async (req, res) => {
+    try {
+        const destinations = await prisma.destination.findMany({
+            include: {
+                _count: { select: { tours: true } }
+            },
+            orderBy: { created_at: 'desc' }
+        });
+        res.json(destinations);
+    } catch (error) {
+        console.error('Error fetching admin destinations:', error);
+        res.status(500).json({ message: 'Error fetching admin destinations' });
+    }
+});
+
+router.post('/destinations', async (req, res) => {
+    try {
+        console.log('POST /destinations - Request body:', JSON.stringify(req.body, null, 2));
+        
+        // Generate unique slug for destination
+        const generateUniqueDestinationSlug = async (name) => {
+            console.log('generateUniqueDestinationSlug called with name:', name);
+            
+            if (!name || typeof name !== 'string') {
+                console.log('Invalid name provided, using fallback');
+                name = 'destination';
+            }
+            
+            const baseSlug = name.toLowerCase()
+                .trim()
+                .replace(/\s+/g, '-')
+                .replace(/[^a-z0-9-]/g, '')
+                .replace(/-+/g, '-')
+                .replace(/^-|-$/g, '');
+            
+            console.log('Base slug generated:', baseSlug);
+            
+            let slug = baseSlug || 'destination';
+            let counter = 1;
+            
+            while (true) {
+                console.log('Checking slug availability:', slug);
+                
+                const existingDestination = await prisma.destination.findUnique({
+                    where: { slug }
+                });
+                
+                if (!existingDestination) {
+                    console.log('Slug is available:', slug);
+                    return slug;
+                }
+                
+                console.log('Slug already exists, trying with counter:', counter);
+                slug = `${baseSlug || 'destination'}-${counter}`;
+                counter++;
+                
+                // Safety check to prevent infinite loop
+                if (counter > 1000) {
+                    console.log('Counter exceeded 1000, using timestamp');
+                    return `${baseSlug || 'destination'}-${Date.now()}`;
+                }
+            }
+        };
+        
+        // Ensure required fields exist
+        if (!req.body.name) {
+            return res.status(400).json({ message: 'Name is required for destination creation' });
+        }
+        
+        const generatedSlug = await generateUniqueDestinationSlug(req.body.name);
+        console.log('Final generated slug:', generatedSlug);
+        
+        // Handle country_id - use a default UUID if not provided
+        let finalCountryId = req.body.country_id;
+        
+        if (!finalCountryId) {
+            console.log('No country_id provided, using default country_id');
+            // Use a default country ID (you can create a "Turkey" country record in DB with this ID)
+            finalCountryId = '550e8400-e29b-41d4-a716-446655440001'; // Default UUID for Turkey
+            console.log('Using default country_id:', finalCountryId);
+        }
+        
+        const destinationData = {
+            ...req.body,
+            slug: req.body.slug || generatedSlug,
+            country_id: finalCountryId
+        };
+        
+        console.log('POST /destinations - Final data:', JSON.stringify(destinationData, null, 2));
+        
+        const newDestination = await prisma.destination.create({ data: destinationData });
+        console.log('Destination created successfully:', newDestination.id);
+        res.status(201).json(newDestination);
+    } catch (error) {
+        console.error('Error creating destination:', error);
+        res.status(500).json({ message: 'Error creating destination', error: error.message });
+    }
+});
+
+router.put('/destinations/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        const updatedDestination = await prisma.destination.update({
+            where: { id },
+            data: req.body
+        });
+        res.json(updatedDestination);
+    } catch (error) {
+        console.error(`Error updating destination ${id}:`, error);
+        res.status(500).json({ message: 'Error updating destination' });
+    }
+});
+
+router.delete('/destinations/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        await prisma.destination.delete({ where: { id } });
+        res.status(204).send();
+    } catch (error) {
+        console.error(`Error deleting destination ${id}:`, error);
+        res.status(500).json({ message: 'Error deleting destination' });
+    }
+});
+
+
+// --- RESERVATION MANAGEMENT --- //
+router.get('/reservations', async (req, res) => {
+    try {
+        const reservations = await prisma.reservation.findMany({
+            include: {
+                tour: { select: { title: true, destination: { select: { name: true } } } },
+                user: { select: { first_name: true, last_name: true, email: true } }
+            },
+            orderBy: { created_at: 'desc' }
+        });
+        res.json(reservations);
+    } catch (error) {
+        console.error('Error fetching admin reservations:', error);
+        res.status(500).json({ message: 'Error fetching admin reservations' });
+    }
+});
+
+router.put('/reservations/:id/status', async (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+    try {
+        const updatedReservation = await prisma.reservation.update({
+            where: { id },
+            data: { status }
+        });
+        res.json(updatedReservation);
+    } catch (error) {
+        console.error(`Error updating reservation status for ${id}:`, error);
+        res.status(500).json({ message: 'Error updating reservation status' });
+    }
+});
+
+// --- REVIEW MANAGEMENT --- //
+router.get('/reviews', async (req, res) => {
+    try {
+        const reviews = await prisma.review.findMany({
+            include: {
+                tour: { select: { title: true } },
+                user: { select: { first_name: true, last_name: true, email: true } }
+            },
+            orderBy: { created_at: 'desc' }
+        });
+        res.json(reviews);
+    } catch (error) {
+        console.error('Error fetching admin reviews:', error);
+        res.status(500).json({ message: 'Error fetching admin reviews' });
+    }
+});
+
+router.put('/reviews/:id/verify', async (req, res) => {
+    const { id } = req.params;
+    const { is_verified } = req.body;
+    try {
+        const updatedReview = await prisma.review.update({
+            where: { id },
+            data: { is_verified }
+        });
+        res.json(updatedReview);
+    } catch (error) {
+        console.error(`Error verifying review ${id}:`, error);
+        res.status(500).json({ message: 'Error verifying review' });
+    }
+});
+
+router.delete('/reviews/:id', async (req, res) => {
+    const { id } = req.params;
+    try {
+        await prisma.review.delete({ where: { id } });
+        res.status(204).send();
+    } catch (error) {
+        console.error(`Error deleting review ${id}:`, error);
+        res.status(500).json({ message: 'Error deleting review' });
+    }
+});
+
+
 // --- USER MANAGEMENT --- //
 router.get('/users', adminMiddleware, async (req, res) => {
   try {
@@ -138,7 +817,7 @@ router.get('/users', adminMiddleware, async (req, res) => {
         reservations: {
           select: {
             id: true,
-            total_price: true,
+            totalPrice: true,
           }
         },
         reviews: {
@@ -146,7 +825,7 @@ router.get('/users', adminMiddleware, async (req, res) => {
             id: true,
           }
         },
-        user_roles: {
+        userRoles: {
           include: {
             role: true,
           }
@@ -159,13 +838,14 @@ router.get('/users', adminMiddleware, async (req, res) => {
 
     const formattedUsers = users.map(user => ({
       id: user.id,
-      name: user.name,
+      first_name: user.first_name,
+      last_name: user.last_name,
       email: user.email,
       email_verified: user.email_verified,
-      image: user.image,
+      avatar_url: user.avatar_url,
       created_at: user.created_at,
-      role: user.user_roles[0]?.role?.name || 'user',
-      total_spent: user.reservations.reduce((acc, r) => acc + (r.total_price || 0), 0),
+      role: user.userRoles[0]?.role?.name || 'user',
+      total_spent: user.reservations.reduce((acc, r) => acc + (r.totalPrice || 0), 0),
       reservation_count: user.reservations.length,
       review_count: user.reviews.length,
     }));
@@ -192,19 +872,19 @@ router.put('/users/:id/role', adminMiddleware, async (req, res) => {
         }
 
         // Find if a user_role entry exists
-        const userRole = await prisma.user_role.findFirst({
+        const userRole = await prisma.userRole.findFirst({
             where: { user_id: id },
         });
 
         if (userRole) {
             // Update existing role
-            await prisma.user_role.update({
+            await prisma.userRole.update({
                 where: { id: userRole.id },
                 data: { role_id: role.id },
             });
         } else {
             // Create new role assignment
-            await prisma.user_role.create({
+            await prisma.userRole.create({
                 data: {
                     user_id: id,
                     role_id: role.id,
@@ -228,8 +908,31 @@ router.get('/site-settings', adminMiddleware, async (req, res) => {
       // If no settings exist, create a default entry
       const defaultSettings = await prisma.siteSettings.create({
         data: {
-          site_title: 'NextStopTurkey',
-          // Add other default values as needed
+          key: 'default', // Add a default key to satisfy schema requirements
+          value: {
+            site_title: 'NextStopTurkey',
+            site_tagline: 'Your adventure starts here',
+            company_name: 'NextStopTurkey LLC',
+            website_url: 'https://nextstopturkey.com',
+            contact_email: 'info@nextstopturkey.com',
+            support_email: 'support@nextstopturkey.com',
+            contact_phone: '+90 555 555 5555',
+            address: '123 Tour St, Istanbul, Turkey',
+            primary_color: '#FF5722',
+            secondary_color: '#2A3F54',
+            copyright_text: `© ${new Date().getFullYear()} NextStopTurkey. All Rights Reserved.`,
+            default_meta_description: 'Explore the best tours and travel packages in Turkey with NextStopTurkey.',
+            default_meta_keywords: 'turkey, travel, tours, istanbul, cappadocia',
+            google_analytics_id: 'UA-XXXXX-Y',
+            google_tag_manager_id: 'GTM-XXXX',
+            social_media_links: {
+              facebook: 'https://facebook.com/nextstopturkey',
+              twitter: 'https://twitter.com/nextstopturkey',
+              instagram: 'https://instagram.com/nextstopturkey',
+              linkedin: '',
+              youtube: ''
+            }
+          }
         },
       });
       return res.json(defaultSettings);

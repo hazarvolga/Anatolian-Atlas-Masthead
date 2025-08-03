@@ -20,7 +20,7 @@ router.get('/', authMiddleware, async (req, res) => {
         },
       },
       orderBy: {
-        createdAt: 'desc',
+        created_at: 'desc',
       },
     });
     res.json(reservations);

@@ -18,7 +18,6 @@ import AdminDestinations from "@/components/admin/AdminDestinations";
 import AdminTranslations from "@/components/admin/AdminTranslations";
 import AdminCalendar from "@/components/admin/AdminCalendar";
 import AdminStripeSettings from "@/components/admin/AdminStripeSettings";
-import Footer from "@/components/Footer";
 import AISettings from "@/components/admin/AISettings";
 import AdminSiteSettings from "@/components/admin/AdminSiteSettings";
 import AdminEmailManagement from "@/pages/AdminEmailManagement";
@@ -170,7 +169,6 @@ export default function Admin() {
             </div>
           </main>
 
-          <Footer />
         </SidebarInset>
       </SidebarProvider>
     </div>

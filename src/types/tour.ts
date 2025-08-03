@@ -26,7 +26,7 @@ export interface TourProps {
 }
 
 export interface TourPricing {
-  id: string;
+  id?: string;
   tour_id: string;
   customer_type: 'adult' | 'child' | 'baby';
   base_price: number;
@@ -34,7 +34,7 @@ export interface TourPricing {
 }
 
 export interface TourTimeSlot {
-  id: string;
+  id?: string;
   tour_id: string;
   start_time: string;
   end_time: string;
@@ -42,7 +42,7 @@ export interface TourTimeSlot {
 }
 
 export interface SeasonalPricing {
-  id: string;
+  id?: string;
   tour_id: string;
   customer_type: 'adult' | 'child' | 'baby';
   start_date: string;
@@ -52,13 +52,13 @@ export interface SeasonalPricing {
 }
 
 export interface GroupSizeDiscount {
-  id: string;
+  id?: string;
   tour_id: string;
   customer_type: 'adult' | 'child' | 'baby';
   min_group_size: number;
   max_group_size?: number;
   discount_type: 'percentage' | 'fixed';
-  discount_percentage: number;
-  discount_amount: number;
+  discount_percentage?: number;
+  discount_amount?: number;
   discount_reason: 'early_bird' | 'family' | 'student' | 'group_size' | 'seasonal' | 'loyalty' | 'last_minute';
 }

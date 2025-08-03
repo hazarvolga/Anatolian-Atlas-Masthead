@@ -28,6 +28,8 @@ export const useAdminTourPricing = ({ tour }: UseAdminTourPricingProps) => {
   const loadExistingPricingData = async (tourId: string) => {
     try {
       const { data } = await axios.get(`${API_BASE_URL}/api/admin/tours/${tourId}/pricing-data`, { headers: getAuthHeaders() });
+      
+      // Map the response to our expected format
       setTourPricing(data.tourPricing || []);
       setTimeSlots(data.timeSlots || []);
       setSeasonalPricing(data.seasonalPricing || []);

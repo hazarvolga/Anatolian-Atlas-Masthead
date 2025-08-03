@@ -2,20 +2,18 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Loader2 } from "lucide-react";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import AdminSidebar from "@/components/admin/AdminSidebar";
-import { useAdminTours } from "@/hooks/useAdminTours";
+import { useAdminTour } from "@/hooks/useAdminTour";
 import AdminTourForm from "@/components/admin/AdminTourForm";
 import Footer from "@/components/Footer";
 
 export default function AdminTourEdit() {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { data: tours = [] } = useAdminTours();
-  
-  const tour = tours.find(t => t.id === id);
-  
+  const { data: tour, isLoading, error } = useAdminTour(id || "");
+
   const handleSuccess = () => {
     navigate("/admin?tab=tours");
   };
@@ -40,15 +38,19 @@ export default function AdminTourEdit() {
                   </Button>
                   <div>
                     <h1 className="text-2xl font-bold">
-                      {tour ? "Edit Tour" : "Tour Not Found"}
+                      {isLoading ? "Loading..." : tour ? "Edit Tour" : "Tour Not Found"}
                     </h1>
                     <p className="text-muted-foreground">
-                      {tour ? "Update tour information" : "The requested tour could not be found"}
+                      {isLoading ? "Fetching tour details..." : tour ? "Update tour information" : "The requested tour could not be found"}
                     </p>
                   </div>
                 </div>
                 
-                {tour ? (
+                {isLoading ? (
+                  <div className="flex justify-center items-center py-10">
+                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                  </div>
+                ) : tour ? (
                   <AdminTourForm 
                     tour={tour}
                     onSuccess={handleSuccess}
@@ -58,7 +60,7 @@ export default function AdminTourEdit() {
                     <CardHeader>
                       <CardTitle>Tour Not Found</CardTitle>
                       <CardDescription>
-                        The tour you're looking for doesn't exist or has been removed.
+                        {error ? error.message : "The tour you're looking for doesn't exist or has been removed."}
                       </CardDescription>
                     </CardHeader>
                     <CardContent>

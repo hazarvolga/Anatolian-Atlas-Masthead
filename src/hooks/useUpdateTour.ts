@@ -22,9 +22,13 @@ export const useUpdateTour = () => {
         throw new Error(err.response?.data?.message || 'Failed to update tour');
       }
     },
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
+      // Invalidate and refetch admin tours
       queryClient.invalidateQueries({ queryKey: ['admin-tours'] });
       queryClient.invalidateQueries({ queryKey: ['tours'] });
+      // Also invalidate the specific tour being edited
+      queryClient.invalidateQueries({ queryKey: ['adminTour', variables.tourId] });
+      
       toast({
         title: "Tur Güncellendi",
         description: "Tur başarıyla güncellendi.",

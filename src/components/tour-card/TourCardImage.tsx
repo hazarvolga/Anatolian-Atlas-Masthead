@@ -100,7 +100,7 @@ export default function TourCardImage({ tour, isHovered }: TourCardImageProps) {
           <Heart className={cn("h-4 w-4", isLiked && "fill-current")} />
         </button>
         
-        {tour.difficulty && (
+        {tour.difficulty && typeof tour.difficulty === 'string' && (
           <span className={cn(
             "px-3 py-1.5 rounded-full text-xs font-semibold border backdrop-blur-sm",
             getDifficultyColor(tour.difficulty)

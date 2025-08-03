@@ -27,6 +27,28 @@ model User {
   createdTours   Tour[]        @relation("TourCreatedBy")
   reservations   Reservation[]
   reviews        Review[]
+  userRoles      UserRole[]
+}
+
+model Role {
+  id          String     @id @default(uuid()) @db.Uuid
+  name        String     @unique
+  description String?
+  permissions Json       @default("[]")
+  created_at  DateTime   @default(now())
+  updated_at  DateTime   @updatedAt
+  userRoles   UserRole[]
+}
+
+model UserRole {
+  id         String   @id @default(uuid()) @db.Uuid
+  user_id    String   @db.Uuid
+  role_id    String   @db.Uuid
+  created_at DateTime @default(now())
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  role       Role     @relation(fields: [role_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, role_id])
 }
 
 // CORE BUSINESS MODELS
@@ -49,9 +71,18 @@ model Destination {
   slug              String   @unique
   country_id        String
   city_id           String?
+  country           String?
+  city              String?
   short_description String?
   description       String
   featured          Boolean  @default(false)
+  is_active         Boolean  @default(true)
+  coords            String?
+  best_time         String?
+  activities        Json     @default("[]")
+  google_maps_url   String?
+  gallery_images    Json     @default("[]")
+  extra_info        Json     @default("{}")
   created_at        DateTime @default(now())
   updated_at        DateTime @updatedAt
   tours             Tour[]
@@ -94,6 +125,69 @@ model Tour {
   created_by          User?         @relation("TourCreatedBy", fields: [created_by_id], references: [id], onDelete: SetNull)
   reservations        Reservation[]
   reviews             Review[]
+  pricingData         TourPricing[]
+  timeSlots           TimeSlot[]
+  seasonalPricing     SeasonalPricing[]
+  groupDiscounts      GroupDiscount[]
+}
+
+// PRICING AND AVAILABILITY MODELS
+model TourPricing {
+  id                 String   @id @default(uuid()) @db.Uuid
+  tour_id            String   @db.Uuid
+  customer_type      String   // adult, child, baby
+  base_price         Float
+  accommodation_type String?  // single, double, triple, shared, none
+  created_at         DateTime @default(now())
+  updated_at         DateTime @updatedAt
+  tour               Tour     @relation(fields: [tour_id], references: [id], onDelete: Cascade)
+
+  @@index([tour_id])
+}
+
+model TimeSlot {
+  id           String   @id @default(uuid()) @db.Uuid
+  tour_id      String   @db.Uuid
+  start_time   String
+  end_time     String
+  max_capacity Int
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+  tour         Tour     @relation(fields: [tour_id], references: [id], onDelete: Cascade)
+
+  @@index([tour_id])
+}
+
+model SeasonalPricing {
+  id                String   @id @default(uuid()) @db.Uuid
+  tour_id           String   @db.Uuid
+  customer_type     String   // adult, child, baby
+  start_date        DateTime
+  end_date          DateTime
+  price_adjustment  Float
+  adjustment_type   String   // percentage, fixed
+  created_at        DateTime @default(now())
+  updated_at        DateTime @updatedAt
+  tour              Tour     @relation(fields: [tour_id], references: [id], onDelete: Cascade)
+
+  @@index([tour_id])
+}
+
+model GroupDiscount {
+  id                  String   @id @default(uuid()) @db.Uuid
+  tour_id             String   @db.Uuid
+  customer_type       String   // adult, child, baby
+  min_group_size      Int
+  max_group_size      Int?
+  discount_type       String   // percentage, fixed
+  discount_percentage Float?
+  discount_amount     Float?
+  discount_reason     String   // early_bird, family, student, group_size, seasonal, loyalty, last_minute
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
+  tour                Tour     @relation(fields: [tour_id], references: [id], onDelete: Cascade)
+
+  @@index([tour_id])
 }
 
 model Reservation {

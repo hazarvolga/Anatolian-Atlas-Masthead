@@ -11,6 +11,7 @@ import authRoutes from './routes/auth.js';
 import toursRoutes from './routes/tours.js';
 import reservationsRoutes from './routes/reservations.js';
 import destinationsRoutes from './routes/destinations.js';
+import categoriesRoutes from './routes/categories.js';
 import adminRoutes from './routes/admin.js';
 import usersRoutes from './routes/users.js';
 import reviewsRoutes from './routes/reviews.js'; // Import new reviews routes
@@ -79,6 +80,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/tours', toursRoutes);
 app.use('/api/reservations', reservationsRoutes);
 app.use('/api/destinations', destinationsRoutes);
+app.use('/api/categories', categoriesRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/reviews', reviewsRoutes); // Use new reviews routes

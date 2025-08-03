@@ -25,7 +25,7 @@ router.get('/', async (req, res) => {
       },
       orderBy: [
         { featured: 'desc' },
-        { createdAt: 'desc' },
+        { created_at: 'desc' },
       ],
       take: parseInt(limit),
       skip: parseInt(offset),
@@ -40,8 +40,24 @@ router.get('/', async (req, res) => {
         }
     });
 
+    // Map backend difficulty levels (integers) to frontend strings
+    const getDifficultyString = (level) => {
+        switch (level) {
+            case 1: return 'easy';
+            case 2: return 'moderate';
+            case 3: return 'challenging';
+            default: return null;
+        }
+    };
+
+    // Format tours for frontend consumption
+    const formattedTours = tours.map(tour => ({
+        ...tour,
+        difficulty: getDifficultyString(tour.difficulty_level),
+    }));
+
     res.json({ 
-        tours,
+        tours: formattedTours,
         total: totalTours,
         limit: parseInt(limit),
         offset: parseInt(offset)
@@ -84,7 +100,23 @@ router.get('/:id', async (req, res) => {
       return res.status(404).json({ message: 'Tour not found' });
     }
 
-    res.json(tour);
+    // Map backend difficulty level (integer) to frontend string
+    const getDifficultyString = (level) => {
+        switch (level) {
+            case 1: return 'easy';
+            case 2: return 'moderate';
+            case 3: return 'challenging';
+            default: return null;
+        }
+    };
+
+    // Format tour for frontend consumption
+    const formattedTour = {
+        ...tour,
+        difficulty: getDifficultyString(tour.difficulty_level),
+    };
+
+    res.json(formattedTour);
   } catch (error) {
     console.error('Error fetching tour:', error);
     res.status(500).json({ message: 'Error fetching tour' });
