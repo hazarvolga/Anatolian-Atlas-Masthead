@@ -2,6 +2,24 @@
 
 A comprehensive tours and travel booking platform built with React, TypeScript, and PostgreSQL. Features a modern frontend with Vite and a robust backend API with Express.js.
 
+## 📋 Latest Release - Stable R5 (v1.5.0-stable)
+
+✅ **Fully Functional Admin CRUD Operations**
+- ✅ Tour Creation/Update/Delete with proper validation
+- ✅ Destination Creation/Update/Delete with unique slug generation
+- ✅ Foreign key constraint resolution and proper field mapping
+- ✅ Difficulty level conversion (string ↔ integer) working correctly
+- ✅ Comprehensive error handling and logging
+- ✅ Database schema enhancements with pricing models
+- ✅ Frontend-backend data synchronization verified
+
+🔧 **Technical Improvements**
+- Fixed all Prisma constraint violations
+- Implemented unique slug generation algorithms
+- Enhanced type safety across the application
+- Added comprehensive database seeding
+- Improved API error responses and validation
+
 ## 🚀 Features
 
 ### Frontend (React + TypeScript + Vite)
