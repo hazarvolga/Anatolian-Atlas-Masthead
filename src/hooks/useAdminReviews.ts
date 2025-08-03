@@ -26,8 +26,8 @@ export const useUpdateReviewStatus = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async ({ reviewId, isVerified }: { reviewId: string, isVerified: boolean }) => {
-      const { data } = await axios.put(`${API_BASE_URL}/api/admin/reviews/${reviewId}/status`, { isVerified }, { headers: getAuthHeaders() });
+    mutationFn: async ({ reviewId, is_verified }: { reviewId: string, is_verified: boolean }) => {
+      const { data } = await axios.put(`${API_BASE_URL}/api/admin/reviews/${reviewId}/status`, { is_verified }, { headers: getAuthHeaders() });
       return data;
     },
     onSuccess: () => {
@@ -64,13 +64,13 @@ export const useBulkUpdateReviews = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async ({ reviewIds, isVerified }: { reviewIds: string[], isVerified: boolean }) => {
-      const { data } = await axios.put(`${API_BASE_URL}/api/admin/reviews/bulk-update`, { reviewIds, isVerified }, { headers: getAuthHeaders() });
+    mutationFn: async ({ reviewIds, is_verified }: { reviewIds: string[], is_verified: boolean }) => {
+      const { data } = await axios.put(`${API_BASE_URL}/api/admin/reviews/bulk-update`, { reviewIds, is_verified }, { headers: getAuthHeaders() });
       return data;
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['admin-reviews'] });
-      toast.success(`${data.length} reviews updated successfully`);
+      toast.success(`${data.count} reviews updated successfully`);
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || "Failed to update reviews");

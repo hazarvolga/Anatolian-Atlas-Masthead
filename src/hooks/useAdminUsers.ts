@@ -23,8 +23,8 @@ export const useUpdateUserRole = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async ({ userId, role }: { userId: string; role: string }) => {
-      const { data } = await axios.put(`${API_BASE_URL}/api/admin/users/${userId}/role`, { role }, { headers: getAuthHeaders() });
+    mutationFn: async ({ userId, roleName }: { userId: string; roleName: string }) => {
+      const { data } = await axios.put(`${API_BASE_URL}/api/admin/users/${userId}/role`, { roleName }, { headers: getAuthHeaders() });
       return data;
     },
     onSuccess: () => {

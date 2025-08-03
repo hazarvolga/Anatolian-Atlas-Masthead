@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -395,8 +396,8 @@ const EmailTestPage = () => {
               <div>
                 <h3 className="font-semibold mb-2">🔧 Dynamic Features</h3>
                 <ul className="text-sm text-gray-600 space-y-1">
-                  <li>• Supabase functions integration</li>
-                  <li>• Resend API ile güvenli gönderim</li>
+                                    
+                  <li>• Dynamic template variables</li>
                   <li>• Dynamic content rendering</li>
                   <li>• Error handling & status tracking</li>
                   <li>• GDPR/KVKK compliance</li>

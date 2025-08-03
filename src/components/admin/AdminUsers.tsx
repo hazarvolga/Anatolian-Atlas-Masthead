@@ -1,126 +1,96 @@
-import React, { useState, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Users, UserPlus, Search, Filter } from "lucide-react";
-import { useAdminUsers } from "@/hooks/useAdminUsers";
-import { isAfter, isBefore, startOfDay } from "date-fns";
-import UserStats from "./users/UserStats";
-import BulkActions from "./users/BulkActions";
-import UserTable from "./users/UserTable";
-import ExportUsers from "./users/ExportUsers";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Users, Search, MoreHorizontal, UserCheck, UserX, ShieldCheck, Briefcase, User, Calendar, Mail, DollarSign, Star, Package, Loader2 } from "lucide-react";
+import { useAdminUsers, useUpdateUserRole } from "@/hooks/useAdminUsers";
+import { format } from "date-fns";
+import { toast } from "sonner";
+import LoadingSpinner from "./LoadingSpinner";
+import EmptyState from "./EmptyState";
+import ErrorAlert from "./ErrorAlert";
+
+const roleIcons: { [key: string]: React.ReactNode } = {
+  admin: <ShieldCheck className="h-4 w-4 text-red-500" />,
+  guide: <Briefcase className="h-4 w-4 text-blue-500" />,
+  user: <User className="h-4 w-4 text-gray-500" />,
+};
 
 export default function AdminUsers() {
-  const { data: users = [], isLoading } = useAdminUsers();
-  
-  // Debug: User verilerini console'da görelim
-  console.log('AdminUsers - Total users found:', users.length);
-  console.log('AdminUsers - Users data:', users);
+  const { data: users = [], isLoading, error, refetch } = useAdminUsers();
+  const updateUserRoleMutation = useUpdateUserRole();
   
   const [searchTerm, setSearchTerm] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [dateFrom, setDateFrom] = useState<Date | undefined>();
-  const [dateTo, setDateTo] = useState<Date | undefined>();
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<any>(null);
 
   const filteredUsers = useMemo(() => {
-    return users.filter(user => {
-      // Search filter
+    return users.filter((user: any) => {
       const searchMatch = searchTerm === "" || 
-        user.full_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.email?.toLowerCase().includes(searchTerm.toLowerCase());
-
-      // Role filter
-      const userRole = user.user_roles && Array.isArray(user.user_roles) && user.user_roles.length > 0 
-        ? user.user_roles[0].role 
-        : 'user';
-      const roleMatch = roleFilter === "all" || userRole === roleFilter;
-
-      // Date filter
-      const userDate = startOfDay(new Date(user.created_at));
-      const dateMatch = (!dateFrom || isAfter(userDate, startOfDay(dateFrom)) || userDate.getTime() === startOfDay(dateFrom).getTime()) &&
-                       (!dateTo || isBefore(userDate, startOfDay(dateTo)) || userDate.getTime() === startOfDay(dateTo).getTime());
-
-      return searchMatch && roleMatch && dateMatch;
+      const roleMatch = roleFilter === "all" || user.role === roleFilter;
+      return searchMatch && roleMatch;
     });
-  }, [users, searchTerm, roleFilter, dateFrom, dateTo]);
+  }, [users, searchTerm, roleFilter]);
 
-  const handleReset = () => {
-    setSearchTerm("");
-    setRoleFilter("all");
-    setDateFrom(undefined);
-    setDateTo(undefined);
-    setSelectedUsers([]);
+  const handleRoleChange = (userId: string, roleName: string) => {
+    updateUserRoleMutation.mutate({ userId, roleName }, {
+      onSuccess: () => toast.success(`User role updated to ${roleName}`),
+      onError: (err: any) => toast.error(err.message || "Failed to update role"),
+    });
   };
 
-  const handleUserSelect = (userId: string, checked: boolean) => {
-    if (checked) {
-      setSelectedUsers([...selectedUsers, userId]);
+  const toggleSelectUser = (userId: string) => {
+    setSelectedUsers(prev => 
+      prev.includes(userId) 
+        ? prev.filter(id => id !== userId)
+        : [...prev, userId]
+    );
+  };
+
+  const toggleSelectAll = () => {
+    if (selectedUsers.length === filteredUsers.length) {
+      setSelectedUsers([]);
     } else {
-      setSelectedUsers(selectedUsers.filter(id => id !== userId));
+      setSelectedUsers(filteredUsers.map((user: any) => user.id));
     }
   };
-  
+
   if (isLoading) {
-    return (
-      <div className="text-center py-12">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto mb-4"></div>
-        <p className="text-lg">Loading users...</p>
-      </div>
-    );
+    return <div className="text-center py-16"><LoadingSpinner size="lg" text="Loading users..." /></div>;
+  }
+  
+  if (error) {
+    return <ErrorAlert title="Failed to load users" message={error instanceof Error ? error.message : "An unknown error occurred."} onRetry={refetch} retryLabel="Reload users" />;
   }
   
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold flex items-center gap-2">
-            <Users className="h-8 w-8" />
-            User Management
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Manage users, roles, and permissions ({filteredUsers.length} users)
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <ExportUsers users={filteredUsers} />
-          <Button onClick={() => alert('Add user functionality to be implemented')} disabled>
-            <UserPlus className="h-4 w-4 mr-2" />
-            Add User
-          </Button>
-        </div>
-      </div>
-
-      {/* Stats */}
-      <UserStats users={filteredUsers} />
-      
-      {/* Enhanced Filters */}
-      <Card>
+      <Card className="shadow-sm border-border/50">
         <CardHeader>
-          <CardTitle className="text-lg">Filters & Search</CardTitle>
+          <CardTitle className="text-xl md:text-2xl">User Management</CardTitle>
+          <CardDescription className="text-sm md:text-base">
+            View and manage all registered users ({users.length} total)
+          </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-            <div className="lg:col-span-2">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input
-                  placeholder="Search users by name or email..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
+          <div className="flex flex-col sm:flex-row gap-4 mb-4">
+            <div className="relative flex-grow">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Input
+                placeholder="Search by name or email..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
             </div>
             <Select value={roleFilter} onValueChange={setRoleFilter}>
-              <SelectTrigger>
+              <SelectTrigger className="w-full sm:w-[180px]">
                 <SelectValue placeholder="Filter by role" />
               </SelectTrigger>
               <SelectContent>
@@ -130,158 +100,103 @@ export default function AdminUsers() {
                 <SelectItem value="user">User</SelectItem>
               </SelectContent>
             </Select>
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="Filter by status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Status</SelectItem>
-                <SelectItem value="active">Active</SelectItem>
-                <SelectItem value="banned">Banned</SelectItem>
-                <SelectItem value="unconfirmed">Unconfirmed</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button variant="outline" onClick={handleReset}>
-              <Filter className="h-4 w-4 mr-2" />
-              Reset
-            </Button>
           </div>
-        </CardContent>
-      </Card>
 
-      <BulkActions
-        users={filteredUsers}
-        selectedUsers={selectedUsers}
-        setSelectedUsers={setSelectedUsers}
-      />
-
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>Users Directory</CardTitle>
-              <CardDescription>
-                Complete user management with advanced controls
-              </CardDescription>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <UserTable
-            users={filteredUsers}
-            selectedUsers={selectedUsers}
-            onUserSelect={handleUserSelect}
-          />
-        </CardContent>
-      </Card>
-
-      {/* Create User Modal */}
-      <Dialog open={showCreateModal} onOpenChange={setShowCreateModal}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Create New User</DialogTitle>
-            <DialogDescription>
-              Add a new user to the system
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-sm font-medium">First Name</label>
-                <Input placeholder="Enter first name" />
-              </div>
-              <div>
-                <label className="text-sm font-medium">Last Name</label>
-                <Input placeholder="Enter last name" />
-              </div>
-            </div>
-            <div>
-              <label className="text-sm font-medium">Email</label>
-              <Input type="email" placeholder="Enter email address" />
-            </div>
-            <div>
-              <label className="text-sm font-medium">Phone</label>
-              <Input placeholder="Enter phone number" />
-            </div>
-            <div>
-              <label className="text-sm font-medium">Role</label>
-              <Select>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select role" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="user">User</SelectItem>
-                  <SelectItem value="guide">Guide</SelectItem>
-                  <SelectItem value="admin">Admin</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="flex justify-end space-x-2">
-              <Button variant="outline" onClick={() => setShowCreateModal(false)}>
-                Cancel
-              </Button>
-              <Button onClick={() => setShowCreateModal(false)}>
-                Create User
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Edit User Modal */}
-      <Dialog open={showEditModal} onOpenChange={setShowEditModal}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Edit User</DialogTitle>
-            <DialogDescription>
-              Update user information and permissions
-            </DialogDescription>
-          </DialogHeader>
-          {selectedUser && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium">First Name</label>
-                  <Input defaultValue={selectedUser.first_name} />
-                </div>
-                <div>
-                  <label className="text-sm font-medium">Last Name</label>
-                  <Input defaultValue={selectedUser.last_name} />
-                </div>
-              </div>
-              <div>
-                <label className="text-sm font-medium">Email</label>
-                <Input type="email" defaultValue={selectedUser.email} />
-              </div>
-              <div>
-                <label className="text-sm font-medium">Phone</label>
-                <Input defaultValue={selectedUser.phone} />
-              </div>
-              <div>
-                <label className="text-sm font-medium">Role</label>
-                <Select defaultValue={selectedUser.role}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select role" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="user">User</SelectItem>
-                    <SelectItem value="guide">Guide</SelectItem>
-                    <SelectItem value="admin">Admin</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex justify-end space-x-2">
-                <Button variant="outline" onClick={() => setShowEditModal(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={() => setShowEditModal(false)}>
-                  Save Changes
-                </Button>
-              </div>
+          {filteredUsers.length === 0 ? (
+            <EmptyState icon={Users} title="No users found" description="No users match the current filters." />
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-12">
+                      <Checkbox
+                        checked={filteredUsers.length > 0 && selectedUsers.length === filteredUsers.length}
+                        onCheckedChange={toggleSelectAll}
+                      />
+                    </TableHead>
+                    <TableHead>User</TableHead>
+                    <TableHead>Role</TableHead>
+                    <TableHead>Stats</TableHead>
+                    <TableHead>Joined</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredUsers.map((user: any) => (
+                    <TableRow key={user.id}>
+                      <TableCell>
+                        <Checkbox
+                          checked={selectedUsers.includes(user.id)}
+                          onCheckedChange={() => toggleSelectUser(user.id)}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <div className="font-medium">{user.name}</div>
+                        <div className="text-sm text-muted-foreground flex items-center gap-2">
+                          <Mail className="h-3 w-3" />
+                          {user.email}
+                          {user.email_verified && <ShieldCheck className="h-4 w-4 text-green-500" title="Email Verified" />}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="capitalize flex items-center gap-1.5">
+                          {roleIcons[user.role] || <User className="h-4 w-4" />}
+                          {user.role}
+                        </Badge>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex flex-col gap-1 text-xs">
+                          <div className="flex items-center gap-1.5" title="Total Spent">
+                            <DollarSign className="h-3 w-3 text-green-500" />
+                            <span>₺{user.total_spent.toFixed(2)}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5" title="Reservations">
+                            <Package className="h-3 w-3 text-blue-500" />
+                            <span>{user.reservation_count}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5" title="Reviews">
+                            <Star className="h-3 w-3 text-yellow-500" />
+                            <span>{user.review_count}</span>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4 text-muted-foreground" />
+                          {format(new Date(user.created_at), "dd MMM yyyy")}
+                        </div>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" disabled={updateUserRoleMutation.isPending}>
+                              {updateUserRoleMutation.isPending && updateUserRoleMutation.variables?.userId === user.id 
+                                ? <Loader2 className="h-4 w-4 animate-spin" /> 
+                                : <MoreHorizontal className="h-4 w-4" />}
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => handleRoleChange(user.id, 'admin')} disabled={user.role === 'admin'}>
+                              <ShieldCheck className="mr-2 h-4 w-4" /> Make Admin
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleRoleChange(user.id, 'guide')} disabled={user.role === 'guide'}>
+                              <Briefcase className="mr-2 h-4 w-4" /> Make Guide
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleRoleChange(user.id, 'user')} disabled={user.role === 'user'}>
+                              <User className="mr-2 h-4 w-4" /> Make User
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </div>
           )}
-        </DialogContent>
-      </Dialog>
+        </CardContent>
+      </Card>
     </div>
   );
 }

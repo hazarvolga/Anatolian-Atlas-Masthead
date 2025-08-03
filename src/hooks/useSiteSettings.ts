@@ -1,6 +1,6 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
+import { toast } from "sonner";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
 
@@ -38,31 +38,35 @@ export type SiteSettings = {
 export function useSiteSettings() {
   const queryClient = useQueryClient();
 
-  const query = useQuery({
-    queryKey: ["site_settings"],
-    queryFn: async (): Promise<SiteSettings | null> => {
-      const { data } = await axios.get(`${API_BASE_URL}/api/admin/settings/site`, { headers: getAuthHeaders() });
+  const { data: settings, isLoading, error, refetch } = useQuery<SiteSettings | null>({
+    queryKey: ["site-settings"],
+    queryFn: async () => {
+      const { data } = await axios.get(`${API_BASE_URL}/api/admin/site-settings`, { headers: getAuthHeaders() });
       return data;
     },
   });
 
-  const mutation = useMutation({
+  const updateMutation = useMutation({
     mutationFn: async (updates: Partial<SiteSettings>) => {
-      const { data } = await axios.post(`${API_BASE_URL}/api/admin/settings/site`, updates, { headers: getAuthHeaders() });
+      const { data } = await axios.put(`${API_BASE_URL}/api/admin/site-settings`, updates, { headers: getAuthHeaders() });
       return data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["site_settings"] });
+    onSuccess: (data) => {
+      queryClient.setQueryData(["site-settings"], data);
+      toast.success("Site settings updated successfully!");
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || "Failed to update settings.");
     },
   });
 
   return {
-    settings: query.data,
-    isLoading: query.isLoading,
-    isError: query.isError,
-    updateSettings: mutation.mutateAsync,
-    updating: mutation.isPending,
-    refetch: query.refetch,
+    settings,
+    isLoading,
+    error,
+    refetch,
+    updateSettings: updateMutation.mutateAsync,
+    isUpdating: updateMutation.isPending,
   };
 }
 

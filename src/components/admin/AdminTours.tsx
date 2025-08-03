@@ -1,37 +1,48 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { useAdminTours, useDeleteTour, useToggleTourStatus } from "@/hooks/useAdminTours";
-import { updateExistingTours } from "@/utils/updateToursData";
+import { useAdminTours, useDeleteTour, useUpdateTour } from "@/hooks/useAdminTours";
 import { format } from "date-fns";
-import { Edit, Trash2, Plus, MapPin, RefreshCw, Loader2 } from "lucide-react";
+import { Edit, Trash2, Plus, MapPin, Loader2 } from "lucide-react";
 import LoadingSpinner from "./LoadingSpinner";
 import EmptyState from "./EmptyState";
 import ErrorAlert from "./ErrorAlert";
 import { toast } from "sonner";
 
+// Define the Tour type based on backend response
+interface Tour {
+  id: string;
+  title: string;
+  destination_name: string;
+  status: 'active' | 'draft' | 'archived';
+  price_adult: number;
+  duration_hours: number;
+  max_participants: number;
+  created_at: string;
+  reservation_count: number;
+}
+
 export default function AdminTours() {
   const navigate = useNavigate();
   const { data: tours = [], isLoading, error, refetch } = useAdminTours();
-  const deleteTour = useDeleteTour();
-  const toggleTourStatus = useToggleTourStatus();
-  const [isUpdating, setIsUpdating] = useState(false);
-  const [loadingActions, setLoadingActions] = useState<Record<string, boolean>>({});
+  const deleteTourMutation = useDeleteTour();
+  const updateTourMutation = useUpdateTour();
   
-  const handleDelete = async (tourId: string, tourName: string) => {
-    if (!confirm(`Are you sure you want to delete "${tourName}" tour?`)) {
+  const [loadingActions, setLoadingActions] = useState<Record<string, boolean>>({});
+
+  const handleDelete = async (tourId: string, tourTitle: string) => {
+    if (!confirm(`Are you sure you want to delete "${tourTitle}" tour?`)) {
       return;
     }
     
     setLoadingActions(prev => ({ ...prev, [`delete-${tourId}`]: true }));
     
     try {
-      await deleteTour.mutateAsync(tourId);
-      toast.success(`"${tourName}" tour deleted successfully`);
+      await deleteTourMutation.mutateAsync(tourId);
+      toast.success(`"${tourTitle}" tour deleted successfully`);
     } catch (error) {
       toast.error("Failed to delete tour. Please try again.");
     } finally {
@@ -39,38 +50,26 @@ export default function AdminTours() {
     }
   };
   
-  const handleToggleStatus = async (tourId: string, currentStatus: boolean) => {
-    setLoadingActions(prev => ({ ...prev, [`toggle-${tourId}`]: true }));
+  const handleToggleStatus = async (tour: Tour) => {
+    const newStatus = tour.status === 'active' ? 'draft' : 'active';
+    setLoadingActions(prev => ({ ...prev, [`toggle-${tour.id}`]: true }));
     
     try {
-      await toggleTourStatus.mutateAsync({ 
-        tourId, 
-        isActive: !currentStatus 
+      // Correctly structure the payload for the mutation
+      await updateTourMutation.mutateAsync({ 
+        tourId: tour.id, 
+        tourData: { status: newStatus }
       });
-      toast.success(`Tour ${!currentStatus ? 'activated' : 'deactivated'} successfully`);
+      toast.success(`Tour "${tour.title}" status updated to ${newStatus}`);
     } catch (error) {
       toast.error("Failed to update tour status. Please try again.");
     } finally {
-      setLoadingActions(prev => ({ ...prev, [`toggle-${tourId}`]: false }));
+      setLoadingActions(prev => ({ ...prev, [`toggle-${tour.id}`]: false }));
     }
   };
 
   const handleEdit = (tourId: string) => {
     navigate(`/admin/tours/edit/${tourId}`);
-  };
-  
-  const handleUpdateTours = async () => {
-    setIsUpdating(true);
-    try {
-      await updateExistingTours();
-      await refetch();
-      toast.success("Tours updated successfully!");
-    } catch (error) {
-      console.error('Error updating tours:', error);
-      toast.error("Failed to update tours. Please try again.");
-    } finally {
-      setIsUpdating(false);
-    }
   };
   
   if (isLoading) {
@@ -85,15 +84,15 @@ export default function AdminTours() {
     return (
       <ErrorAlert 
         title="Failed to load tours"
-        message="There was an error loading the tours. Please check your connection and try again."
+        message={error instanceof Error ? error.message : "An unknown error occurred."}
         onRetry={() => refetch()}
         retryLabel="Reload tours"
       />
     );
   }
   
-  const activeTours = tours.filter(tour => tour.is_active);
-  const inactiveTours = tours.filter(tour => !tour.is_active);
+  const activeTours = tours.filter((tour: Tour) => tour.status === 'active');
+  const inactiveTours = tours.filter((tour: Tour) => tour.status !== 'active');
   
   return (
     <div className="space-y-6">
@@ -108,16 +107,6 @@ export default function AdminTours() {
                 </CardDescription>
               </div>
               <div className="flex flex-col sm:flex-row gap-2">
-                <Button 
-                  onClick={handleUpdateTours}
-                  disabled={isUpdating}
-                  variant="outline"
-                  className="gap-2"
-                >
-                  <RefreshCw className={`h-4 w-4 ${isUpdating ? 'animate-spin' : ''}`} />
-                  <span className="hidden sm:inline">Update Tours Data</span>
-                  <span className="sm:hidden">Update</span>
-                </Button>
                 <Button 
                   onClick={() => navigate("/admin/tours/create")}
                   className="gap-2"
@@ -153,24 +142,19 @@ export default function AdminTours() {
                   </Badge>
                 </div>
                 <div className="grid gap-4">
-                  {activeTours.map((tour) => (
+                  {activeTours.map((tour: Tour) => (
                     <Card key={tour.id} className="border-l-4 border-l-green-500 bg-gradient-to-r from-green-50/50 to-transparent hover:shadow-md transition-all duration-200 hover:scale-[1.01]">
                       <CardContent className="p-4">
                         <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
                           <div className="flex-1 min-w-0">
                             <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-3 mb-3">
                               <div className="flex-1 min-w-0">
-                                <h4 className="font-semibold text-lg truncate">{tour.name}</h4>
+                                <h4 className="font-semibold text-lg truncate">{tour.title}</h4>
                                 <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mt-1">
                                   <p className="text-sm text-muted-foreground flex items-center gap-1">
                                     <MapPin className="h-3 w-3 flex-shrink-0" />
-                                    <span className="truncate">{tour.location}</span>
+                                    <span className="truncate">{tour.destination_name}</span>
                                   </p>
-                                  {tour.destinations && (
-                                    <Badge variant="outline" className="text-xs bg-blue-100 text-blue-800 self-start sm:self-center">
-                                      {tour.destinations.name}
-                                    </Badge>
-                                  )}
                                 </div>
                               </div>
                               <div className="flex flex-wrap gap-2">
@@ -178,14 +162,14 @@ export default function AdminTours() {
                                   Active
                                 </Badge>
                                 <Badge variant="outline" className="border-gray-300">
-                                  {tour.difficulty}
+                                  {tour.reservation_count} Reservations
                                 </Badge>
                               </div>
                             </div>
                             <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4 text-xs text-muted-foreground">
-                              <span className="truncate font-medium">₺{Number(tour.price).toFixed(2)}</span>
-                              <span className="truncate">{tour.duration}h duration</span>
-                              <span className="truncate">Max {tour.max_group_size} people</span>
+                              <span className="truncate font-medium">₺{Number(tour.price_adult).toFixed(2)}</span>
+                              <span className="truncate">{tour.duration_hours}h duration</span>
+                              <span className="truncate">Max {tour.max_participants} people</span>
                               <span className="truncate">Created: {format(new Date(tour.created_at), "dd/MM/yyyy")}</span>
                             </div>
                           </div>
@@ -194,101 +178,71 @@ export default function AdminTours() {
                             <div className="flex items-center gap-2">
                               <span className="text-xs text-muted-foreground hidden sm:inline">Status</span>
                               <Switch
-                                checked={tour.is_active}
-                                onCheckedChange={() => handleToggleStatus(tour.id, tour.is_active)}
+                                checked={tour.status === 'active'}
+                                onCheckedChange={() => handleToggleStatus(tour)}
                                 disabled={loadingActions[`toggle-${tour.id}`]}
                               />
-                              {loadingActions[`toggle-${tour.id}`] && (
-                                <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
-                              )}
                             </div>
-                            
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              onClick={() => handleEdit(tour.id)}
-                              className="gap-1 hover:bg-blue-50 hover:border-blue-200"
-                            >
+                            <Button variant="outline" size="icon" onClick={() => handleEdit(tour.id)}>
                               <Edit className="h-4 w-4" />
-                              <span className="hidden sm:inline">Edit</span>
                             </Button>
-                            
                             <Button 
                               variant="destructive" 
-                              size="sm"
-                              onClick={() => handleDelete(tour.id, tour.name)}
+                              size="icon" 
+                              onClick={() => handleDelete(tour.id, tour.title)}
                               disabled={loadingActions[`delete-${tour.id}`]}
-                              className="gap-1"
                             >
-                              {loadingActions[`delete-${tour.id}`] ? (
-                                <Loader2 className="h-4 w-4 animate-spin" />
-                              ) : (
-                                <Trash2 className="h-4 w-4" />
-                              )}
-                              <span className="hidden sm:inline">Delete</span>
+                              {loadingActions[`delete-${tour.id}`] ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                             </Button>
                           </div>
                         </div>
                       </CardContent>
                     </Card>
                   ))}
-                  {activeTours.length === 0 && (
-                    <EmptyState
-                      icon={MapPin}
-                      title="No active tours"
-                      description="All tours are currently inactive. Activate some tours to make them visible to customers."
-                      className="border-green-200 bg-green-50/30"
-                    />
-                  )}
                 </div>
               </div>
 
               {/* Inactive Tours */}
               {inactiveTours.length > 0 && (
-                <div className="space-y-4">
+                <div className="space-y-4 pt-6">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold text-red-600 flex items-center gap-2">
-                      <div className="w-2 h-2 rounded-full bg-red-500"></div>
-                      Inactive Tours
+                    <h3 className="text-lg font-semibold text-gray-500 flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-full bg-gray-400"></div>
+                      Draft & Archived Tours
                     </h3>
-                    <Badge variant="secondary" className="bg-red-100 text-red-800 px-3 py-1">
+                    <Badge variant="secondary" className="bg-gray-100 text-gray-800 px-3 py-1">
                       {inactiveTours.length}
                     </Badge>
                   </div>
                   <div className="grid gap-4">
-                    {inactiveTours.map((tour) => (
-                      <Card key={tour.id} className="border-l-4 border-l-red-500 bg-gradient-to-r from-red-50/50 to-transparent hover:shadow-md transition-all duration-200">
+                    {inactiveTours.map((tour: Tour) => (
+                      <Card key={tour.id} className="border-l-4 border-l-gray-400 bg-gray-50/50 hover:shadow-md transition-all duration-200 hover:scale-[1.01]">
                         <CardContent className="p-4">
                           <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
-                            <div className="flex-1 min-w-0 opacity-75">
+                            <div className="flex-1 min-w-0">
                               <div className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-3 mb-3">
                                 <div className="flex-1 min-w-0">
-                                  <h4 className="font-semibold text-lg text-muted-foreground truncate">{tour.name}</h4>
+                                  <h4 className="font-semibold text-lg truncate text-gray-700">{tour.title}</h4>
                                   <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mt-1">
                                     <p className="text-sm text-muted-foreground flex items-center gap-1">
                                       <MapPin className="h-3 w-3 flex-shrink-0" />
-                                      <span className="truncate">{tour.location}</span>
+                                      <span className="truncate">{tour.destination_name}</span>
                                     </p>
-                                    {tour.destinations && (
-                                      <Badge variant="outline" className="text-xs bg-gray-100 text-gray-600 self-start sm:self-center">
-                                        {tour.destinations.name}
-                                      </Badge>
-                                    )}
                                   </div>
                                 </div>
                                 <div className="flex flex-wrap gap-2">
-                                  <Badge variant="secondary" className="bg-red-500 text-white">
-                                    Inactive
+                                  <Badge variant="secondary" className="capitalize">
+                                    {tour.status}
                                   </Badge>
-                                  <Badge variant="outline" className="border-gray-300 text-gray-500">
-                                    {tour.difficulty}
+                                  <Badge variant="outline" className="border-gray-300">
+                                    {tour.reservation_count} Reservations
                                   </Badge>
                                 </div>
                               </div>
                               <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4 text-xs text-muted-foreground">
-                                <span className="truncate">₺{Number(tour.price).toFixed(2)}</span>
-                                <span className="truncate">{tour.duration}h duration</span>
-                                <span className="truncate">Max {tour.max_group_size} people</span>
+                                <span className="truncate font-medium">₺{Number(tour.price_adult).toFixed(2)}</span>
+                                <span className="truncate">{tour.duration_hours}h duration</span>
+                                <span className="truncate">Max {tour.max_participants} people</span>
                                 <span className="truncate">Created: {format(new Date(tour.created_at), "dd/MM/yyyy")}</span>
                               </div>
                             </div>
@@ -297,38 +251,21 @@ export default function AdminTours() {
                               <div className="flex items-center gap-2">
                                 <span className="text-xs text-muted-foreground hidden sm:inline">Status</span>
                                 <Switch
-                                  checked={tour.is_active}
-                                  onCheckedChange={() => handleToggleStatus(tour.id, tour.is_active)}
+                                  checked={tour.status === 'active'}
+                                  onCheckedChange={() => handleToggleStatus(tour)}
                                   disabled={loadingActions[`toggle-${tour.id}`]}
                                 />
-                                {loadingActions[`toggle-${tour.id}`] && (
-                                  <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
-                                )}
                               </div>
-                              
-                              <Button 
-                                variant="outline" 
-                                size="sm"
-                                onClick={() => handleEdit(tour.id)}
-                                className="gap-1 hover:bg-blue-50 hover:border-blue-200"
-                              >
+                              <Button variant="outline" size="icon" onClick={() => handleEdit(tour.id)}>
                                 <Edit className="h-4 w-4" />
-                                <span className="hidden sm:inline">Edit</span>
                               </Button>
-                              
                               <Button 
                                 variant="destructive" 
-                                size="sm"
-                                onClick={() => handleDelete(tour.id, tour.name)}
+                                size="icon" 
+                                onClick={() => handleDelete(tour.id, tour.title)}
                                 disabled={loadingActions[`delete-${tour.id}`]}
-                                className="gap-1"
                               >
-                                {loadingActions[`delete-${tour.id}`] ? (
-                                  <Loader2 className="h-4 w-4 animate-spin" />
-                                ) : (
-                                  <Trash2 className="h-4 w-4" />
-                                )}
-                                <span className="hidden sm:inline">Delete</span>
+                                {loadingActions[`delete-${tour.id}`] ? <Loader2 className="h-4 w-4 animate-spin" /> : <Trash2 className="h-4 w-4" />}
                               </Button>
                             </div>
                           </div>

@@ -5,48 +5,35 @@ import { authMiddleware, adminMiddleware } from '../middleware/auth.js';
 const prisma = new PrismaClient();
 const router = express.Router();
 
-// Apply authentication and admin middleware to all routes
+// Apply authentication and admin middleware to all routes in this file
 router.use(authMiddleware);
 router.use(adminMiddleware);
 
-// GET /api/admin/reservations - Get all reservations
-router.get('/reservations', async (req, res) => {
-    const { limit = 10, offset = 0, status } = req.query;
-    try {
-        const reservations = await prisma.reservation.findMany({
-            where: {
-                status: status ? status : undefined
-            },
-            include: {
-                tour: { select: { title: true } },
-                user: { select: { first_name: true, last_name: true, email: true } }
-            },
-            orderBy: { created_at: 'desc' },
-            take: parseInt(limit),
-            skip: parseInt(offset)
-        });
-        res.json(reservations);
-    } catch (error) {
-        console.error('Error fetching reservations:', error);
-        res.status(500).json({ message: 'Error fetching reservations' });
-    }
+// --- DASHBOARD --- //
+router.get('/dashboard', async (req, res) => {
+  try {
+    const [userCount, tourCount, reservationCount, revenue] = await prisma.$transaction([
+      prisma.user.count({ where: { role: 'user' } }),
+      prisma.tour.count({ where: { status: 'active' } }),
+      prisma.reservation.count({ where: { status: { not: 'cancelled' } } }),
+      prisma.payment.aggregate({
+        _sum: { amount: true },
+        where: { status: 'succeeded' },
+      }),
+    ]);
+    res.json({
+      users: userCount,
+      tours: tourCount,
+      reservations: reservationCount,
+      revenue: revenue._sum.amount || 0,
+    });
+  } catch (error) {
+    console.error('Error fetching dashboard stats:', error);
+    res.status(500).json({ message: 'Error fetching dashboard stats' });
+  }
 });
 
-// GET /api/admin/users - Get all users
-router.get('/users', async (req, res) => {
-    try {
-        const users = await prisma.user.findMany({
-            select: { id: true, first_name: true, last_name: true, email: true, role: true, created_at: true },
-            orderBy: { created_at: 'desc' }
-        });
-        res.json(users);
-    } catch (error) {
-        console.error('Error fetching users:', error);
-        res.status(500).json({ message: 'Error fetching users' });
-    }
-});
-
-// GET /api/admin/tours - Get all tours for admin view
+// --- TOUR MANAGEMENT --- //
 router.get('/tours', async (req, res) => {
     try {
         const tours = await prisma.tour.findMany({
@@ -68,7 +55,6 @@ router.get('/tours', async (req, res) => {
     }
 });
 
-// POST /api/admin/tours - Create a new tour
 router.post('/tours', async (req, res) => {
     try {
         const { title, slug, description, category_id, destination_id, status, duration_hours, max_participants, price_adult } = req.body;
@@ -82,7 +68,6 @@ router.post('/tours', async (req, res) => {
     }
 });
 
-// PUT /api/admin/tours/:id - Update an existing tour
 router.put('/tours/:id', async (req, res) => {
     const { id } = req.params;
     try {
@@ -104,7 +89,6 @@ router.put('/tours/:id', async (req, res) => {
 
         await prisma.tour.update({ where: { id }, data: dataToUpdate });
 
-        // Re-fetch the updated tour with relations to send back the correct format
         const updatedTour = await prisma.tour.findUnique({
             where: { id },
             include: {
@@ -126,37 +110,155 @@ router.put('/tours/:id', async (req, res) => {
     }
 });
 
-// DELETE /api/admin/tours/:id - Delete a tour and its related data
 router.delete('/tours/:id', async (req, res) => {
     const { id } = req.params;
     try {
-        // Use a transaction to ensure all or nothing is deleted
         await prisma.$transaction(async (tx) => {
-            // Delete related reviews
             await tx.review.deleteMany({ where: { tourId: id } });
-            
-            // Find related reservations to delete their payments
             const reservations = await tx.reservation.findMany({ where: { tourId: id }, select: { id: true } });
             const reservationIds = reservations.map(r => r.id);
-
             if (reservationIds.length > 0) {
-                // Delete related payments
                 await tx.payment.deleteMany({ where: { reservationId: { in: reservationIds } } });
-                // Delete related reservations
                 await tx.reservation.deleteMany({ where: { id: { in: reservationIds } } });
             }
-
-            // Finally, delete the tour itself
             await tx.tour.delete({ where: { id } });
         });
-
-        res.status(204).send(); // No content, successful deletion
+        res.status(204).send();
     } catch (error) {
         console.error(`Error deleting tour ${id}:`, error);
         res.status(500).json({ message: 'Error deleting tour' });
     }
 });
 
+// --- USER MANAGEMENT --- //
+router.get('/users', adminMiddleware, async (req, res) => {
+  try {
+    const users = await prisma.user.findMany({
+      include: {
+        reservations: {
+          select: {
+            id: true,
+            total_price: true,
+          }
+        },
+        reviews: {
+          select: {
+            id: true,
+          }
+        },
+        user_roles: {
+          include: {
+            role: true,
+          }
+        }
+      },
+      orderBy: {
+        created_at: 'desc'
+      }
+    });
+
+    const formattedUsers = users.map(user => ({
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      email_verified: user.email_verified,
+      image: user.image,
+      created_at: user.created_at,
+      role: user.user_roles[0]?.role?.name || 'user',
+      total_spent: user.reservations.reduce((acc, r) => acc + (r.total_price || 0), 0),
+      reservation_count: user.reservations.length,
+      review_count: user.reviews.length,
+    }));
+
+    res.json(formattedUsers);
+  } catch (error) {
+    console.error('Failed to fetch users:', error);
+    res.status(500).json({ message: 'Failed to fetch users', error: error.message });
+  }
+});
+
+router.put('/users/:id/role', adminMiddleware, async (req, res) => {
+    const { id } = req.params;
+    const { roleName } = req.body; // e.g., 'admin', 'guide'
+
+    if (!roleName) {
+        return res.status(400).json({ message: 'Role name is required' });
+    }
+
+    try {
+        const role = await prisma.role.findUnique({ where: { name: roleName } });
+        if (!role) {
+            return res.status(404).json({ message: `Role '${roleName}' not found` });
+        }
+
+        // Find if a user_role entry exists
+        const userRole = await prisma.user_role.findFirst({
+            where: { user_id: id },
+        });
+
+        if (userRole) {
+            // Update existing role
+            await prisma.user_role.update({
+                where: { id: userRole.id },
+                data: { role_id: role.id },
+            });
+        } else {
+            // Create new role assignment
+            await prisma.user_role.create({
+                data: {
+                    user_id: id,
+                    role_id: role.id,
+                },
+            });
+        }
+        
+        res.json({ message: `User role updated to ${roleName}` });
+    } catch (error) {
+        console.error(`Error updating user role for ${id}:`, error);
+        res.status(500).json({ message: 'Error updating user role' });
+    }
+});
+
+
+// --- SITE SETTINGS --- //
+router.get('/site-settings', adminMiddleware, async (req, res) => {
+  try {
+    const settings = await prisma.siteSettings.findFirst();
+    if (!settings) {
+      // If no settings exist, create a default entry
+      const defaultSettings = await prisma.siteSettings.create({
+        data: {
+          site_title: 'NextStopTurkey',
+          // Add other default values as needed
+        },
+      });
+      return res.json(defaultSettings);
+    }
+    res.json(settings);
+  } catch (error) {
+    console.error('Failed to fetch site settings:', error);
+    res.status(500).json({ message: 'Failed to fetch site settings', error: error.message });
+  }
+});
+
+router.put('/site-settings', adminMiddleware, async (req, res) => {
+  const settingsData = req.body;
+  try {
+    const currentSettings = await prisma.siteSettings.findFirst();
+    if (!currentSettings) {
+        return res.status(404).json({ message: 'Site settings not found. Cannot update.' });
+    }
+    
+    const updatedSettings = await prisma.siteSettings.update({
+      where: { id: currentSettings.id },
+      data: settingsData,
+    });
+    res.json(updatedSettings);
+  } catch (error) {
+    console.error('Failed to update site settings:', error);
+    res.status(500).json({ message: 'Failed to update site settings', error: error.message });
+  }
+});
+
+
 export default router;
-
-

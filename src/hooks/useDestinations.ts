@@ -25,6 +25,9 @@ export interface Destination {
   google_maps_url?: string;
   gallery_images?: string[];
   extra_info?: string;
+  _count?: {
+    tours: number;
+  };
 }
 
 export interface CreateDestinationData {
