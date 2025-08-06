@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Users, Search, MoreHorizontal, UserCheck, UserX, ShieldCheck, Briefcase, User, Calendar, Mail, DollarSign, Star, Package, Loader2 } from "lucide-react";
 import { useAdminUsers, useUpdateUserRole } from "@/hooks/useAdminUsers";
@@ -30,8 +31,9 @@ export default function AdminUsers() {
 
   const filteredUsers = useMemo(() => {
     return users.filter((user: any) => {
+      const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
       const searchMatch = searchTerm === "" || 
-        user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         user.email?.toLowerCase().includes(searchTerm.toLowerCase());
       const roleMatch = roleFilter === "all" || user.role === roleFilter;
       return searchMatch && roleMatch;
@@ -132,7 +134,7 @@ export default function AdminUsers() {
                         />
                       </TableCell>
                       <TableCell>
-                        <div className="font-medium">{user.name}</div>
+                        <div className="font-medium">{`${user.first_name} ${user.last_name}`}</div>
                         <div className="text-sm text-muted-foreground flex items-center gap-2">
                           <Mail className="h-3 w-3" />
                           {user.email}
