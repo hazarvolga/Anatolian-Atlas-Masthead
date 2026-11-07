@@ -216,7 +216,7 @@ Doğrulanan canlı sonuçlar:
 |---|---|---|
 | Tur fiyatı 0 görünüyor | `useTours.ts:27` `tour.price` okuyor; API `price_adult` dönüyor | Kartlarda fiyat 0 |
 | Zorluk hep "easy" | `useTours.ts:25` `difficulty_level` (null) ile backend'in ürettiği `difficulty` string'ini eziyor | Yanlış filtre/etiket |
-| Rezervasyon geliri NaN | Prisma `totalPrice` (`schema.prisma:200`), UI `total_price` (`AdminStats.tsx:15`) | Admin istatistikleri bozuk |
+| ✅ Rezervasyon geliri ve admin listesi | `useAdminReservations.ts:6` yanlış `token` anahtarı; `AdminStats.tsx:15` ve `AdminReservations.tsx` `total_price` okuyor | Düzeltildi: `authToken`, `totalPrice`, EUR; canlı doğrulandı (gelir **€650**, tablo gerçek misafir/tur/tarih gösteriyor) |
 | Review verify endpoint uyuşmazlığı | Frontend `PUT /api/admin/reviews/:id/status` (`useAdminReviews.ts:30`), backend `PUT /reviews/:id/verify` | Onaylama çalışmaz |
 | Bulk review endpoint yok | `useAdminReviews.ts:68` | Toplu işlem çalışmaz |
 | 40+ eksik endpoint | `useRealTimePricing`, `useTourAddOns`, `useRoomTypes`, `usePromotionalCodes`, `useEmailServiceManager`, `utils/updateToursData.ts:228` | İlgili ekranlar sessizce boş/hatalı |

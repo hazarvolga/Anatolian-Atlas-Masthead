@@ -3,7 +3,7 @@ import axios from 'axios';
 import { toast } from "sonner";
 
 const getAuthHeaders = () => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('authToken');
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 

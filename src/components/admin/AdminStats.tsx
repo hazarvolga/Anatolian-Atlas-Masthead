@@ -12,11 +12,11 @@ export default function AdminStats() {
   const { data: tours = [] } = useAdminTours();
   const { data: bookings = [] } = useAdminReservations();
   
-  const totalRevenue = bookings.reduce((sum, booking) => sum + Number(booking.total_price), 0);
+  const totalRevenue = bookings.reduce((sum, booking) => sum + Number(booking.totalPrice ?? 0), 0);
   const confirmedBookings = bookings.filter(booking => booking.status === 'confirmed').length;
   const pendingBookings = bookings.filter(booking => booking.status === 'pending').length;
   const cancelledBookings = bookings.filter(booking => booking.status === 'cancelled').length;
-  const activeTours = tours.filter(tour => tour.is_active).length;
+  const activeTours = tours.filter(tour => tour.status === 'active').length;
   
   // Calculate trends (mock data for demonstration - you can implement real trend calculation)
   const userGrowth = 12.5; // Percentage growth
@@ -64,19 +64,19 @@ export default function AdminStats() {
       trend: bookingGrowth,
       progress: Math.min((confirmedBookings / bookings.length) * 100, 100),
       target: bookings.length,
-      badge: pendingBookings > 5 ? "Needs Attention" : pendingBookings > 0 ? "Pending Reviews" : "All Processed",
+      badge: pendingBookings > 5 ? "Needs Attention" : pendingBookings > 0 ? "Pending Approval" : "All Processed",
       badgeVariant: pendingBookings > 5 ? "destructive" : pendingBookings > 0 ? "outline" : "default"
     },
     {
       title: "Total Revenue",
-      value: `$${totalRevenue.toLocaleString()}`,
+      value: `€${totalRevenue.toLocaleString()}`,
       description: "From all bookings",
       icon: DollarSign,
       color: "text-orange-600",
       bgColor: "bg-orange-50",
       borderColor: "border-orange-200",
       trend: revenueGrowth,
-      progress: Math.min((totalRevenue / 50000) * 100, 100), // Assuming target of $50k
+      progress: Math.min((totalRevenue / 50000) * 100, 100), // Assuming target of €50k
       target: 50000,
       badge: totalRevenue > 30000 ? "Excellent" : totalRevenue > 15000 ? "Good" : "Growing",
       badgeVariant: totalRevenue > 30000 ? "default" : totalRevenue > 15000 ? "secondary" : "outline"

@@ -92,9 +92,14 @@ export default function AdminReservations() {
               </TableHeader>
               <TableBody>
                 {reservations.map((reservation: any) => {
-                  const guest = reservation.guest_details || {};
                   const user = reservation.user || {};
                   const tour = reservation.tour || {};
+                  const guestName = [user.first_name, user.last_name].filter(Boolean).join(" ") || "Guest";
+                  const reservationDate = reservation.reservationDate;
+                  const numAdults = reservation.numAdults ?? 0;
+                  const numChildren = reservation.numChildren ?? 0;
+                  const totalPrice = Number(reservation.totalPrice ?? 0);
+                  const currencySymbol = reservation.priceCurrency === "TRY" ? "₺" : "€";
                   const status = reservation.status as ReservationStatus;
 
                   return (
@@ -102,13 +107,13 @@ export default function AdminReservations() {
                       <TableCell className="font-medium align-top">
                         <div className="flex items-center gap-2 mb-1">
                           <User className="h-4 w-4 text-muted-foreground" />
-                          <span className="font-semibold">{guest.name || user.name || "Guest"}</span>
+                          <span className="font-semibold">{guestName}</span>
                         </div>
                         <div className="text-xs text-muted-foreground flex items-center gap-2 mb-1">
-                           <Mail className="h-3 w-3" /> {guest.email || user.email}
+                           <Mail className="h-3 w-3" /> {user.email || "Not provided"}
                         </div>
                          <div className="text-xs text-muted-foreground flex items-center gap-2">
-                           <Phone className="h-3 w-3" /> {guest.phone || "Not provided"}
+                           <Phone className="h-3 w-3" /> {user.phone || "Not provided"}
                         </div>
                         <div className="border-t my-2"></div>
                         <div className="flex items-center gap-2">
@@ -122,7 +127,7 @@ export default function AdminReservations() {
                       <TableCell className="align-top">
                         <div className="flex items-center gap-2 mb-1">
                           <Calendar className="h-4 w-4 text-muted-foreground" />
-                          <span>{format(new Date(reservation.booking_date), "E, dd MMM yyyy")}</span>
+                          <span>{format(new Date(reservationDate), "E, dd MMM yyyy")}</span>
                         </div>
                         <div className="text-xs text-muted-foreground pl-6">
                           Booked on {format(new Date(reservation.created_at), "dd MMM, p")}
@@ -133,9 +138,9 @@ export default function AdminReservations() {
                         </div>
                       </TableCell>
                       <TableCell className="align-top">
-                        <div className="font-semibold">₺{Number(reservation.total_price).toFixed(2)}</div>
+                        <div className="font-semibold">{currencySymbol}{totalPrice.toFixed(2)}</div>
                         <div className="text-xs text-muted-foreground">
-                          {reservation.num_adults} Adults, {reservation.num_children || 0} Children
+                          {numAdults} Adults, {numChildren} Children
                         </div>
                       </TableCell>
                       <TableCell className="align-top">

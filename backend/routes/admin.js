@@ -739,7 +739,7 @@ router.get('/reservations', async (req, res) => {
         const reservations = await prisma.reservation.findMany({
             include: {
                 tour: { select: { title: true, destination: { select: { name: true } } } },
-                user: { select: { first_name: true, last_name: true, email: true } }
+                user: { select: { first_name: true, last_name: true, email: true, phone: true } }
             },
             orderBy: { created_at: 'desc' }
         });
