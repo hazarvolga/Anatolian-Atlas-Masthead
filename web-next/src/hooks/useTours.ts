@@ -5,10 +5,43 @@ import { api } from "@/lib/api/client";
 import { isDemoMode } from "@/config/site";
 import { DEMO_TOURS } from "@/lib/data/demo-content";
 
+function resolveAuthenticTourImage(tour: any): string {
+  const rawImg =
+    tour.image_url ||
+    (Array.isArray(tour.images) && tour.images.length > 0
+      ? tour.images[0]
+      : "");
+  const titleLower = (tour.title || tour.name || "").toLowerCase();
+
+  // Replace non-Türkiye or broken stock IDs from legacy seed
+  if (
+    !rawImg ||
+    rawImg.includes("1583422409516") ||
+    rawImg.includes("1532403431143")
+  ) {
+    if (titleLower.includes("cappadocia") || titleLower.includes("balloon")) {
+      return "https://images.unsplash.com/photo-1641128324972-af3212f0f6bd?auto=format&fit=crop&w=1200&q=85";
+    }
+    if (titleLower.includes("istanbul")) {
+      return "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1200&q=85";
+    }
+    return "https://images.unsplash.com/photo-1589561454226-796a8aa89b05?auto=format&fit=crop&w=1200&q=85";
+  }
+
+  return rawImg;
+}
+
 function mapBackendTour(tour: any) {
+  const destName =
+    tour.destination?.name ||
+    tour.destination_name ||
+    tour.city ||
+    tour.location;
+
   return {
     ...tour,
     name: tour.title || tour.name,
+    duration: tour.duration ?? tour.duration_hours ?? 8,
     max_group_size: tour.max_participants || tour.max_group_size || 12,
     highlights:
       Array.isArray(tour.includes) && tour.includes.length > 0
@@ -20,27 +53,19 @@ function mapBackendTour(tour: any) {
       typeof tour.rating === "number" && tour.rating > 0
         ? tour.rating
         : undefined,
-    difficulty: tour.difficulty || "easy",
-    location:
-      tour.destination_name ||
-      (tour.city ? `${tour.city}, ${tour.country || "Türkiye"}` : undefined) ||
-      tour.location ||
-      "Türkiye",
+    difficulty: tour.difficulty || tour.difficulty_level || "easy",
+    location: destName ? `${destName}, Türkiye` : "Türkiye",
     price:
       typeof tour.price_adult === "number"
         ? tour.price_adult
         : parseFloat(tour.price_adult ?? tour.price) || 0,
-    image_url:
-      tour.image_url ||
-      (Array.isArray(tour.images) && tour.images.length > 0
-        ? tour.images[0]
-        : undefined),
+    image_url: resolveAuthenticTourImage(tour),
     destinations: tour.destination_id
       ? {
           id: tour.destination_id,
-          name: tour.destination_name,
-          city: tour.city,
-          country: tour.country,
+          name: destName || "Türkiye",
+          city: tour.city || destName || "Türkiye",
+          country: tour.country || "Türkiye",
         }
       : tour.destinations,
   };
@@ -66,7 +91,15 @@ export const useTours = () => {
           return DEMO_TOURS;
         }
 
-        return toursArray.map(mapBackendTour);
+        const mapped = toursArray.map(mapBackendTour);
+        // Append curated Anatolian Atlas regional tours so all 6 regions are represented
+        const combined = [...mapped];
+        for (const demoTour of DEMO_TOURS) {
+          if (!combined.some((t) => t.id === demoTour.id)) {
+            combined.push(demoTour);
+          }
+        }
+        return combined;
       } catch {
         return DEMO_TOURS;
       }
@@ -90,7 +123,12 @@ export const useTour = (id: string) => {
 
       try {
         const response = await api.get(`/api/tours/${id}`);
-        return response.data;
+        const data = response.data;
+        return {
+          ...data,
+          image_url: resolveAuthenticTourImage(data),
+          images: [resolveAuthenticTourImage(data)],
+        };
       } catch (error: any) {
         if (demoMatch) {
           return demoMatch;
@@ -131,7 +169,6 @@ export const useTourAvailability = (tourId?: string) => {
         }
       }
 
-      // Deterministic availability schedule for next 45 days
       const maxSpots = demoMatch?.max_participants ?? 12;
       const today = new Date();
       return Array.from({ length: 45 }, (_, idx) => {

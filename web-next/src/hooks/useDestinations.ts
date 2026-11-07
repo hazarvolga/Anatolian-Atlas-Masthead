@@ -47,6 +47,68 @@ export interface CreateDestinationData {
   extra_info?: string;
 }
 
+function enrichAndMergeDestinations(rawList: any[]): Destination[] {
+  if (!Array.isArray(rawList) || rawList.length === 0) {
+    return DEMO_DESTINATIONS;
+  }
+
+  const enriched: Destination[] = rawList.map((item) => {
+    const lowerName = (item.name || item.slug || "").toLowerCase();
+    const matchedDemo = DEMO_DESTINATIONS.find(
+      (d) =>
+        (lowerName.includes("cappadocia") && d.id === "dest-cappadocia") ||
+        (lowerName.includes("istanbul") && d.id === "dest-istanbul") ||
+        (lowerName.includes("ephesus") && d.id === "dest-ephesus") ||
+        (lowerName.includes("lycia") && d.id === "dest-lycia") ||
+        (lowerName.includes("pamukkale") && d.id === "dest-pamukkale") ||
+        (lowerName.includes("mardin") && d.id === "dest-mardin")
+    );
+
+    return {
+      ...matchedDemo,
+      ...item,
+      name: matchedDemo?.name || item.name,
+      description: matchedDemo?.description || item.description,
+      image_url: item.image_url || matchedDemo?.image_url,
+      city: item.city || matchedDemo?.city || item.name,
+      country: item.country || matchedDemo?.country || "Türkiye",
+      coords: item.coords || matchedDemo?.coords,
+      best_time: item.best_time || matchedDemo?.best_time,
+      activities:
+        typeof item.activities === "string" && item.activities.length > 0
+          ? item.activities
+          : matchedDemo?.activities,
+      gallery_images:
+        Array.isArray(item.gallery_images) && item.gallery_images.length > 0
+          ? item.gallery_images
+          : matchedDemo?.gallery_images || [],
+      extra_info:
+        typeof item.extra_info === "string" && item.extra_info.length > 0
+          ? item.extra_info
+          : matchedDemo?.extra_info,
+    };
+  });
+
+  // Append remaining Anatolian Atlas regions not yet in DB so the 6-region index is complete
+  for (const demoDest of DEMO_DESTINATIONS) {
+    const alreadyPresent = enriched.some((d) => {
+      const n = d.name.toLowerCase();
+      if (demoDest.id === "dest-istanbul" && (n.includes("istanbul") || n.includes("i̇stanbul"))) return true;
+      if (demoDest.id === "dest-cappadocia" && n.includes("cappadocia")) return true;
+      if (demoDest.id === "dest-ephesus" && n.includes("ephesus")) return true;
+      if (demoDest.id === "dest-lycia" && (n.includes("kaş") || n.includes("lycia"))) return true;
+      if (demoDest.id === "dest-pamukkale" && (n.includes("pamukkale") || n.includes("hierapolis"))) return true;
+      if (demoDest.id === "dest-mardin" && n.includes("mardin")) return true;
+      return d.id === demoDest.id;
+    });
+    if (!alreadyPresent) {
+      enriched.push(demoDest);
+    }
+  }
+
+  return enriched;
+}
+
 export const useDestinations = () => {
   return useQuery({
     queryKey: ["destinations"],
@@ -57,8 +119,7 @@ export const useDestinations = () => {
 
       try {
         const { data } = await api.get("/api/destinations");
-        const list = Array.isArray(data) ? data : [];
-        return list.length > 0 ? list : DEMO_DESTINATIONS;
+        return enrichAndMergeDestinations(Array.isArray(data) ? data : []);
       } catch {
         return DEMO_DESTINATIONS;
       }
