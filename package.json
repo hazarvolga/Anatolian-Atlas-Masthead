@@ -6,24 +6,22 @@
   "license": "ISC",
   "author": "",
   "type": "module",
-  "main": "eslint.config.js",
   "scripts": {
     "dev": "npm --prefix web-next run dev",
     "build": "npm --prefix web-next run build",
     "start": "npm --prefix web-next run start",
     "typecheck": "npm --prefix web-next run typecheck",
     "lint": "npm --prefix web-next run lint",
-    "vite:dev": "vite",
-    "vite:build": "vite build",
+    "backend:dev": "npm --prefix backend run dev",
+    "prisma:migrate": "prisma migrate deploy",
+    "prisma:generate": "prisma generate",
     "db:migrate": "prisma migrate deploy",
     "db:generate": "prisma generate",
     "docker:dev": "docker-compose up -d --build",
-    "docker:prod": "docker-compose -f docker-compose.prod.yml up -d --build",
     "docker:stop": "docker-compose down",
     "docker:clean": "docker-compose down -v --remove-orphans",
     "docker:logs": "docker-compose logs -f",
-    "docker:build": "docker build -t tours-app .",
-    "docker:start": "./docker-start.sh"
+    "docker:build": "docker build -t tours-app ."
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",

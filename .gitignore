@@ -1,3 +1,7 @@
+# Local Archive (excluded from GitHub)
+/_archive/
+_archive/
+
 # Logs
 logs
 *.log
@@ -7,9 +11,12 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies & Build Outputs
 node_modules
 dist
 dist-ssr
+.next
+out
 *.local
 
 # Editor directories and files
@@ -30,24 +37,9 @@ dist-ssr
 .env.production
 .env.docker
 
-# Database and migration related files (from Supabase migration)
+# Database and migration related files
 *.sql
-# Prisma migrations must be versioned
 !prisma/migrations/**/*.sql
-progress_notes.md
-README_MIGRATION_NOTE.txt
-REMOVE_ME_MANUALLY.txt
 
-# Test and debug files
-test-*.js
-create-payment-*.js
-m-6005-main.zip
-
-# Docker and deployment files (keep only the ones we need)
-docker-start.sh
-README-DOCKER.md
-
-# Other temporary files
-# nginx.conf (commented out - needed for Docker deployment)
-
+# Generated Prisma client
 /generated/prisma
