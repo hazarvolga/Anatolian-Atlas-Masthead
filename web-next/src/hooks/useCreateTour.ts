@@ -4,6 +4,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { toast } from "@/components/ui/use-toast";
+import { triggerCatalogRevalidate } from "@/lib/cache/revalidate-client";
 
 export interface CreateTourData {
   // Frontend fields (primary)
@@ -60,9 +61,10 @@ export const useCreateTour = () => {
         throw new Error(err.response?.data?.message || 'Failed to create tour');
       }
     },
-    onSuccess: () => {
+    onSuccess: (created) => {
       queryClient.invalidateQueries({ queryKey: ['admin-tours'] });
       queryClient.invalidateQueries({ queryKey: ['tours'] });
+      void triggerCatalogRevalidate(['catalog-tours', ...(created?.id ? [`catalog-tour-${created.id}`] : [])]);
       toast({
         title: "Tur Oluşturuldu",
         description: "Tur başarıyla oluşturuldu.",

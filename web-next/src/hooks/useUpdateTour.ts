@@ -5,6 +5,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from "axios";
 import { toast } from "@/components/ui/use-toast";
 import { CreateTourData } from "./useCreateTour";
+import { triggerCatalogRevalidate } from "@/lib/cache/revalidate-client";
 
 export const useUpdateTour = () => {
   const queryClient = useQueryClient();
@@ -30,6 +31,7 @@ export const useUpdateTour = () => {
       queryClient.invalidateQueries({ queryKey: ['tours'] });
       // Also invalidate the specific tour being edited
       queryClient.invalidateQueries({ queryKey: ['adminTour', variables.tourId] });
+      void triggerCatalogRevalidate(['catalog-tours', `catalog-tour-${variables.tourId}`]);
       
       toast({
         title: "Tur Güncellendi",

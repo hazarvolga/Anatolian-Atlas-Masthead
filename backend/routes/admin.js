@@ -5,6 +5,25 @@ import { authMiddleware, adminMiddleware } from '../middleware/auth.js';
 const prisma = new PrismaClient();
 const router = express.Router();
 
+const NEXT_INTERNAL_URL = process.env.NEXT_INTERNAL_URL || 'http://127.0.0.1:3100';
+const REVALIDATE_SECRET = process.env.REVALIDATE_SECRET || 'nst-internal-revalidate-secret';
+
+async function notifyNextRevalidate(tags, paths = ['/', '/tours', '/destinations']) {
+  try {
+    await fetch(`${NEXT_INTERNAL_URL}/api/revalidate`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-revalidate-secret': REVALIDATE_SECRET,
+      },
+      body: JSON.stringify({ tags, paths }),
+      signal: AbortSignal.timeout(1500),
+    });
+  } catch {
+    // Non-blocking if Next.js server is not listening on NEXT_INTERNAL_URL
+  }
+}
+
 // Apply authentication and admin middleware to all routes in this file
 router.use(authMiddleware);
 router.use(adminMiddleware);
@@ -266,6 +285,7 @@ router.post('/tours', async (req, res) => {
             status: newTour.status
         };
         
+        await notifyNextRevalidate(['catalog-tours', `catalog-tour-${newTour.id}`, `catalog-tour-${newTour.slug}`]);
         res.status(201).json(formattedTour);
     } catch (error) {
         console.error('Error creating tour:', error);
@@ -437,6 +457,7 @@ router.put('/tours/:id', async (req, res) => {
             reservation_count: updatedTour._count.reservations
         };
 
+        await notifyNextRevalidate(['catalog-tours', `catalog-tour-${id}`, `catalog-tour-${updatedTour.slug}`]);
         res.json(formattedTour);
     } catch (error) {
         console.error(`Error updating tour ${id}:`, error);
@@ -569,6 +590,7 @@ router.put('/tours/:id/pricing-data', async (req, res) => {
             }
         });
 
+        await notifyNextRevalidate(['catalog-tours', `catalog-tour-${id}`]);
         res.json({ message: 'Tour pricing data updated successfully' });
     } catch (error) {
         console.error(`Error updating tour pricing data for tour ${id}:`, error);
@@ -600,6 +622,7 @@ router.delete('/tours/:id', async (req, res) => {
             // Finally delete the tour
             await tx.tour.delete({ where: { id } });
         });
+        await notifyNextRevalidate(['catalog-tours', `catalog-tour-${id}`]);
         res.status(204).send();
     } catch (error) {
         console.error(`Error deleting tour ${id}:`, error);
@@ -700,6 +723,7 @@ router.post('/destinations', async (req, res) => {
         
         const newDestination = await prisma.destination.create({ data: destinationData });
         console.log('Destination created successfully:', newDestination.id);
+        await notifyNextRevalidate(['catalog-destinations', 'catalog-tours']);
         res.status(201).json(newDestination);
     } catch (error) {
         console.error('Error creating destination:', error);
@@ -714,6 +738,7 @@ router.put('/destinations/:id', async (req, res) => {
             where: { id },
             data: req.body
         });
+        await notifyNextRevalidate(['catalog-destinations', 'catalog-tours']);
         res.json(updatedDestination);
     } catch (error) {
         console.error(`Error updating destination ${id}:`, error);
@@ -725,6 +750,7 @@ router.delete('/destinations/:id', async (req, res) => {
     const { id } = req.params;
     try {
         await prisma.destination.delete({ where: { id } });
+        await notifyNextRevalidate(['catalog-destinations', 'catalog-tours']);
         res.status(204).send();
     } catch (error) {
         console.error(`Error deleting destination ${id}:`, error);
@@ -917,6 +943,7 @@ router.post('/pages', async (req, res) => {
     }
 
     const page = await prisma.page.create({ data });
+    await notifyNextRevalidate(['cms-pages'], ['/', `/${page.slug}`]);
     res.status(201).json(page);
   } catch (error) {
     if (error.code === 'P2002') {
@@ -951,6 +978,7 @@ router.put('/pages/:id', async (req, res) => {
     }
 
     const updatedPage = await prisma.page.update({ where: { id: page.id }, data });
+    await notifyNextRevalidate(['cms-pages'], ['/', `/${updatedPage.slug}`]);
     res.json(updatedPage);
   } catch (error) {
     if (error.code === 'P2002') {
@@ -964,6 +992,7 @@ router.put('/pages/:id', async (req, res) => {
 router.delete('/pages/:id', async (req, res) => {
   try {
     await prisma.page.delete({ where: { id: req.params.id } });
+    await notifyNextRevalidate(['cms-pages'], ['/']);
     res.status(204).send();
   } catch (error) {
     if (error.code === 'P2025') {

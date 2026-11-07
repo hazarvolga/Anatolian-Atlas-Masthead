@@ -17,8 +17,9 @@ export default function NavbarDesktopNav() {
       path: "/destinations",
     },
     { index: "03", name: t.nav.tours || "Journeys", path: "/tours" },
-    { index: "04", name: t.nav.gallery || "Archive", path: "/gallery" },
-    { index: "05", name: t.nav.contact || "Inquiries", path: "/contact" },
+    { index: "04", name: "Journal", path: "/journal" },
+    { index: "05", name: t.nav.gallery || "Archive", path: "/gallery" },
+    { index: "06", name: t.nav.contact || "Inquiries", path: "/contact" },
   ];
 
   return (

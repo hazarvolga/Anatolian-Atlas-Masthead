@@ -5,6 +5,7 @@ import { api } from "@/lib/api/client";
 import { toast } from "@/components/ui/use-toast";
 import { isDemoMode } from "@/config/site";
 import { DEMO_DESTINATIONS } from "@/lib/data/demo-content";
+import { triggerCatalogRevalidate } from "@/lib/cache/revalidate-client";
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem("authToken");
@@ -47,68 +48,41 @@ export interface CreateDestinationData {
   extra_info?: string;
 }
 
-function enrichAndMergeDestinations(rawList: any[]): Destination[] {
-  if (!Array.isArray(rawList) || rawList.length === 0) {
-    return DEMO_DESTINATIONS;
-  }
+function normalizeDestination(item: any): Destination {
+  const extraObj =
+    item.extra_info && typeof item.extra_info === "object"
+      ? item.extra_info
+      : {};
+  const gallery = Array.isArray(item.gallery_images) ? item.gallery_images : [];
+  const activitiesArr = Array.isArray(item.activities) ? item.activities : [];
 
-  const enriched: Destination[] = rawList.map((item) => {
-    const lowerName = (item.name || item.slug || "").toLowerCase();
-    const matchedDemo = DEMO_DESTINATIONS.find(
-      (d) =>
-        (lowerName.includes("cappadocia") && d.id === "dest-cappadocia") ||
-        (lowerName.includes("istanbul") && d.id === "dest-istanbul") ||
-        (lowerName.includes("ephesus") && d.id === "dest-ephesus") ||
-        (lowerName.includes("lycia") && d.id === "dest-lycia") ||
-        (lowerName.includes("pamukkale") && d.id === "dest-pamukkale") ||
-        (lowerName.includes("mardin") && d.id === "dest-mardin")
-    );
-
-    return {
-      ...matchedDemo,
-      ...item,
-      name: matchedDemo?.name || item.name,
-      description: matchedDemo?.description || item.description,
-      image_url: matchedDemo?.image_url || item.image_url,
-      city: matchedDemo?.city || item.city || item.name,
-      country: item.country || matchedDemo?.country || "Türkiye",
-      coords: item.coords || matchedDemo?.coords,
-      best_time: item.best_time || matchedDemo?.best_time,
-      activities:
-        typeof item.activities === "string" && item.activities.length > 0
-          ? item.activities
-          : matchedDemo?.activities,
-      gallery_images:
-        Array.isArray(item.gallery_images) && item.gallery_images.length > 0
-          ? item.gallery_images
-          : matchedDemo?.gallery_images || [],
-      extra_info:
-        typeof item.extra_info === "string" && item.extra_info.length > 0
-          ? item.extra_info
-          : matchedDemo?.extra_info,
-    };
-  });
-
-  // Deduplicate by canonical region name and append remaining Anatolian Atlas regions
-  const seenNames = new Set<string>();
-  const uniqueEnriched: Destination[] = [];
-  for (const d of enriched) {
-    const key = d.name.toLowerCase();
-    if (!seenNames.has(key)) {
-      seenNames.add(key);
-      uniqueEnriched.push(d);
-    }
-  }
-
-  for (const demoDest of DEMO_DESTINATIONS) {
-    const key = demoDest.name.toLowerCase();
-    if (!seenNames.has(key)) {
-      seenNames.add(key);
-      uniqueEnriched.push(demoDest);
-    }
-  }
-
-  return uniqueEnriched;
+  return {
+    ...item,
+    id: item.slug || item.id,
+    name: item.name,
+    description: item.description,
+    image_url:
+      item.image_url ||
+      extraObj.image_url ||
+      gallery[0] ||
+      "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1200&q=85",
+    city: item.city || item.name,
+    country: item.country || "Türkiye",
+    coords: item.coords,
+    best_time: item.best_time,
+    activities:
+      typeof item.activities === "string"
+        ? item.activities
+        : activitiesArr.join(", "),
+    gallery_images: gallery,
+    extra_info:
+      typeof item.extra_info === "string"
+        ? item.extra_info
+        : extraObj.note || undefined,
+    _count: {
+      tours: item._count?.tours ?? item.tour_count ?? 1,
+    },
+  };
 }
 
 export const useDestinations = () => {
@@ -119,12 +93,9 @@ export const useDestinations = () => {
         return DEMO_DESTINATIONS;
       }
 
-      try {
-        const { data } = await api.get("/api/destinations");
-        return enrichAndMergeDestinations(Array.isArray(data) ? data : []);
-      } catch {
-        return DEMO_DESTINATIONS;
-      }
+      const { data } = await api.get("/api/destinations");
+      const rawList = Array.isArray(data) ? data : [];
+      return rawList.map(normalizeDestination);
     },
   });
 };
@@ -156,6 +127,7 @@ export const useCreateDestination = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-destinations"] });
       queryClient.invalidateQueries({ queryKey: ["destinations"] });
+      void triggerCatalogRevalidate(["catalog-destinations", "catalog-tours"]);
       toast({
         title: "Destination Created",
         description: "Destination created successfully.",
@@ -194,6 +166,7 @@ export const useUpdateDestination = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-destinations"] });
       queryClient.invalidateQueries({ queryKey: ["destinations"] });
+      void triggerCatalogRevalidate(["catalog-destinations", "catalog-tours"]);
       toast({
         title: "Destination Updated",
         description: "Destination updated successfully.",
@@ -224,6 +197,7 @@ export const useDeleteDestination = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-destinations"] });
       queryClient.invalidateQueries({ queryKey: ["destinations"] });
+      void triggerCatalogRevalidate(["catalog-destinations", "catalog-tours"]);
       toast({
         title: "Destination Deleted",
         description: "Destination deleted successfully.",

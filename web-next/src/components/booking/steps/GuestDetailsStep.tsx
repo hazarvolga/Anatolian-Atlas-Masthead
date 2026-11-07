@@ -48,11 +48,12 @@ export default function GuestDetailsStep({
                 >
                   <Minus className="h-4 w-4" />
                 </Button>
-                <span className="w-8 text-center font-medium">{adults}</span>
+                <span data-testid="adults-count" className="w-8 text-center font-medium">{adults}</span>
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
+                  data-testid="adults-plus"
                   onClick={() => onAdultsChange(adults + 1)}
                 >
                   <Plus className="h-4 w-4" />

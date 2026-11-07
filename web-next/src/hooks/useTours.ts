@@ -32,16 +32,26 @@ function resolveAuthenticTourImage(tour: any): string {
 }
 
 function mapBackendTour(tour: any) {
+  const metadataObj =
+    tour.metadata && typeof tour.metadata === "object" ? tour.metadata : {};
   const destName =
     tour.destination?.name ||
     tour.destination_name ||
+    metadataObj.city ||
     tour.city ||
     tour.location;
+  const durationHours = tour.duration ?? tour.duration_hours ?? 8;
 
   return {
     ...tour,
+    id: tour.slug || tour.id,
     name: tour.title || tour.name,
-    duration: tour.duration ?? tour.duration_hours ?? 8,
+    duration: durationHours,
+    duration_hours: durationHours,
+    tour_type:
+      metadataObj.tour_type ||
+      tour.tour_type ||
+      (durationHours >= 24 ? "multiple_day" : "one_day"),
     max_group_size: tour.max_participants || tour.max_group_size || 12,
     highlights:
       Array.isArray(tour.includes) && tour.includes.length > 0
@@ -49,6 +59,17 @@ function mapBackendTour(tour: any) {
         : Array.isArray(tour.highlights)
           ? tour.highlights
           : [],
+    included: Array.isArray(tour.includes) ? tour.includes : [],
+    excluded: Array.isArray(tour.excludes) ? tour.excludes : [],
+    itinerary: Array.isArray(metadataObj.itinerary)
+      ? metadataObj.itinerary
+      : Array.isArray(tour.itinerary)
+        ? tour.itinerary
+        : [],
+    departure_location:
+      metadataObj.departure_location || tour.departure_location || destName,
+    departure_time: metadataObj.departure_time || tour.departure_time || "08:00",
+    return_time: metadataObj.return_time || tour.return_time || "18:00",
     rating:
       typeof tour.rating === "number" && tour.rating > 0
         ? tour.rating
@@ -62,9 +83,9 @@ function mapBackendTour(tour: any) {
     image_url: resolveAuthenticTourImage(tour),
     destinations: tour.destination_id
       ? {
-          id: tour.destination_id,
+          id: tour.destination?.slug || tour.destination_id,
           name: destName || "Türkiye",
-          city: tour.city || destName || "Türkiye",
+          city: metadataObj.city || tour.city || destName || "Türkiye",
           country: tour.country || "Türkiye",
         }
       : tour.destinations,
@@ -79,30 +100,14 @@ export const useTours = () => {
         return DEMO_TOURS;
       }
 
-      try {
-        const response = await api.get("/api/tours");
-        const toursArray = Array.isArray(response.data?.tours)
-          ? response.data.tours
-          : Array.isArray(response.data)
-            ? response.data
-            : [];
+      const response = await api.get("/api/tours");
+      const toursArray = Array.isArray(response.data?.tours)
+        ? response.data.tours
+        : Array.isArray(response.data)
+          ? response.data
+          : [];
 
-        if (toursArray.length === 0) {
-          return DEMO_TOURS;
-        }
-
-        const mapped = toursArray.map(mapBackendTour);
-        // Append curated Anatolian Atlas regional tours so all 6 regions are represented
-        const combined = [...mapped];
-        for (const demoTour of DEMO_TOURS) {
-          if (!combined.some((t) => t.id === demoTour.id)) {
-            combined.push(demoTour);
-          }
-        }
-        return combined;
-      } catch {
-        return DEMO_TOURS;
-      }
+      return toursArray.map(mapBackendTour);
     },
     staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
@@ -116,27 +121,13 @@ export const useTour = (id: string) => {
     queryFn: async () => {
       if (!id) return null;
 
-      const demoMatch = DEMO_TOURS.find((t) => t.id === id);
-      if (demoMatch) {
-        return demoMatch;
+      if (isDemoMode()) {
+        return DEMO_TOURS.find((t) => t.id === id) || DEMO_TOURS[0] || null;
       }
 
-      try {
-        const response = await api.get(`/api/tours/${id}`);
-        const data = response.data;
-        return {
-          ...data,
-          image_url: resolveAuthenticTourImage(data),
-          images: [resolveAuthenticTourImage(data)],
-        };
-      } catch (error: any) {
-        if (demoMatch) {
-          return demoMatch;
-        }
-        throw new Error(
-          error.response?.data?.message || "Failed to fetch tour"
-        );
-      }
+      const response = await api.get(`/api/tours/${id}`);
+      const data = response.data;
+      return mapBackendTour(data);
     },
     enabled: !!id,
   });

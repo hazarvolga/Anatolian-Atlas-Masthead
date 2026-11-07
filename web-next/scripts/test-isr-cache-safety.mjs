@@ -1,19 +1,26 @@
 #!/usr/bin/env node
 /**
- * Verification Suite: Non-Poisoning ISR / Server Catalog Cache & API_INTERNAL_URL
+ * Verification Suite: Non-Poisoning ISR Cache, Strict NEXT_PUBLIC_DEMO_MODE Gate & revalidateTag
  *
  * Proves that:
  * 1. Server catalog fetches use process.env.API_INTERNAL_URL.
- * 2. When Express returns HTTP 500, getServerTours() returns fallback data WITHOUT caching it.
- * 3. When Express returns HTTP 200 with an empty array `[]`, getServerTours() rejects before cache write and returns fallback WITHOUT caching `[]`.
- * 4. When Express is unreachable (connection refused), getServerDestinations() returns fallback WITHOUT caching it.
- * 5. Immediately (0ms wait, well inside 120s TTL) when Express returns valid non-empty data, getServerTours() & getServerDestinations() serve and cache the live upstream payload.
- * 6. Subsequent requests within TTL are served from the cache (0 additional upstream requests).
+ * 2. When NEXT_PUBLIC_DEMO_MODE=false (live mode) and Express returns HTTP 500 or empty `[]`,
+ *    getServerToursWithStatus() returns status=503, upstreamError=true, data=[] (NO FAKE TOURS)
+ *    and does NOT write to the ISR cache.
+ * 3. When NEXT_PUBLIC_DEMO_MODE=true (demo mode) and Express returns HTTP 500,
+ *    getServerToursWithStatus() returns DEMO_TOURS (source="demo") WITHOUT writing to the ISR cache.
+ * 4. Immediately (0ms wait, inside 120s TTL) when Express recovers in live mode (NEXT_PUBLIC_DEMO_MODE=false),
+ *    getServerTours() serves and caches the live upstream payload.
+ * 5. Subsequent requests within TTL are served from the cache (0 additional upstream requests).
+ * 6. When Admin updates a tour/destination/page and calls invalidateCatalogCacheByTags(["catalog-tours"])
+ *    (backed by Next.js 16 revalidateTag), the cached entry is immediately evicted and the next
+ *    getServerTours() call returns the updated v2 payload from Express.
  */
 
 import http from "node:http";
 
 let mockMode = "error_500";
+let tourTitleVersion = "Live Express Bosphorus Archival Walk v1";
 let upstreamRequestCount = 0;
 
 const server = http.createServer((req, res) => {
@@ -39,7 +46,7 @@ const server = http.createServer((req, res) => {
         JSON.stringify([
           {
             id: "live-express-tour-99",
-            title: "Live Express Bosphorus Archival Walk",
+            title: tourTitleVersion,
             description: "Served from internal Express API_INTERNAL_URL.",
             city: "İstanbul",
             country: "Türkiye",
@@ -80,14 +87,16 @@ await new Promise((resolve) => server.listen(0, "127.0.0.1", resolve));
 const address = server.address();
 const port = typeof address === "object" && address ? address.port : 0;
 
-// Point API_INTERNAL_URL to our local mock Express server
+// Point API_INTERNAL_URL to our local mock Express server in strict live mode (DEMO_MODE=false)
 process.env.API_INTERNAL_URL = `http://127.0.0.1:${port}`;
-process.env.NEXT_PUBLIC_DATA_MODE = "connected";
+process.env.NEXT_PUBLIC_DEMO_MODE = "false";
 
 const {
   getServerTours,
+  getServerToursWithStatus,
   getServerDestinations,
   getCatalogCacheDiagnostics,
+  invalidateCatalogCacheByTags,
   resetCatalogCacheForTests,
 } = await import("../src/lib/data/server-catalog.ts");
 
@@ -101,33 +110,38 @@ function assert(condition, message) {
 }
 
 console.log(
-  `Running ISR Cache Non-Poisoning Verification against API_INTERNAL_URL=${process.env.API_INTERNAL_URL}...\n`
+  `Running ISR Cache Safety, Strict DEMO_MODE Gate & revalidateTag Verification against API_INTERNAL_URL=${process.env.API_INTERNAL_URL}...\n`
 );
 
 resetCatalogCacheForTests();
 
-// 1. Test HTTP 500 error from upstream
+// 1. Test HTTP 500 error in LIVE mode (NEXT_PUBLIC_DEMO_MODE=false) -> must return 503 & 0 fake tours
 mockMode = "error_500";
-const fallbackOn500 = await getServerTours();
+process.env.NEXT_PUBLIC_DEMO_MODE = "false";
+const live500Result = await getServerToursWithStatus();
 const diagAfter500 = getCatalogCacheDiagnostics();
 assert(
-  fallbackOn500.length > 0 && fallbackOn500[0].id !== "live-express-tour-99",
-  "1. HTTP 500 returns fallback DEMO_TOURS gracefully"
+  live500Result.status === 503 &&
+    live500Result.upstreamError === true &&
+    live500Result.data.length === 0,
+  `1. [LIVE MODE: NEXT_PUBLIC_DEMO_MODE=false] HTTP 500 returns status=503 & data=[] (zero fake demo tours shown)`
 );
 assert(
   diagAfter500.writes === 0 &&
     diagAfter500.cachedKeys.length === 0 &&
     diagAfter500.poisonAttemptsBlocked === 1,
-  `2. HTTP 500 did NOT write fallback to ISR cache (writes=${diagAfter500.writes}, poisonAttemptsBlocked=${diagAfter500.poisonAttemptsBlocked})`
+  `2. HTTP 500 did NOT poison ISR cache (writes=${diagAfter500.writes}, poisonAttemptsBlocked=${diagAfter500.poisonAttemptsBlocked})`
 );
 
-// 2. Test HTTP 200 with empty array [] from upstream
+// 2. Test HTTP 200 with empty array [] in LIVE mode -> must return 503 & block cache poisoning
 mockMode = "empty_200";
-const fallbackOnEmpty = await getServerTours();
+const liveEmptyResult = await getServerToursWithStatus();
 const diagAfterEmpty = getCatalogCacheDiagnostics();
 assert(
-  fallbackOnEmpty.length > 0 && fallbackOnEmpty[0].id !== "live-express-tour-99",
-  "3. HTTP 200 with empty [] returns fallback DEMO_TOURS gracefully"
+  liveEmptyResult.status === 503 &&
+    liveEmptyResult.upstreamError === true &&
+    liveEmptyResult.data.length === 0,
+  `3. [LIVE MODE: NEXT_PUBLIC_DEMO_MODE=false] HTTP 200 empty [] returns status=503 & data=[]`
 );
 assert(
   diagAfterEmpty.writes === 0 &&
@@ -136,40 +150,72 @@ assert(
   `4. HTTP 200 with empty [] was blocked from poisoning ISR cache (writes=${diagAfterEmpty.writes}, poisonAttemptsBlocked=${diagAfterEmpty.poisonAttemptsBlocked})`
 );
 
-// 3. Immediately switch upstream to healthy live data (0ms wait — proving fallback wasn't cached for 120s)
+// 3. Test HTTP 500 error in explicit DEMO mode (NEXT_PUBLIC_DEMO_MODE=true) -> returns DEMO_TOURS without caching
+mockMode = "error_500";
+process.env.NEXT_PUBLIC_DEMO_MODE = "true";
+const demo500Result = await getServerToursWithStatus();
+const diagAfterDemo500 = getCatalogCacheDiagnostics();
+assert(
+  demo500Result.status === 200 &&
+    demo500Result.source === "demo" &&
+    demo500Result.data.length === 6,
+  `5. [DEMO MODE: NEXT_PUBLIC_DEMO_MODE=true] HTTP 500 falls back to DEMO_TOURS (count=${demo500Result.data.length}) only when explicitly enabled`
+);
+assert(
+  diagAfterDemo500.writes === 0 && diagAfterDemo500.poisonAttemptsBlocked === 3,
+  `6. DEMO_TOURS fallback was NOT written into the ISR cache (writes=${diagAfterDemo500.writes})`
+);
+
+// 4. Switch back to LIVE mode (NEXT_PUBLIC_DEMO_MODE=false) and healthy upstream (0ms wait)
+process.env.NEXT_PUBLIC_DEMO_MODE = "false";
 mockMode = "healthy_live";
 const reqCountBeforeLive = upstreamRequestCount;
 const liveTours = await getServerTours();
 const diagAfterLive = getCatalogCacheDiagnostics();
 assert(
-  liveTours[0].id === "live-express-tour-99",
-  "5. Immediately after upstream recovery (0ms wait), getServerTours() returns live Express data from API_INTERNAL_URL"
+  liveTours[0].id === "live-express-tour-99" &&
+    liveTours[0].title === "Live Express Bosphorus Archival Walk v1",
+  "7. Immediately after upstream recovery (0ms wait), getServerTours() returns live Express data from API_INTERNAL_URL"
 );
 assert(
   diagAfterLive.writes === 1 && diagAfterLive.cachedKeys.length === 1,
-  `6. Valid non-empty live payload is written to ISR cache (writes=${diagAfterLive.writes}, key=${diagAfterLive.cachedKeys[0]})`
+  `8. Valid non-empty live payload is written to ISR cache (writes=${diagAfterLive.writes}, key=${diagAfterLive.cachedKeys[0]})`
 );
 
-// 4. Verify subsequent call within 120s TTL is served from cache without hitting upstream
+// 5. Verify subsequent call within 120s TTL is served from cache without hitting upstream
 const cachedTours = await getServerTours();
 const diagAfterCacheHit = getCatalogCacheDiagnostics();
 assert(
-  cachedTours[0].id === "live-express-tour-99" &&
+  cachedTours[0].title === "Live Express Bosphorus Archival Walk v1" &&
     diagAfterCacheHit.hits === 1 &&
     upstreamRequestCount === reqCountBeforeLive + 1,
-  `7. Subsequent call within 120s TTL is served from cache (hits=${diagAfterCacheHit.hits}, extra upstream calls=0)`
+  `9. Subsequent call within 120s TTL is served from cache (hits=${diagAfterCacheHit.hits}, extra upstream calls=0)`
 );
 
-// 5. Test getServerDestinations() against healthy upstream
+// 6. Test Admin save -> revalidateTag("catalog-tours") immediate cache eviction & fresh fetch
+tourTitleVersion = "Live Express Bosphorus Archival Walk v2 (Updated via Admin)";
+const revalResult = invalidateCatalogCacheByTags(["catalog-tours"]);
+const diagAfterRevalidate = getCatalogCacheDiagnostics();
+const refreshedTours = await getServerTours();
+assert(
+  revalResult.revalidated === true &&
+    diagAfterRevalidate.tagRevalidations === 1 &&
+    diagAfterRevalidate.cachedKeys.length === 0 &&
+    refreshedTours[0].title ===
+      "Live Express Bosphorus Archival Walk v2 (Updated via Admin)",
+  `10. Admin revalidateTag("catalog-tours") immediately evicted cached entry (tags=${revalResult.tags.join(",")}) and served updated v2 tour title`
+);
+
+// 7. Test getServerDestinations() against healthy upstream
 const liveDestinations = await getServerDestinations();
 const diagAfterDest = getCatalogCacheDiagnostics();
 assert(
   liveDestinations[0].id === "live-express-dest-istanbul" &&
-    diagAfterDest.writes === 2,
-  "8. getServerDestinations() fetches via API_INTERNAL_URL, enriches with Atlas metadata, and caches valid payload"
+    diagAfterDest.writes === 3,
+  "11. getServerDestinations() fetches via API_INTERNAL_URL, enriches with Atlas metadata, and caches valid payload"
 );
 
 server.close();
 console.log(
-  "\nAll 8 ISR cache non-poisoning and API_INTERNAL_URL assertions passed."
+  "\nAll 11 ISR cache safety, strict NEXT_PUBLIC_DEMO_MODE gate, and revalidateTag assertions passed."
 );

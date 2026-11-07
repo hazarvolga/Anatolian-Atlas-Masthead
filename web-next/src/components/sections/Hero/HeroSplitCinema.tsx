@@ -6,6 +6,7 @@ import { ArrowUpRight } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { CoordTag } from "@/components/ui/coord-tag";
 import { SplitTextHeading, MagneticCTA } from "@/components/motion";
+import { isDemoMode } from "@/config/site";
 import type { Destination } from "@/hooks/useDestinations";
 import type { DemoTour } from "@/lib/data/demo-content";
 import { DEMO_DESTINATIONS, DEMO_TOURS } from "@/lib/data/demo-content";
@@ -23,19 +24,26 @@ export default function HeroSplitCinema({
   const regions =
     Array.isArray(initialDestinations) && initialDestinations.length > 0
       ? initialDestinations.slice(0, 6)
-      : DEMO_DESTINATIONS.slice(0, 6);
+      : isDemoMode()
+        ? DEMO_DESTINATIONS.slice(0, 6)
+        : [];
 
   const [activeIndex, setActiveIndex] = useState(0);
   const activeRegion = regions[activeIndex] || regions[0];
 
+  const availableTours =
+    Array.isArray(initialTours) && initialTours.length > 0
+      ? initialTours
+      : isDemoMode()
+        ? DEMO_TOURS
+        : [];
+
   const matchingTour =
-    DEMO_TOURS.find(
+    availableTours.find(
       (tr) =>
         tr.destination_id === activeRegion?.id ||
         tr.city?.toLowerCase() === activeRegion?.city?.toLowerCase()
-    ) ||
-    (Array.isArray(initialTours) ? initialTours[0] : undefined) ||
-    DEMO_TOURS[0];
+    ) || availableTours[0];
 
   return (
     <section className="relative pt-16 md:pt-20 bg-background border-b border-border">

@@ -6,6 +6,7 @@ import TourCard from "@/components/TourCard";
 import { useTours } from "@/hooks/useTours";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useDesignSystem } from "@/contexts/DesignSystemContext";
+import { ErrorState } from "@/components/ui/error-state";
 import { formatPrice } from "@/config/site";
 import type { DemoTour } from "@/lib/data/demo-content";
 
@@ -66,11 +67,13 @@ export default function ToursSection({
               <div className="h-[420px] bg-muted/40 animate-pulse border border-border" />
             </div>
           </div>
-        ) : error ? (
-          <div className="p-10 border-x border-b border-border bg-card text-center">
-            <p className="text-text-secondary">
-              Unable to load field itineraries at the moment.
-            </p>
+        ) : error || safeTours.length === 0 ? (
+          <div className="pt-8">
+            <ErrorState
+              code="HTTP 503 — CATALOGUE GATEWAY UNAVAILABLE"
+              title="Live expedition catalogue temporarily unreachable"
+              description="Our reservation ledger did not respond within the expected window. In live mode, demo fallback tours are suppressed."
+            />
           </div>
         ) : (
           <div className="space-y-12">

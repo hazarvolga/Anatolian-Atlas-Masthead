@@ -58,6 +58,7 @@ export default function Footer() {
       path: "/destinations",
     },
     { name: t.nav.tours || "Journeys", path: "/tours" },
+    { name: "Journal", path: "/journal" },
     { name: t.nav.gallery || "Archive", path: "/gallery" },
     { name: t.nav.contact || "Inquiries", path: "/contact" },
   ];

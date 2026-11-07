@@ -7,6 +7,7 @@ import { CoordTag } from "@/components/ui/coord-tag";
 import { TiltRegionCard } from "@/components/motion";
 import { useRevealOnScroll } from "@/lib/motion/hooks";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { isDemoMode } from "@/config/site";
 import type { Destination } from "@/hooks/useDestinations";
 import { DEMO_DESTINATIONS } from "@/lib/data/demo-content";
 
@@ -23,7 +24,9 @@ export default function DestinationsGridMosaic({
   const regions =
     Array.isArray(initialDestinations) && initialDestinations.length > 0
       ? initialDestinations.slice(0, 6)
-      : DEMO_DESTINATIONS.slice(0, 6);
+      : isDemoMode()
+        ? DEMO_DESTINATIONS.slice(0, 6)
+        : [];
 
   return (
     <section

@@ -50,16 +50,18 @@ export const siteConfig = {
     enableDesignStudio: process.env.ENABLE_DESIGN_STUDIO !== "false",
     allowUrlThemePreview: process.env.NEXT_PUBLIC_ALLOW_THEME_PREVIEW !== "false",
   },
-  dataMode: (process.env.NEXT_PUBLIC_DATA_MODE === "demo"
+  dataMode: (process.env.NEXT_PUBLIC_DEMO_MODE === "true"
     ? "demo"
     : "connected") as DataMode,
 } as const;
 
+/**
+ * Strictly returns true ONLY when NEXT_PUBLIC_DEMO_MODE === "true".
+ * In live mode (default), upstream errors must return HTTP 503 / ErrorState
+ * and never fall back to fake demo tours.
+ */
 export function isDemoMode(): boolean {
-  return (
-    process.env.NEXT_PUBLIC_DATA_MODE === "demo" ||
-    siteConfig.dataMode === "demo"
-  );
+  return process.env.NEXT_PUBLIC_DEMO_MODE === "true";
 }
 
 /**

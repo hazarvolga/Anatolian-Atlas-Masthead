@@ -35,18 +35,16 @@ router.get('/', async (req, res) => {
 // GET /api/destinations/:id - Get a single destination with its active tours
 router.get('/:id', async (req, res) => {
   const { id } = req.params;
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
   try {
     const destination = await prisma.destination.findFirst({
-      where: {
-        OR: [
-          { id: id },
-          { slug: id },
-        ],
-      },
+      where: isUuid
+        ? { OR: [{ id }, { slug: id }] }
+        : { slug: id },
       include: {
         tours: {
           where: { status: 'active' },
-          orderBy: { created_at: 'desc' }, // Corrected field name
+          orderBy: { created_at: 'desc' },
         },
       },
     });

@@ -1,4 +1,4 @@
-import { unstable_cache } from "next/cache.js";
+import { revalidatePath, revalidateTag, unstable_cache } from "next/cache.js";
 import { getInternalApiBaseUrl, isDemoMode } from "../../config/site.config.ts";
 import {
   DEMO_DESTINATIONS,
@@ -10,13 +10,13 @@ import type { Destination } from "../../hooks/useDestinations.ts";
 const CATALOG_REVALIDATE_SECONDS = 120;
 
 export class CatalogUpstreamError extends Error {
-  public readonly status?: number;
+  public readonly status: number;
   public readonly reason: "http_error" | "empty_payload" | "network_error";
 
   constructor(
     message: string,
     reason: "http_error" | "empty_payload" | "network_error",
-    status?: number
+    status = 503
   ) {
     super(message);
     this.name = "CatalogUpstreamError";
@@ -25,8 +25,17 @@ export class CatalogUpstreamError extends Error {
   }
 }
 
+export interface ServerCatalogResult<T> {
+  data: T;
+  upstreamError: boolean;
+  status: 200 | 404 | 503;
+  source: "live" | "demo" | "error";
+  errorMessage?: string;
+}
+
 interface CacheEntry<T> {
   value: T;
+  tags: string[];
   expiresAt: number;
 }
 
@@ -35,6 +44,8 @@ let cacheStats = {
   hits: 0,
   writes: 0,
   poisonAttemptsBlocked: 0,
+  tagRevalidations: 0,
+  lastRevalidatedTags: [] as string[],
 };
 
 export function getCatalogCacheDiagnostics() {
@@ -46,15 +57,59 @@ export function getCatalogCacheDiagnostics() {
 
 export function resetCatalogCacheForTests() {
   validatedMemoryCache.clear();
-  cacheStats = { hits: 0, writes: 0, poisonAttemptsBlocked: 0 };
+  cacheStats = {
+    hits: 0,
+    writes: 0,
+    poisonAttemptsBlocked: 0,
+    tagRevalidations: 0,
+    lastRevalidatedTags: [],
+  };
 }
 
 /**
- * Executes a loader function and caches the result ONLY if the loader resolves
- * with a valid non-empty value. If the loader throws CatalogUpstreamError (e.g.
- * HTTP 5xx, timeout, or HTTP 200 with empty [] array), the error is rethrown
- * BEFORE writing to either memory cache or Next.js Data Cache (unstable_cache).
+ * Purges both Next.js 16 ISR Data Cache (`revalidateTag(tag, { expire: 0 })`)
+ * and the in-process validated cache for all entries matching any of `tags`.
  */
+export function invalidateCatalogCacheByTags(
+  tags: string[],
+  paths: string[] = ["/", "/tours", "/destinations"]
+) {
+  const tagSet = new Set(tags);
+
+  for (const [key, entry] of validatedMemoryCache.entries()) {
+    if (entry.tags.some((t) => tagSet.has(t))) {
+      validatedMemoryCache.delete(key);
+    }
+  }
+
+  for (const tag of tagSet) {
+    try {
+      // Next.js 16 2-argument signature: immediate expiration on admin write
+      revalidateTag(tag, { expire: 0 });
+    } catch {
+      // Outside Next.js request context (e.g., standalone Node test script)
+    }
+  }
+
+  for (const p of paths) {
+    try {
+      revalidatePath(p);
+    } catch {
+      // Outside Next.js request context
+    }
+  }
+
+  cacheStats.tagRevalidations += 1;
+  cacheStats.lastRevalidatedTags = Array.from(tagSet);
+
+  return {
+    revalidated: true,
+    tags: Array.from(tagSet),
+    paths,
+    tagRevalidations: cacheStats.tagRevalidations,
+  };
+}
+
 async function withNonPoisoningCache<T>(
   cacheKey: string,
   tags: string[],
@@ -75,6 +130,7 @@ async function withNonPoisoningCache<T>(
       const freshValue = await loader();
       validatedMemoryCache.set(cacheKey, {
         value: freshValue,
+        tags,
         expiresAt: Date.now() + ttlSeconds * 1000,
       });
       cacheStats.writes += 1;
@@ -86,17 +142,12 @@ async function withNonPoisoningCache<T>(
   };
 
   try {
-    // Wrap in Next.js unstable_cache when inside the Next.js server runtime.
-    // Because runValidatedLoader throws on empty/error, unstable_cache will NOT
-    // store the rejected promise in Next.js ISR Data Cache.
     const nextCachedFn = unstable_cache(runValidatedLoader, [cacheKey], {
       revalidate: ttlSeconds,
       tags,
     });
     return await nextCachedFn();
   } catch (err) {
-    // If unstable_cache is called outside Next.js request context (e.g. CLI verification script),
-    // fall back to direct execution of runValidatedLoader which still enforces non-poisoning rules.
     if (
       err instanceof Error &&
       err.message.includes("incrementalCache missing")
@@ -107,42 +158,27 @@ async function withNonPoisoningCache<T>(
   }
 }
 
-function resolveAuthenticTourImage(tour: Record<string, unknown>): string {
-  const images = Array.isArray(tour.images) ? (tour.images as string[]) : [];
-  const rawImg =
-    (typeof tour.image_url === "string" ? tour.image_url : "") ||
-    images[0] ||
-    "";
-  const titleLower = String(tour.title || tour.name || "").toLowerCase();
-
-  if (
-    !rawImg ||
-    rawImg.includes("1583422409516") ||
-    rawImg.includes("1532403431143")
-  ) {
-    if (titleLower.includes("cappadocia") || titleLower.includes("balloon")) {
-      return "https://images.unsplash.com/photo-1570939274717-7eda259b50ed?auto=format&fit=crop&w=1200&q=85";
-    }
-    if (titleLower.includes("istanbul")) {
-      return "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1200&q=85";
-    }
-    return "https://images.unsplash.com/photo-1589561454226-796a8aa89b05?auto=format&fit=crop&w=1200&q=85";
-  }
-
-  return rawImg;
-}
-
 function normalizeServerTour(raw: Record<string, unknown>): DemoTour {
   const destinationObj =
     raw.destination && typeof raw.destination === "object"
       ? (raw.destination as Record<string, unknown>)
       : undefined;
+  const metadataObj =
+    raw.metadata && typeof raw.metadata === "object"
+      ? (raw.metadata as Record<string, unknown>)
+      : {};
+
   const destName = String(
     destinationObj?.name ||
       raw.destination_name ||
+      metadataObj.city ||
       raw.city ||
       raw.location ||
       "Türkiye"
+  );
+
+  const city = String(
+    metadataObj.city || raw.city || destinationObj?.name || "Türkiye"
   );
 
   const priceAdult =
@@ -150,42 +186,120 @@ function normalizeServerTour(raw: Record<string, unknown>): DemoTour {
       ? raw.price_adult
       : parseFloat(String(raw.price_adult ?? raw.price ?? 0)) || 0;
 
+  const images = Array.isArray(raw.images) ? (raw.images as string[]) : [];
+  const imageUrl =
+    (typeof raw.image_url === "string" && raw.image_url) ||
+    images[0] ||
+    "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1200&q=85";
+
+  const durationHours = Number(raw.duration_hours ?? raw.duration ?? 8);
+  const tourType =
+    (metadataObj.tour_type as DemoTour["tour_type"]) ||
+    (raw.tour_type as DemoTour["tour_type"]) ||
+    (durationHours >= 24 ? "multiple_day" : "one_day");
+
+  const itinerary = Array.isArray(metadataObj.itinerary)
+    ? (metadataObj.itinerary as DemoTour["itinerary"])
+    : Array.isArray(raw.itinerary)
+      ? (raw.itinerary as DemoTour["itinerary"])
+      : [];
+
   return {
     ...(raw as unknown as DemoTour),
-    id: String(raw.id || ""),
+    id: String(raw.slug || raw.id || ""),
     title: String(raw.title || raw.name || ""),
     name: String(raw.title || raw.name || ""),
     description: String(raw.description || ""),
-    destination_id: String(raw.destination_id || ""),
+    destination_id: String(
+      destinationObj?.slug || raw.destination_id || ""
+    ),
     destination_name: destName,
-    city: String(raw.city || destName),
+    city,
     country: String(raw.country || "Türkiye"),
-    location: destName.includes("Türkiye") ? destName : `${destName}, Türkiye`,
+    location: city.includes("Türkiye") ? city : `${city}, Türkiye`,
     price_adult: priceAdult,
     price: priceAdult,
-    duration: Number(raw.duration ?? raw.duration_hours ?? 8),
-    duration_hours: Number(raw.duration_hours ?? raw.duration ?? 8),
+    duration: durationHours,
+    duration_hours: durationHours,
+    tour_type: tourType,
     max_participants: Number(raw.max_participants ?? raw.max_group_size ?? 12),
     max_group_size: Number(raw.max_group_size ?? raw.max_participants ?? 12),
     difficulty:
       (raw.difficulty as DemoTour["difficulty"]) ||
-      (raw.difficulty_level as DemoTour["difficulty"]) ||
-      "easy",
-    image_url: resolveAuthenticTourImage(raw),
+      (raw.difficulty_level === 2
+        ? "moderate"
+        : raw.difficulty_level === 3
+          ? "challenging"
+          : "easy"),
+    image_url: imageUrl,
+    images: images.length > 0 ? images : [imageUrl],
+    departure_location: String(
+      metadataObj.departure_location || raw.departure_location || city
+    ),
+    departure_time: String(
+      metadataObj.departure_time || raw.departure_time || "08:00"
+    ),
+    return_time: String(metadataObj.return_time || raw.return_time || "18:00"),
+    itinerary,
     highlights:
       Array.isArray(raw.includes) && raw.includes.length > 0
         ? (raw.includes as string[])
         : Array.isArray(raw.highlights)
           ? (raw.highlights as string[])
           : [],
+    included: Array.isArray(raw.includes) ? (raw.includes as string[]) : [],
+    excluded: Array.isArray(raw.excludes) ? (raw.excludes as string[]) : [],
   };
 }
 
-/**
- * Fetches tours from Express via API_INTERNAL_URL.
- * Uses `cache: "no-store"` on raw fetch so empty/error responses are never
- * cached by Next.js fetch cache; only validated non-empty lists are cached.
- */
+function normalizeServerDestination(raw: Record<string, unknown>): Destination {
+  const extraObj =
+    raw.extra_info && typeof raw.extra_info === "object"
+      ? (raw.extra_info as Record<string, unknown>)
+      : {};
+  const gallery = Array.isArray(raw.gallery_images)
+    ? (raw.gallery_images as string[])
+    : [];
+  const activitiesArr = Array.isArray(raw.activities)
+    ? (raw.activities as string[])
+    : [];
+
+  return {
+    ...(raw as unknown as Destination),
+    id: String(raw.slug || raw.id || ""),
+    name: String(raw.name || "Türkiye"),
+    city: String(raw.city || raw.name || "Türkiye"),
+    country: String(raw.country || "Türkiye"),
+    description: String(raw.description || ""),
+    image_url:
+      (typeof raw.image_url === "string" && raw.image_url) ||
+      (typeof extraObj.image_url === "string" && extraObj.image_url) ||
+      gallery[0] ||
+      "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1200&q=85",
+    coords: typeof raw.coords === "string" ? raw.coords : undefined,
+    best_time: typeof raw.best_time === "string" ? raw.best_time : undefined,
+    activities:
+      typeof raw.activities === "string"
+        ? raw.activities
+        : activitiesArr.join(", "),
+    gallery_images: gallery,
+    extra_info:
+      typeof raw.extra_info === "string"
+        ? raw.extra_info
+        : typeof extraObj.note === "string"
+          ? extraObj.note
+          : undefined,
+    is_active: raw.is_active !== false,
+    created_at: String(raw.created_at || new Date().toISOString()),
+    updated_at: String(raw.updated_at || new Date().toISOString()),
+    _count: {
+      tours: Number(
+        (raw._count as Record<string, unknown>)?.tours ?? raw.tour_count ?? 1
+      ),
+    },
+  };
+}
+
 async function fetchValidatedToursFromUpstream(): Promise<DemoTour[]> {
   const apiBase = getInternalApiBaseUrl();
   let res: Response;
@@ -197,7 +311,8 @@ async function fetchValidatedToursFromUpstream(): Promise<DemoTour[]> {
   } catch (err) {
     throw new CatalogUpstreamError(
       `Network error fetching ${apiBase}/api/tours: ${String(err)}`,
-      "network_error"
+      "network_error",
+      503
     );
   }
 
@@ -205,7 +320,7 @@ async function fetchValidatedToursFromUpstream(): Promise<DemoTour[]> {
     throw new CatalogUpstreamError(
       `Upstream ${apiBase}/api/tours returned HTTP ${res.status}`,
       "http_error",
-      res.status
+      res.status >= 500 ? 503 : res.status
     );
   }
 
@@ -220,50 +335,68 @@ async function fetchValidatedToursFromUpstream(): Promise<DemoTour[]> {
     throw new CatalogUpstreamError(
       `Upstream ${apiBase}/api/tours returned an empty array [] — refusing to poison ISR cache`,
       "empty_payload",
-      200
+      503
     );
   }
 
-  const mapped = rawList.map(normalizeServerTour);
-  const existingNames = new Set(mapped.map((t) => t.name.toLowerCase()));
-  for (const demo of DEMO_TOURS) {
-    if (mapped.length >= 6) break;
-    if (!existingNames.has(demo.name.toLowerCase())) {
-      mapped.push(demo);
-    }
-  }
-  return mapped;
+  // Strictly return ONLY real database tours — never append DEMO_TOURS in live mode
+  return rawList.map(normalizeServerTour);
 }
 
-export async function getServerTours(): Promise<DemoTour[]> {
-  if (isDemoMode()) {
-    return DEMO_TOURS;
-  }
-
+export async function getServerToursWithStatus(): Promise<
+  ServerCatalogResult<DemoTour[]>
+> {
   const apiBase = getInternalApiBaseUrl();
   try {
-    return await withNonPoisoningCache(
+    const data = await withNonPoisoningCache(
       `catalog:tours:${apiBase}`,
       ["catalog-tours"],
       fetchValidatedToursFromUpstream
     );
-  } catch {
-    // Return fallback for this request ONLY without writing to cache
-    return DEMO_TOURS;
+    return {
+      data,
+      upstreamError: false,
+      status: 200,
+      source: "live",
+    };
+  } catch (err) {
+    if (isDemoMode()) {
+      return {
+        data: DEMO_TOURS,
+        upstreamError: false,
+        status: 200,
+        source: "demo",
+      };
+    }
+    return {
+      data: [],
+      upstreamError: true,
+      status: 503,
+      source: "error",
+      errorMessage:
+        err instanceof Error
+          ? err.message
+          : "Catalogue upstream service unavailable (HTTP 503)",
+    };
   }
 }
 
-export async function getServerTourById(
-  idOrSlug: string
-): Promise<DemoTour | null> {
-  const directDemo = DEMO_TOURS.find((t) => t.id === idOrSlug);
-  if (directDemo || isDemoMode()) {
-    return directDemo || DEMO_TOURS[0] || null;
-  }
+/**
+ * Returns tours array.
+ * - When `NEXT_PUBLIC_DEMO_MODE === "true"`, returns DEMO_TOURS on upstream error.
+ * - When in live mode (`NEXT_PUBLIC_DEMO_MODE !== "true"`), returns `[]` on error (NEVER fake demo tours).
+ */
+export async function getServerTours(): Promise<DemoTour[]> {
+  const result = await getServerToursWithStatus();
+  return result.data;
+}
 
+export async function getServerTourByIdWithStatus(
+  idOrSlug: string
+): Promise<ServerCatalogResult<DemoTour | null>> {
   const apiBase = getInternalApiBaseUrl();
   try {
-    return await withNonPoisoningCache(
+    const data = await withNonPoisoningCache(
       `catalog:tour:${apiBase}:${idOrSlug}`,
       ["catalog-tours", `catalog-tour-${idOrSlug}`],
       async () => {
@@ -279,7 +412,16 @@ export async function getServerTourById(
         } catch (err) {
           throw new CatalogUpstreamError(
             `Network error fetching tour ${idOrSlug}: ${String(err)}`,
-            "network_error"
+            "network_error",
+            503
+          );
+        }
+
+        if (res.status === 404) {
+          throw new CatalogUpstreamError(
+            `Tour ${idOrSlug} not found`,
+            "http_error",
+            404
           );
         }
 
@@ -287,25 +429,54 @@ export async function getServerTourById(
           throw new CatalogUpstreamError(
             `Upstream tour ${idOrSlug} returned HTTP ${res.status}`,
             "http_error",
-            res.status
+            503
           );
         }
 
         const json = await res.json();
         const tourData = json?.tour || json;
-        if (!tourData || !tourData.id) {
+        if (!tourData || (!tourData.id && !tourData.slug)) {
           throw new CatalogUpstreamError(
             `Upstream tour ${idOrSlug} returned empty payload`,
             "empty_payload",
-            200
+            503
           );
         }
         return normalizeServerTour(tourData);
       }
     );
-  } catch {
-    return directDemo || DEMO_TOURS[0] || null;
+    return { data, upstreamError: false, status: 200, source: "live" };
+  } catch (err) {
+    if (isDemoMode()) {
+      const match =
+        DEMO_TOURS.find((t) => t.id === idOrSlug) || DEMO_TOURS[0] || null;
+      return {
+        data: match,
+        upstreamError: false,
+        status: match ? 200 : 404,
+        source: "demo",
+      };
+    }
+    const status =
+      err instanceof CatalogUpstreamError && err.status === 404 ? 404 : 503;
+    return {
+      data: null,
+      upstreamError: status === 503,
+      status,
+      source: "error",
+      errorMessage:
+        err instanceof Error
+          ? err.message
+          : "Upstream tour service unavailable (HTTP 503)",
+    };
   }
+}
+
+export async function getServerTourById(
+  idOrSlug: string
+): Promise<DemoTour | null> {
+  const res = await getServerTourByIdWithStatus(idOrSlug);
+  return res.data;
 }
 
 async function fetchValidatedDestinationsFromUpstream(): Promise<Destination[]> {
@@ -319,7 +490,8 @@ async function fetchValidatedDestinationsFromUpstream(): Promise<Destination[]> 
   } catch (err) {
     throw new CatalogUpstreamError(
       `Network error fetching ${apiBase}/api/destinations: ${String(err)}`,
-      "network_error"
+      "network_error",
+      503
     );
   }
 
@@ -327,7 +499,7 @@ async function fetchValidatedDestinationsFromUpstream(): Promise<Destination[]> 
     throw new CatalogUpstreamError(
       `Upstream ${apiBase}/api/destinations returned HTTP ${res.status}`,
       "http_error",
-      res.status
+      503
     );
   }
 
@@ -344,72 +516,53 @@ async function fetchValidatedDestinationsFromUpstream(): Promise<Destination[]> 
     throw new CatalogUpstreamError(
       `Upstream ${apiBase}/api/destinations returned empty array [] — refusing to poison ISR cache`,
       "empty_payload",
-      200
+      503
     );
   }
 
-  const enriched: Destination[] = rawList.map((item) => {
-    const lowerName = String(item.name || item.slug || "").toLowerCase();
-    const matchedDemo = DEMO_DESTINATIONS.find(
-      (d) =>
-        (lowerName.includes("cappadocia") && d.id === "dest-cappadocia") ||
-        (lowerName.includes("istanbul") && d.id === "dest-istanbul") ||
-        (lowerName.includes("ephesus") && d.id === "dest-ephesus") ||
-        (lowerName.includes("lycia") && d.id === "dest-lycia") ||
-        (lowerName.includes("pamukkale") && d.id === "dest-pamukkale") ||
-        (lowerName.includes("mardin") && d.id === "dest-mardin")
-    );
-    return {
-      ...(matchedDemo || {}),
-      ...(item as unknown as Destination),
-      name: matchedDemo?.name || String(item.name || "Türkiye"),
-      city: matchedDemo?.city || String(item.city || item.name || "Türkiye"),
-      description: matchedDemo?.description || String(item.description || ""),
-      image_url:
-        matchedDemo?.image_url ||
-        (typeof item.image_url === "string" ? item.image_url : undefined),
-      coords:
-        (typeof item.coords === "string" && item.coords) ||
-        matchedDemo?.coords,
-      best_time:
-        (typeof item.best_time === "string" && item.best_time) ||
-        matchedDemo?.best_time,
-      activities:
-        (typeof item.activities === "string" && item.activities) ||
-        matchedDemo?.activities,
-    };
-  });
-
-  const byKey = new Map<string, Destination>();
-  for (const d of enriched) {
-    byKey.set(d.name.toLowerCase(), d);
-  }
-  const ordered: Destination[] = [];
-  for (const demo of DEMO_DESTINATIONS) {
-    const match = byKey.get(demo.name.toLowerCase());
-    ordered.push(match || demo);
-    byKey.delete(demo.name.toLowerCase());
-  }
-  for (const extra of byKey.values()) {
-    ordered.push(extra);
-  }
-  return ordered;
+  // Strictly return ONLY real database destinations in live mode
+  return rawList.map(normalizeServerDestination);
 }
 
-export async function getServerDestinations(): Promise<Destination[]> {
-  if (isDemoMode()) {
-    return DEMO_DESTINATIONS;
-  }
-
+export async function getServerDestinationsWithStatus(): Promise<
+  ServerCatalogResult<Destination[]>
+> {
   const apiBase = getInternalApiBaseUrl();
   try {
-    return await withNonPoisoningCache(
+    const data = await withNonPoisoningCache(
       `catalog:destinations:${apiBase}`,
       ["catalog-destinations"],
       fetchValidatedDestinationsFromUpstream
     );
-  } catch {
-    // Return fallback for this request ONLY without writing to cache
-    return DEMO_DESTINATIONS;
+    return {
+      data,
+      upstreamError: false,
+      status: 200,
+      source: "live",
+    };
+  } catch (err) {
+    if (isDemoMode()) {
+      return {
+        data: DEMO_DESTINATIONS,
+        upstreamError: false,
+        status: 200,
+        source: "demo",
+      };
+    }
+    return {
+      data: [],
+      upstreamError: true,
+      status: 503,
+      source: "error",
+      errorMessage:
+        err instanceof Error
+          ? err.message
+          : "Destinations upstream service unavailable (HTTP 503)",
+    };
   }
+}
+
+export async function getServerDestinations(): Promise<Destination[]> {
+  const res = await getServerDestinationsWithStatus();
+  return res.data;
 }
