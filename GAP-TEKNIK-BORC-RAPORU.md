@@ -13,7 +13,7 @@ Proje "Stable R5" olarak etiketlenmiş ve ana sayfa/tur/destinasyon listeleme DB
 
 | Metrik | Değer |
 |---|---|
-| Backend route handler | 38 |
+| Backend route handler | 49 |
 | Frontend'in çağırdığı farklı API yolu | 78 |
 | TypeScript hatası (`tsc --noEmit`) | **93** |
 | ESLint | **308 error / 23 warning** |
@@ -32,7 +32,7 @@ Proje "Stable R5" olarak etiketlenmiş ve ana sayfa/tur/destinasyon listeleme DB
 1. `/admin` arayüzü admin kullanıcıyla bile açılmıyor → `/profile`'a yönleniyor.
 2. Kayıt (signup) her istekte `400 All fields are required` dönüyor.
 3. Tur yorumları endpoint'i `500` dönüyor.
-4. Ödeme (Stripe) ve e-posta gönderimi backend'de hiç yok; ilgili ekranlar boş endpoint'lere istek atıyor.
+4. ~~Ödeme (Stripe) backend'de hiç yok~~ → **Stripe test modu tamamlandı** (bkz. #32–#38); e-posta gönderimi hâlâ yok.
 5. Public ana sayfa `/api/admin/site-settings` çağırıp sürekli `401` üretiyor; `/api/pages/*` çağrıları sürekli `404`.
 
 ---
@@ -105,7 +105,22 @@ Doğrulama: `npm run build` ✅; değişen dosyalarda ESLint temiz. Rezervasyon 
 
 Doğrulama: `npm run build` ✅; `node --check` ✅; değişen dosyalarda yeni tip/lint hatası yok. Test sayfası sonrasında silindi (tablo **0** satır).
 
+### Ödeme (Stripe test modu) — ✅ Tamamlandı (Sprint 1, beşinci adım)
+
+| # | Düzeltme | Dosya(lar) | Doğrulama |
+|---|---|---|---|
+| 32 | Stripe Checkout Session ucu; sunucu tarafı doğrulama (tur aktifliği, geçmiş tarih, kapasite), EUR tutar hesabı, tam ödeme / %20 depozito seçeneği | `backend/routes/payments.js`, `backend/server.js` | Anahtarsız → **503**; geçersiz tarih/adet → **400**; Stripe hatası → **502** ve rezervasyon **cancelled** |
+| 33 | Webhook imza doğrulaması ve ham gövde yakalama; `completed`/`async_payment_succeeded` → `Payment.succeeded` + `Reservation.confirmed`, `expired` → **failed/cancelled**; yinelenen olay idempotent | `backend/server.js`, `backend/routes/payments.js` | İmzalı sentetik olay **11/11** kontrol geçti; geçersiz imza → **400**; tekrar gönderim ikinci kayıt üretmiyor |
+| 34 | `POST /api/payments/verify-session`: oturum sahipliği kontrolü ve ödemenin idempotent onayı | `backend/routes/payments.js` | Başka kullanıcının oturumu reddediliyor; ödenmiş oturum → `{success:true, booking}` |
+| 35 | Ödeme butonları Checkout oturumu açıp Stripe'a yönlendiriyor; para birimi tüm ekranlarda **€** | `formHandlers.ts`, `MainForm.tsx`, `usePayments.ts`, `MyBookings/MyReservations/Profile/BookingSuccess.tsx` | `npm run build` ✅; etiketler `Tam Ödeme - €…` / `Depozito Öde - €…` |
+| 36 | Rezervasyon POST'u istemci tutarını yok sayıyor; tutar tur kaydından (`price_adult`, `price_child ?? price_adult`) hesaplanıyor, para birimi EUR; tam sayı adet, tur varlığı/durumu/kapasitesi doğrulanıyor | `backend/routes/reservations.js`, `formHandlers.ts` | İstemci `total_price:1` gönderdiğinde kayıt **€235**; ondalık çocuk → **400**; bilinmeyen tur → **404** |
+| 37 | Rezervasyon + bekleyen `Payment` kaydı birlikte oluşuyor; Stripe hatasında yetim kayıt kalmıyor | `backend/routes/payments.js` (mevcut `Payment` modeli) | Stripe hatasında rezervasyon **cancelled**; test sonrası `Reservation` tablosu **0** satır |
+| 38 | Canlı uçtan uca test: `4242 4242 4242 4242` ile tam ödeme, `4000 0000 0000 9995` ile red senaryosu | — | ⏳ Kullanıcı `backend/.env`'e `sk_test_...` ekleyince çalıştırılacak; anahtarsız tüm yollar doğrulandı |
+
+Doğrulama: `node --check` ✅; `npm run build` ✅. `backend/.env.example` test modu notlarıyla güncellendi (`sk_test_…`, `whsec_…` — `stripe listen`). Anahtarlar repoya işlenmiyor; `backend/.env` gitignored.
+
 ---
+
 
 ## 1. Dev Ortamı — Çalışan Durum
 
@@ -158,10 +173,10 @@ Doğrulanan canlı sonuçlar:
 - **Sonuç (canlı doğrulandı):** `GET /api/reviews/tour/:id` → `500 Failed to retrieve reviews.`
 - Aynı hata sınıfı: `ReviewDetailModal.tsx:22,31`, `ReviewsTable.tsx:35,43`, `ReviewsBulkActions.tsx:39,56` (`isVerified` ↔ `is_verified`), `BulkActions.tsx:44` / `UserTable.tsx:24` (`role` ↔ `roleName`).
 
-### P0-4 · Ödeme akışı yok
-- `backend/package.json:27` `stripe` bağımlılığı var; `backend/` içinde **tek satır Stripe kodu yok**.
-- Frontend `usePayments.ts:25` → `/api/reservations`, sonra `useBookingSubmission.ts:89-93` "No payment URL received" fırlatıyor; `usePayments.ts:41` → `/api/payments/verify-session` (404); `BookingSuccess.tsx:45` Stripe `sessionId` bekliyor.
-- **Sonuç:** rezervasyon "pending" oluşuyor, ödeme alınamıyor; başarı ekranı gerçek veriye bağlanamıyor.
+### P0-4 · Ödeme akışı yok — ✅ Düzeltildi (Sprint 1, beşinci adım)
+- İlk bulgu: `backend/package.json:27` `stripe` bağımlılığı var; `backend/` içinde **tek satır Stripe kodu yok**.
+- İlk bulgu: Frontend `usePayments.ts:25` → `/api/reservations`, sonra `useBookingSubmission.ts:89-93` "No payment URL received" fırlatıyor; `usePayments.ts:41` → `/api/payments/verify-session` (404); `BookingSuccess.tsx:45` Stripe `sessionId` bekliyor.
+- **Düzeltme:** Checkout Session, imzalı webhook, `verify-session` ve rezervasyon durum makinesi eklendi (bkz. #32–#38). Canlı kart testi, kullanıcı `sk_test_...` anahtarını `backend/.env`'e eklediğinde yapılacak.
 
 ### P0-5 · E-posta altyapısı yok
 - Backend'de nodemailer/SMTP kodu yok; `EmailTemplate`/`EmailLog` tabloları yalnızca şemada.
@@ -273,7 +288,7 @@ Doğrulanan canlı sonuçlar:
 **Doğrulama:** `tsc --noEmit` sayısı artmasın; signup 201, reviews 200, `/admin` panel açılsın, ana sayfa console'unda 401/404 olmasın.
 
 ### Sprint 1 — Ticari akış (3–5 gün)
-7. Stripe Checkout + webhook + `payments/verify-session`; rezervasyon durum makinesi.
+7. ✅ **Tamamlandı:** Stripe Checkout + webhook + `payments/verify-session`; rezervasyon durum makinesi (bkz. #32–#38). Canlı test anahtarı bekliyor.
 8. SMTP/nodemailer servisi + şablon gönderimi + rezervasyon onayı; bülten/consent ve unsubscribe uçları + şema modeli.
 9. Rol tekilliği: tek kaynak (`User.role` veya `UserRole`) seç; `req.user.id` tutarlılığı.
 10. JWT'yi httpOnly cookie'ye taşı; secret zorunluluğu ve prod config düzeltmesi.

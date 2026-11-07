@@ -40,8 +40,6 @@ router.post('/', authMiddleware, async (req, res) => {
     adults,
     numChildren,
     children,
-    totalPrice,
-    total_price,
     notes,
   } = req.body;
 
@@ -49,27 +47,48 @@ router.post('/', authMiddleware, async (req, res) => {
   const reservationDateValue = dateInput ? new Date(dateInput) : null;
   const adultCount = Number(numAdults ?? adults);
   const childCount = Number(numChildren ?? children ?? 0);
-  const price = Number(totalPrice ?? total_price ?? 0);
 
   if (
     !tourId ||
     !reservationDateValue ||
     Number.isNaN(reservationDateValue.getTime()) ||
-    !Number.isFinite(adultCount) ||
-    adultCount < 1
+    !Number.isInteger(adultCount) ||
+    adultCount < 1 ||
+    !Number.isInteger(childCount) ||
+    childCount < 0
   ) {
     return res.status(400).json({ message: 'Missing or invalid required fields for reservation.' });
   }
 
   try {
+    const tour = await prisma.tour.findFirst({
+      where: { id: tourId, deleted_at: null },
+    });
+
+    if (!tour) {
+      return res.status(404).json({ message: 'Tour not found.' });
+    }
+    if (tour.status !== 'active') {
+      return res.status(400).json({ message: 'This tour is not available for booking.' });
+    }
+    if (tour.max_participants && adultCount + childCount > tour.max_participants) {
+      return res.status(400).json({ message: 'Guest count exceeds the tour capacity.' });
+    }
+
+    // Totals are always derived from the tour record, never from the client.
+    const adultPrice = Number(tour.price_adult) || 0;
+    const childPrice = tour.price_child != null ? Number(tour.price_child) : adultPrice;
+    const total = Math.round((adultPrice * adultCount + childPrice * childCount) * 100) / 100;
+
     const newReservation = await prisma.reservation.create({
       data: {
         userId: req.user.id,
-        tourId,
+        tourId: tour.id,
         reservationDate: reservationDateValue,
         numAdults: adultCount,
-        numChildren: Number.isFinite(childCount) ? childCount : 0,
-        totalPrice: Number.isFinite(price) ? price : 0,
+        numChildren: childCount,
+        totalPrice: total,
+        priceCurrency: 'EUR',
         status: 'pending', // Default status
         notes,
       },

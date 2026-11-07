@@ -7,7 +7,6 @@ export interface BookingPayload {
   bookingDate: string;
   adults: number;
   children: number;
-  total_price: number;
   guestName: string;
   guestEmail: string;
 }
@@ -48,14 +47,13 @@ export const useBookingMutations = (_user: any) => {
     children: number,
     _rooms: any[] = [],
     _addOns: string[] = [],
-    pricingTotal = 0
+    _pricingTotal = 0
   ) => {
     const payload: BookingPayload = {
       tourId: values.tourId,
       bookingDate: format(checkInDate, 'yyyy-MM-dd'),
       adults,
       children,
-      total_price: pricingTotal,
       guestName: values.guestName,
       guestEmail: values.guestEmail,
     };
