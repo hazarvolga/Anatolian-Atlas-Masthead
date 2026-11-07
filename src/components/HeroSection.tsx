@@ -104,7 +104,7 @@ export default function HeroSection() {
           {/* Enhanced CTA Buttons with Better Spacing */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-6 animate-fade-in [animation-delay:800ms] mb-16">
             <Button asChild size="lg" className="btn-primary min-w-[280px] h-16 text-xl shadow-2xl hover:shadow-accent-vibrant/30 relative overflow-hidden group">
-              <Link to="/booking" className="flex items-center">
+              <Link to="/tours" className="flex items-center">
                 <span className="relative z-10">{t.hero.bookStay}</span>
                 <span className="ml-3 transition-transform group-hover:translate-x-1 text-2xl relative z-10">→</span>
                 <div className="absolute inset-0 bg-gradient-to-r from-accent-vibrant/20 to-primary-400/20 translate-x-full group-hover:translate-x-0 transition-transform duration-500" />

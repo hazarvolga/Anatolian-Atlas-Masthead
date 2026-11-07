@@ -42,12 +42,25 @@ export default function BookingSuccess() {
       
       // Backend'den rezervasyon detaylarını çek
       const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
-      const response = await axios.get(`${API_BASE_URL}/api/reservations/${id}`);
+      const token = localStorage.getItem('authToken');
+      const response = await axios.get(`${API_BASE_URL}/api/reservations/${id}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
       const data = response.data;
       
       if (data) {
         console.log('✅ Rezervasyon detayları alındı:', data);
-        setBookingData(data);
+        setBookingData({
+          id: data.id,
+          guest_name:
+            [data.user?.first_name, data.user?.last_name].filter(Boolean).join(' ') || 'N/A',
+          guest_email: data.user?.email || '',
+          booking_date: data.reservationDate,
+          adults: data.numAdults,
+          children: data.numChildren,
+          total_price: data.totalPrice,
+          status: data.status,
+        });
       } else {
         console.error('❌ Rezervasyon bulunamadı');
         // Fallback data
@@ -163,7 +176,7 @@ export default function BookingSuccess() {
                               {isReservationOnly ? 'Rezervasyon Tarihi:' : 'Booking Date:'}
                             </span>
                             <span className="text-gray-600 ml-2">
-                              {bookingData.booking_date ? new Date(bookingData.booking_date).toLocaleDateString() : 'N/A'}
+                              {bookingData.booking_date ? new Date(bookingData.booking_date).toLocaleDateString(undefined, { timeZone: 'UTC' }) : 'N/A'}
                             </span>
                           </p>
                           <p>
@@ -174,7 +187,7 @@ export default function BookingSuccess() {
                               {bookingData.adults || 0}
                             </span>
                           </p>
-                          {bookingData.children && bookingData.children > 0 && (
+                          {(bookingData.children ?? 0) > 0 && (
                             <p>
                               <span className="font-medium">
                                 {isReservationOnly ? 'Çocuk Sayısı:' : 'Children:'}

@@ -14,15 +14,25 @@ import ReviewForm from "@/components/reviews/ReviewForm";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 export default function MyReservations() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const { data: reservations = [], isLoading } = useReservations();
   const { data: userReviews = [] } = useUserReviews();
   const updateReservationStatus = useUpdateReservationStatus();
   const [reviewDialogOpen, setReviewDialogOpen] = useState<string | null>(null);
-  
+
+  if (loading) {
+    return null;
+  }
+
   if (!user) {
     return <Navigate to="/auth" replace />;
   }
+
+  const getReservationDate = (reservation: { reservationDate?: string | Date | null; booking_date?: string | Date | null }) => {
+    const value = reservation.reservationDate ?? reservation.booking_date;
+    const date = value ? new Date(value) : null;
+    return date && !Number.isNaN(date.getTime()) ? date : null;
+  };
   
   const handleCancelReservation = async (reservationId: string) => {
     if (confirm('Are you sure you want to cancel this reservation?')) {
@@ -80,10 +90,10 @@ export default function MyReservations() {
                 <TableBody>
                   {reservations.map((reservation) => (
                     <TableRow key={reservation.id}>
-                      <TableCell className="font-medium">{reservation.tours?.name || 'Tour'}</TableCell>
-                      <TableCell>{format(new Date(reservation.booking_date), "PPP")}</TableCell>
-                      <TableCell>{reservation.adults} adults{reservation.children > 0 && `, ${reservation.children} children`}</TableCell>
-                      <TableCell>₺{Number(reservation.total_price).toFixed(2)}</TableCell>
+                      <TableCell className="font-medium">{reservation.tour?.title || reservation.tours?.name || 'Tour'}</TableCell>
+                      <TableCell>{getReservationDate(reservation) ? format(getReservationDate(reservation)!, "PPP") : '—'}</TableCell>
+                      <TableCell>{reservation.numAdults ?? reservation.adults ?? 0} adults{(reservation.numChildren ?? reservation.children ?? 0) > 0 && `, ${reservation.numChildren ?? reservation.children} children`}</TableCell>
+                      <TableCell>₺{Number(reservation.totalPrice ?? reservation.total_price ?? 0).toFixed(2)}</TableCell>
                       <TableCell>
                         <Badge className={getStatusColor(reservation.status)}>
                           {reservation.status?.charAt(0).toUpperCase() + reservation.status?.slice(1)}
@@ -98,7 +108,7 @@ export default function MyReservations() {
                         >
                           Cancel
                         </Button>
-                        {!hasReviewForTour(reservation.tours?.id) && reservation.status === 'completed' && (
+                        {!hasReviewForTour(reservation.tour?.id || reservation.tours?.id) && reservation.status === 'completed' && (
                           <Dialog open={reviewDialogOpen === reservation.id} onOpenChange={(isOpen) => setReviewDialogOpen(isOpen ? reservation.id : null)}>
                             <DialogTrigger asChild>
                               <Button size="sm" variant="outline">
@@ -106,7 +116,7 @@ export default function MyReservations() {
                               </Button>
                             </DialogTrigger>
                             <DialogContent className="sm:max-w-[425px]">
-                              <ReviewForm tourId={reservation.tours?.id} onReviewSubmitted={() => setReviewDialogOpen(null)} />
+                              <ReviewForm tourId={reservation.tour?.id || reservation.tours?.id} onReviewSubmitted={() => setReviewDialogOpen(null)} />
                             </DialogContent>
                           </Dialog>
                         )}
@@ -158,10 +168,10 @@ export default function MyReservations() {
               <TableBody>
                 {reservations.map((reservation) => (
                   <TableRow key={reservation.id}>
-                    <TableCell className="font-medium">{reservation.tours?.name || 'Tour'}</TableCell>
-                    <TableCell>{format(new Date(reservation.booking_date), "PPP")}</TableCell>
-                    <TableCell>{reservation.adults} adults{reservation.children > 0 && `, ${reservation.children} children`}</TableCell>
-                    <TableCell>₺{Number(reservation.total_price).toFixed(2)}</TableCell>
+                    <TableCell className="font-medium">{reservation.tour?.title || reservation.tours?.name || 'Tour'}</TableCell>
+                    <TableCell>{getReservationDate(reservation) ? format(getReservationDate(reservation)!, "PPP") : '—'}</TableCell>
+                    <TableCell>{reservation.numAdults ?? reservation.adults ?? 0} adults{(reservation.numChildren ?? reservation.children ?? 0) > 0 && `, ${reservation.numChildren ?? reservation.children} children`}</TableCell>
+                    <TableCell>₺{Number(reservation.totalPrice ?? reservation.total_price ?? 0).toFixed(2)}</TableCell>
                     <TableCell>
                       <Badge className={getStatusColor(reservation.status)}>
                         {reservation.status?.charAt(0).toUpperCase() + reservation.status?.slice(1)}
@@ -176,7 +186,7 @@ export default function MyReservations() {
                       >
                         Cancel
                       </Button>
-                      {!hasReviewForTour(reservation.tours?.id) && reservation.status === 'completed' && (
+                      {!hasReviewForTour(reservation.tour?.id || reservation.tours?.id) && reservation.status === 'completed' && (
                         <Dialog open={reviewDialogOpen === reservation.id} onOpenChange={(isOpen) => setReviewDialogOpen(isOpen ? reservation.id : null)}>
                           <DialogTrigger asChild>
                             <Button size="sm" variant="outline">

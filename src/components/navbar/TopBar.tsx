@@ -32,7 +32,7 @@ export default function TopBar() {
           {user ? (
             <div className="flex items-center space-x-3">
               <Button asChild variant="ghost" size="sm" className="rounded-xl hover:bg-accent-vibrant/10 hover:text-accent-vibrant border border-transparent hover:border-accent-vibrant/20">
-                <Link to="/my-bookings" className="flex items-center space-x-2">
+                <Link to="/my-reservations" className="flex items-center space-x-2">
                   <Calendar className="h-4 w-4" />
                   <span className="hidden md:inline">My Bookings</span>
                 </Link>

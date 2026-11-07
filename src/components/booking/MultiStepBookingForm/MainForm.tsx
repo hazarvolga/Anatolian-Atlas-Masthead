@@ -144,7 +144,7 @@ export default function MainForm({ preselectedTourId }: MultiStepBookingFormProp
           children,
           rooms,
           addOns,
-          pricing.total
+          pricing?.total ?? 0
         );
       } else {
         const result = await bookingMutations.handlePayment(
@@ -154,7 +154,7 @@ export default function MainForm({ preselectedTourId }: MultiStepBookingFormProp
           children,
           rooms,
           addOns,
-          pricing.total,
+          pricing?.total ?? 0,
           currentAction
         );
         if (result?.url) {
@@ -257,7 +257,7 @@ export default function MainForm({ preselectedTourId }: MultiStepBookingFormProp
                   <CreditCard className="w-4 h-4 mr-2" />
                   {isProcessingPayment && currentAction === 'full' 
                     ? "İşleniyor..." 
-                    : `Tam Ödeme - $${pricing.total.toFixed(2)}`}
+                    : `Tam Ödeme - $${(pricing?.total ?? 0).toFixed(2)}`}
                 </Button>
                 
                 <Button
@@ -270,7 +270,7 @@ export default function MainForm({ preselectedTourId }: MultiStepBookingFormProp
                   <Wallet className="w-4 h-4 mr-2" />
                   {isProcessingPayment && currentAction === 'deposit'
                     ? "İşleniyor..." 
-                    : `Depozito Öde - $${pricing.deposit ? pricing.deposit.toFixed(2) : (pricing.total * 0.2).toFixed(2)}`}
+                    : `Depozito Öde - $${pricing?.deposit ? pricing.deposit.toFixed(2) : ((pricing?.total ?? 0) * 0.2).toFixed(2)}`}
                 </Button>
 
                 <Button

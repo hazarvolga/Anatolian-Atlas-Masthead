@@ -782,6 +782,28 @@ router.get('/reviews', async (req, res) => {
     }
 });
 
+router.put('/reviews/bulk-update', async (req, res) => {
+    const { reviewIds, is_verified } = req.body;
+
+    if (!Array.isArray(reviewIds) || reviewIds.length === 0) {
+        return res.status(400).json({ message: 'reviewIds must be a non-empty array' });
+    }
+    if (typeof is_verified !== 'boolean') {
+        return res.status(400).json({ message: 'is_verified must be a boolean' });
+    }
+
+    try {
+        const result = await prisma.review.updateMany({
+            where: { id: { in: reviewIds } },
+            data: { is_verified }
+        });
+        res.json({ count: result.count });
+    } catch (error) {
+        console.error('Error bulk updating reviews:', error);
+        res.status(500).json({ message: 'Error updating reviews' });
+    }
+});
+
 router.put('/reviews/:id/verify', async (req, res) => {
     const { id } = req.params;
     const { is_verified } = req.body;

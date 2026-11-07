@@ -168,7 +168,10 @@ export const es = {
     summary: "Resumen de la Reserva",
     total: "Total",
     bookNow: "Reservar Ahora",
-    processing: "Procesando..."
+    processing: "Procesando...",
+    bookYourTour: "Reserva tu Tour",
+    bookTour: "Reservar",
+    completeBookingSteps: "Completa tu reserva en unos simples pasos"
   },
   myBookings: {
     title: "Mis Reservas",

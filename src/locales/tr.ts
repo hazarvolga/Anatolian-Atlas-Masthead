@@ -168,7 +168,10 @@ export const tr = {
     summary: "Rezervasyon Özeti",
     total: "Toplam",
     bookNow: "Şimdi Rezervasyon Yap",
-    processing: "İşleniyor..."
+    processing: "İşleniyor...",
+    bookYourTour: "Turunuzu Rezerve Edin",
+    bookTour: "Rezerve Et",
+    completeBookingSteps: "Rezervasyonunuzu birkaç basit adımda tamamlayın"
   },
   myBookings: {
     title: "Rezervasyonlarım",

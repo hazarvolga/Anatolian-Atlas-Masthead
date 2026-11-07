@@ -32,10 +32,33 @@ router.get('/', authMiddleware, async (req, res) => {
 
 // POST /api/reservations - Create a new reservation
 router.post('/', authMiddleware, async (req, res) => {
-  const { tourId, reservationDate, numAdults, numChildren, totalPrice, notes } = req.body;
+  const {
+    tourId,
+    reservationDate,
+    bookingDate,
+    numAdults,
+    adults,
+    numChildren,
+    children,
+    totalPrice,
+    total_price,
+    notes,
+  } = req.body;
 
-  if (!tourId || !reservationDate || !numAdults) {
-    return res.status(400).json({ message: 'Missing required fields for reservation.' });
+  const dateInput = reservationDate || bookingDate;
+  const reservationDateValue = dateInput ? new Date(dateInput) : null;
+  const adultCount = Number(numAdults ?? adults);
+  const childCount = Number(numChildren ?? children ?? 0);
+  const price = Number(totalPrice ?? total_price ?? 0);
+
+  if (
+    !tourId ||
+    !reservationDateValue ||
+    Number.isNaN(reservationDateValue.getTime()) ||
+    !Number.isFinite(adultCount) ||
+    adultCount < 1
+  ) {
+    return res.status(400).json({ message: 'Missing or invalid required fields for reservation.' });
   }
 
   try {
@@ -43,10 +66,10 @@ router.post('/', authMiddleware, async (req, res) => {
       data: {
         userId: req.user.id,
         tourId,
-        reservationDate: new Date(reservationDate),
-        numAdults,
-        numChildren,
-        totalPrice,
+        reservationDate: reservationDateValue,
+        numAdults: adultCount,
+        numChildren: Number.isFinite(childCount) ? childCount : 0,
+        totalPrice: Number.isFinite(price) ? price : 0,
         status: 'pending', // Default status
         notes,
       },
@@ -70,6 +93,7 @@ router.get('/:id', authMiddleware, async (req, res) => {
       include: {
         tour: true, // Include all tour details
         payment: true, // Include payment details
+        user: { select: { first_name: true, last_name: true, email: true } },
       },
     });
 

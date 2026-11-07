@@ -167,7 +167,10 @@ export const it = {
     summary: "Riepilogo Prenotazione",
     total: "Totale",
     bookNow: "Prenota Ora",
-    processing: "Elaborazione..."
+    processing: "Elaborazione...",
+    bookYourTour: "Prenota il Tuo Tour",
+    bookTour: "Prenota",
+    completeBookingSteps: "Completa la prenotazione in pochi semplici passaggi"
   },
   myBookings: {
     title: "Le Mie Prenotazioni",

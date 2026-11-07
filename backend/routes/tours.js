@@ -88,7 +88,7 @@ router.get('/:id', async (req, res) => {
           select: { first_name: true, last_name: true, avatar_url: true },
         },
         reviews: {
-          orderBy: { createdAt: 'desc' },
+          orderBy: { created_at: 'desc' },
           include: {
             user: { select: { first_name: true, last_name: true, avatar_url: true } },
           },

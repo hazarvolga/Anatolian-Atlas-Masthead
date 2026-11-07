@@ -50,7 +50,7 @@ Aşağıdaki 6 madde düzeltildi; her biri canlı ortamda doğrulandı. Toplam d
 | 5 | `usePage` için `retry:false`; bilinmeyen slug zarif "Page Not Found" | `src/hooks/usePages.ts` | Tek istek, 8 sn'de **1 adet** `/api/pages/...` çağrısı |
 | 6 | Fiyat `price_adult`'tan, zorluk backend'in `difficulty` alanından | `src/hooks/useTours.ts` | Kartlarda **€250 / €95**, "Easy"; `€0` yok |
 
-**Sprint 0 dışında kalan, bilinçli ertelenenler:** bulk review endpoint'i (`/admin/reviews/bulk-update`) hâlâ 404; ödeme/e-posta/eksik modül uçları değişmedi.
+**Sprint 0 dışında kalan, bilinçli ertelenenler:** ödeme/e-posta/eksik modül uçları değişmedi. (Bulk review endpoint'i Sprint 1'de tamamlandı — bkz. #23.)
 
 ### Admin kimlik/rol tutarlılığı — ✅ Tamamlandı (Sprint 1, ilk adım)
 
@@ -74,6 +74,23 @@ Rol ataması artık boş `Role` tablosuna bağımlı değil; `user`/`guide`/`adm
 
 Compose backend servisi artık açılışta `prisma migrate deploy` çalıştırıyor; boş `backend/migrations` initdb bağlaması kaldırıldı. Üretilen prod compose da `migrate deploy && npm start` akışını kullanıyor.
 
+### Rezervasyon akışı — ✅ Tamamlandı (Sprint 1, üçüncü adım)
+
+| # | Düzeltme | Dosya(lar) | Doğrulama |
+|---|---|---|---|
+| 15 | Tur detayı 500 hatası: review `orderBy` alanı `created_at` oldu | `backend/routes/tours.js` | `GET /api/tours/:id` → **200** (`Istanbul Classics`, 95/45) |
+| 16 | `useRealTimePricing` 7 parametreli gerçek imzaya çekildi; `{total, deposit, breakdown}` üretiyor | `src/hooks/useRealTimePricing.ts` | `/book/:tourId` → konsolda 500/`toISOString` hatası yok; 2 yetişkin **$190** |
+| 17 | Rezervasyon POST'u hem frontend hem eski payload'ı kabul ediyor; tarih/sayı doğrulaması eklendi | `backend/routes/reservations.js` | Frontend payload → **201**; geçersiz tarih/yetişkin → **400** |
+| 18 | Rezervasyon detayı kullanıcı adı/e-postası ile dönüyor | `backend/routes/reservations.js` | `GET /api/reservations/:id` → **200** + `user`; tokensiz → **401** |
+| 19 | Online ödeme kapalıyken sahte rezervasyon oluşmuyor; "Sadece Rezervasyon" uçtan uca çalışıyor | `src/components/booking/MultiStepBookingForm/formHandlers.ts` | Ödeme butonu açıklayıcı toast veriyor; rezervasyon → `/booking-success?booking_id=…` |
+| 20 | Başarı ekranı Bearer token ile gerçek veriyi okuyor; alan eşlemesi, saat dilimi ve `0` render hatası düzeltildi | `src/pages/BookingSuccess.tsx`, `formHandlers.ts` | Tarih **11/20/2026**, tutar **$190**, misafir/email dolu; yetim `0` yok |
+| 21 | Rezervasyonlarım/Profil sayfaları API alanlarıyla (`reservationDate`, `numAdults`, `tour`) uyumlu; auth yükleme yarışı giderildi | `src/pages/MyBookings.tsx`, `src/pages/MyReservations.tsx`, `src/pages/Profile.tsx` | `/my-reservations` → liste hatasız; tarih **November 20th, 2026**, toplam **₺190.00** |
+| 22 | Navbar rezervasyon linkleri var olan rotaya bağlandı | `src/components/navbar/TopBar.tsx`, `src/components/navbar/NavbarMobileMenu.tsx` | Link → `/my-reservations` (**200** sayfa) |
+| 23 | Toplu review doğrulama ucu eklendi | `backend/routes/admin.js` | `PUT /api/admin/reviews/bulk-update` → **200** `{count}`; eksik/yanlış gövde → **400** |
+| 24 | Booking başlığı yerel i18n kaynaklarından okuyor; eksik anahtarlar eklendi | `src/components/booking/MultiStepBookingForm/FormHeader.tsx`, `src/locales/{it,tr,es}.ts` | `/api/translations` **404**'ü kalktı; başlık seçili dilde |
+
+Doğrulama: `npm run build` ✅; değişen dosyalarda ESLint temiz. Rezervasyon kaydı test sonrası DB'den silindi (tablo **0** satır).
+
 ---
 
 ## 1. Dev Ortamı — Çalışan Durum
@@ -83,7 +100,7 @@ Compose backend servisi artık açılışta `prisma migrate deploy` çalıştır
 | PostgreSQL 15 (Docker) | ✅ Up | `localhost:5432` (`nextstopturkey`) |
 | Backend API (nodemon) | ✅ Up | http://localhost:3001 |
 | Vite dev server | ✅ Up | http://localhost:5173 |
-| DB şeması | ✅ `prisma db push` | 12 tablo |
+| DB şeması | ✅ `prisma migrate deploy` | 16 tablo + `_prisma_migrations` |
 | Seed | ✅ 1 admin, 2 tur, 2 destinasyon | admin: `hazarvolga@gmail.com` |
 | Sağlık kontrolü | ✅ `{"status":"healthy","database":"connected"}` | `/health` |
 

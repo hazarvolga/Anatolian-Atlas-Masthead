@@ -91,7 +91,7 @@ export default function NavbarMobileMenu({ mobileMenuOpen, setMobileMenuOpen }: 
               <>
                 <div className="w-full h-px bg-border/20 my-4" />
                 <Link 
-                  to="/my-bookings" 
+                  to="/my-reservations" 
                   className="flex items-center space-x-4 px-4 py-4 rounded-xl hover:bg-surface-elevated hover:text-accent-vibrant transition-all duration-300 group"
                   onClick={() => setMobileMenuOpen(false)}
                 >

@@ -14,15 +14,30 @@ import Footer from "@/components/Footer";
 import ReviewForm from "@/components/reviews/ReviewForm";
 
 export default function MyReservations() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const { data: reservations = [], isLoading } = useReservations();
   const { data: userReviews = [] } = useUserReviews();
   const updateReservationStatus = useUpdateReservationStatus();
   const [reviewDialogOpen, setReviewDialogOpen] = useState<string | null>(null);
-  
+
+  if (loading) {
+    return null;
+  }
+
   if (!user) {
     return <Navigate to="/auth" replace />;
   }
+
+  const getReservationDate = (reservation: { reservationDate?: string | Date | null; booking_date?: string | Date | null }) => {
+    const value = reservation.reservationDate ?? reservation.booking_date;
+    const date = value ? new Date(value) : null;
+    return date && !Number.isNaN(date.getTime()) ? date : null;
+  };
+
+  const formatReservationDate = (reservation: { reservationDate?: string | Date | null; booking_date?: string | Date | null }) => {
+    const date = getReservationDate(reservation);
+    return date ? format(date, "PPP") : '—';
+  };
   
   const handleCancelReservation = async (reservationId: string) => {
     if (confirm('Are you sure you want to cancel this reservation?')) {
@@ -85,7 +100,7 @@ export default function MyReservations() {
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <h3 className="font-medium text-lg">{reservation.tours?.name || 'Tour'}</h3>
+                          <h3 className="font-medium text-lg">{reservation.tour?.title || reservation.tours?.name || 'Tour'}</h3>
                           <Badge className={getStatusColor(reservation.status)}>
                             {reservation.status?.charAt(0).toUpperCase() + reservation.status?.slice(1)}
                           </Badge>
@@ -93,13 +108,13 @@ export default function MyReservations() {
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                           <div>
-                            <p><strong>Date:</strong> {format(new Date(reservation.booking_date), "PPP")}</p>
-                            <p><strong>Guests:</strong> {reservation.adults} adults{reservation.children > 0 && `, ${reservation.children} children`}</p>
-                            <p><strong>Total:</strong> ₺{Number(reservation.total_price).toFixed(2)}</p>
+                            <p><strong>Date:</strong> {formatReservationDate(reservation)}</p>
+                            <p><strong>Guests:</strong> {reservation.numAdults ?? reservation.adults ?? 0} adults{(reservation.numChildren ?? reservation.children ?? 0) > 0 && `, ${reservation.numChildren ?? reservation.children} children`}</p>
+                            <p><strong>Total:</strong> ₺{Number(reservation.totalPrice ?? reservation.total_price ?? 0).toFixed(2)}</p>
                           </div>
                           <div>
-                            <p><strong>Guest Name:</strong> {reservation.guest_name}</p>
-                            <p><strong>Email:</strong> {reservation.guest_email}</p>
+                            <p><strong>Guest Name:</strong> {[reservation.user?.first_name, reservation.user?.last_name].filter(Boolean).join(' ') || reservation.guest_name || user.email}</p>
+                            <p><strong>Email:</strong> {reservation.user?.email || reservation.guest_email || user.email}</p>
                             {reservation.guest_phone && (
                               <p><strong>Phone:</strong> {reservation.guest_phone}</p>
                             )}
@@ -113,7 +128,7 @@ export default function MyReservations() {
                         )}
                         
                         <p className="text-xs text-muted-foreground mt-3">
-                          Booked: {format(new Date(reservation.created_at), "PPP")}
+                          Booked: {formatReservationDate({ booking_date: reservation.created_at })}
                         </p>
                       </div>
                       
@@ -129,7 +144,7 @@ export default function MyReservations() {
                           </Button>
                         )}
                         
-                        {reservation.status === 'completed' && !hasReviewForTour(reservation.tour_id) && (
+                        {reservation.status === 'completed' && !hasReviewForTour(reservation.tourId || reservation.tour_id) && (
                           <Dialog 
                             open={reviewDialogOpen === reservation.id} 
                             onOpenChange={(open) => setReviewDialogOpen(open ? reservation.id : null)}
@@ -142,7 +157,7 @@ export default function MyReservations() {
                             </DialogTrigger>
                             <DialogContent className="max-w-2xl">
                               <ReviewForm
-                                tourId={reservation.tour_id}
+                                tourId={reservation.tourId || reservation.tour_id}
                                 bookingId={reservation.id}
                                 onSuccess={() => setReviewDialogOpen(null)}
                               />
@@ -150,7 +165,7 @@ export default function MyReservations() {
                           </Dialog>
                         )}
                         
-                        {reservation.status === 'completed' && hasReviewForTour(reservation.tour_id) && (
+                        {reservation.status === 'completed' && hasReviewForTour(reservation.tourId || reservation.tour_id) && (
                           <Badge variant="secondary" className="text-xs">
                             Review Submitted
                           </Badge>

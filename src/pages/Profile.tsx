@@ -10,13 +10,22 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 export default function Profile() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
   const { data: reservations = [], isLoading } = useReservations();
+
+  if (loading) {
+    return null;
+  }
 
   if (!user) {
     return <Navigate to="/auth" replace />;
   }
+
+  const toDate = (value: unknown) => {
+    const date = value ? new Date(value as string | number | Date) : null;
+    return date && !Number.isNaN(date.getTime()) ? date : null;
+  };
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -86,10 +95,10 @@ export default function Profile() {
                       <CardHeader className="pb-3 flex flex-row items-baseline justify-between">
                         <div>
                           <CardTitle className="text-lg">
-                            {reservation.tours?.name || "Tur"}
+                            {reservation.tour?.title || reservation.tours?.name || "Tur"}
                           </CardTitle>
                           <CardDescription>
-                            {reservation.tours?.location || ""}
+                            {reservation.tour?.location || reservation.tours?.location || ""}
                           </CardDescription>
                         </div>
                         <Badge>
@@ -99,16 +108,16 @@ export default function Profile() {
                       <CardContent>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                           <div>
-                            <p><b>Rezervasyon Tarihi:</b> {format(new Date(reservation.booking_date), "PPP")}</p>
-                            <p><b>Kişi Sayısı:</b> {reservation.adults} yetişkin{reservation.children > 0 ? `, ${reservation.children} çocuk` : ""}</p>
+                            <p><b>Rezervasyon Tarihi:</b> {toDate(reservation.reservationDate ?? reservation.booking_date) ? format(toDate(reservation.reservationDate ?? reservation.booking_date)!, "PPP") : "—"}</p>
+                            <p><b>Kişi Sayısı:</b> {reservation.numAdults ?? reservation.adults ?? 0} yetişkin{(reservation.numChildren ?? reservation.children ?? 0) > 0 ? `, ${reservation.numChildren ?? reservation.children} çocuk` : ""}</p>
                             <p><b>Durum:</b> {reservation.status}</p>
-                            <p><b>Oluşturulma:</b> {format(new Date(reservation.created_at), "PPP")}</p>
+                            <p><b>Oluşturulma:</b> {toDate(reservation.created_at) ? format(toDate(reservation.created_at)!, "PPP") : "—"}</p>
                           </div>
                           <div>
-                            <p><b>İsim:</b> {reservation.guest_name}</p>
-                            <p><b>Email:</b> {reservation.guest_email}</p>
+                            <p><b>İsim:</b> {[reservation.user?.first_name, reservation.user?.last_name].filter(Boolean).join(" ") || reservation.guest_name || user.email}</p>
+                            <p><b>Email:</b> {reservation.user?.email || reservation.guest_email || user.email}</p>
                             {reservation.guest_phone && <p><b>Telefon:</b> {reservation.guest_phone}</p>}
-                            <p><b>Toplam:</b> ₺{Number(reservation.total_price).toFixed(2)}</p>
+                            <p><b>Toplam:</b> ₺{Number(reservation.totalPrice ?? reservation.total_price ?? 0).toFixed(2)}</p>
                           </div>
                         </div>
                         {reservation.special_requests && (
@@ -117,9 +126,9 @@ export default function Profile() {
                         {/* Fatura benzeri özet */}
                         <div className="mt-5 p-4 bg-muted/60 rounded-lg text-xs">
                           <b>Fatura Detayları</b><br />
-                          <span>Ödeme Toplamı: ₺{Number(reservation.total_price).toFixed(2)}</span><br />
-                          <span>Misafir Adı: {reservation.guest_name}</span><br />
-                          <span>Misafir Emaili: {reservation.guest_email}</span><br />
+                          <span>Ödeme Toplamı: ₺{Number(reservation.totalPrice ?? reservation.total_price ?? 0).toFixed(2)}</span><br />
+                          <span>Misafir Adı: {[reservation.user?.first_name, reservation.user?.last_name].filter(Boolean).join(" ") || reservation.guest_name || user.email}</span><br />
+                          <span>Misafir Emaili: {reservation.user?.email || reservation.guest_email || user.email}</span><br />
                         </div>
                       </CardContent>
                     </Card>
