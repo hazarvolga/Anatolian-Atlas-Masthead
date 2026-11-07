@@ -93,9 +93,13 @@ function hexToHslTriplet(hex) {
 const PRESETS = [
   {
     id: "atlas-editorial",
+    aliases: ["anatolian-atlas"],
     label: "Atlas Editorial",
     character: "Warm limestone paper, deep cypress ink, carnelian terracotta, cartographic monograph.",
     defaultMode: "light",
+    typeScaleRatio: 1.25,
+    spacingMultiplier: 1.0,
+    imageFilter: "contrast(1.02) saturate(0.98)",
     fonts: {
       displayVar: "var(--font-display-atlas), Georgia, serif",
       sansVar: "var(--font-sans-atlas), -apple-system, BlinkMacSystemFont, sans-serif",
@@ -190,9 +194,13 @@ const PRESETS = [
   },
   {
     id: "aegean-linen",
+    aliases: [],
     label: "Aegean Linen",
     character: "Sunbleached linen, whitewashed limestone, calm pelagic teal, tactile coastal stillness.",
     defaultMode: "light",
+    typeScaleRatio: 1.333,
+    spacingMultiplier: 1.25,
+    imageFilter: "brightness(1.04) contrast(0.96) saturate(0.92) sepia(0.06)",
     fonts: {
       displayVar: "var(--font-display-aegean), Georgia, serif",
       sansVar: "var(--font-sans-aegean), -apple-system, BlinkMacSystemFont, sans-serif",
@@ -287,9 +295,13 @@ const PRESETS = [
   },
   {
     id: "ottoman-noir",
+    aliases: [],
     label: "Ottoman Noir",
     character: "Nocturnal basalt charcoal, silk parchment, pale antique gold, private evening salon.",
     defaultMode: "dark",
+    typeScaleRatio: 1.38,
+    spacingMultiplier: 1.15,
+    imageFilter: "brightness(0.9) contrast(1.12) saturate(0.84) sepia(0.12)",
     fonts: {
       displayVar: "var(--font-display-noir), Georgia, serif",
       sansVar: "var(--font-sans-noir), -apple-system, BlinkMacSystemFont, sans-serif",
@@ -439,10 +451,13 @@ if (hasFailure) {
 function renderModeVariables(preset, modeName) {
   const m = preset.modes[modeName];
   return `
-    /* Font Stack (Preset: ${preset.label}) */
+    /* Font Stack & Concept Pack Scales (Preset: ${preset.label}) */
     --font-serif: ${preset.fonts.displayVar};
     --font-sans: ${preset.fonts.sansVar};
     --font-mono: ${preset.fonts.monoVar};
+    --concept-type-scale: ${preset.typeScaleRatio};
+    --concept-spacing-multiplier: ${preset.spacingMultiplier};
+    --concept-img-filter: ${preset.imageFilter};
 
     /* Layer 2: Semantic Hex Tokens */
     --color-bg-canvas: ${m.bg.canvas};
@@ -589,19 +604,62 @@ ${renderModeVariables(PRESETS[0], "dark")}
 `);
 
 for (const preset of PRESETS) {
+  const allIds = [preset.id, ...(preset.aliases || [])];
+  const lightSelectors = allIds
+    .flatMap((id) => [`:root[data-theme="${id}"]`, `:root[data-theme="${id}"][data-mode="light"]`])
+    .join(",\n  ");
+  const darkSelectors = allIds
+    .flatMap((id) => [`:root[data-theme="${id}"].dark`, `:root[data-theme="${id}"][data-mode="dark"]`])
+    .join(",\n  ");
+
   cssBlocks.push(`  /* Preset: ${preset.label} (Light) */
-  :root[data-theme="${preset.id}"],
-  :root[data-theme="${preset.id}"][data-mode="light"] {
+  ${lightSelectors} {
 ${renderModeVariables(preset, "light")}
   }
 
   /* Preset: ${preset.label} (Dark) */
-  :root[data-theme="${preset.id}"].dark,
-  :root[data-theme="${preset.id}"][data-mode="dark"] {
+  ${darkSelectors} {
 ${renderModeVariables(preset, "dark")}
   }
 `);
 }
+
+cssBlocks.push(`  /* Concept Pack Image Treatment & Tactile Grain Rules */
+  :root[data-theme] main img {
+    filter: var(--concept-img-filter, none);
+  }
+
+  :root[data-concept="ottoman-noir"] article > header {
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  :root[data-concept="ottoman-noir"] article > header > div:first-child {
+    justify-content: center;
+  }
+
+  :root[data-concept="ottoman-noir"] article > figure {
+    padding: 0.75rem;
+    border-color: var(--color-accent-primary);
+  }
+
+  :root[data-concept="aegean-linen"] article > figure {
+    border-radius: 1rem;
+    overflow: hidden;
+    border-color: transparent;
+    box-shadow: var(--shadow-lg);
+  }
+
+  :root[data-grain="true"] body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 45;
+    opacity: 0.032;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+`);
 
 cssBlocks.push(`  /* Orthogonal Radius Tokens */
   :root[data-radius="sharp"] {

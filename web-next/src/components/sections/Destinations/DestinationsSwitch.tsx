@@ -2,6 +2,7 @@
 
 import DestinationsSection from "@/components/home/DestinationsSection";
 import DestinationsGridMosaic from "./DestinationsGridMosaic";
+import DestinationsHorizontalScroll from "./DestinationsHorizontalScroll";
 import { useDesignSystem } from "@/contexts/DesignSystemContext";
 import type { DestinationIndexVariant } from "@/config/theme.config";
 import type { Destination } from "@/hooks/useDestinations";
@@ -19,6 +20,12 @@ export default function DestinationsSwitch({
 
   if (activeVariant === "grid-mosaic") {
     return <DestinationsGridMosaic initialDestinations={initialDestinations} />;
+  }
+
+  if (activeVariant === "horizontal-scroll") {
+    return (
+      <DestinationsHorizontalScroll initialDestinations={initialDestinations} />
+    );
   }
 
   return <DestinationsSection initialDestinations={initialDestinations} />;

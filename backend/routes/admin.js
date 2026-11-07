@@ -51,14 +51,15 @@ function validateSafeSeoUrl(raw, fieldName = 'url', { allowRelative = true } = {
   }
 }
 
-const VALID_THEME_PRESETS = ['anatolian-atlas', 'aegean-linen', 'ottoman-noir'];
+const VALID_THEME_PRESETS = ['atlas-editorial', 'anatolian-atlas', 'aegean-linen', 'ottoman-noir'];
 const VALID_THEME_MODES = ['light', 'dark'];
 const VALID_THEME_RADII = ['sharp', 'soft'];
 const VALID_THEME_DENSITIES = ['airy', 'comfortable'];
 const VALID_MOTION_LEVELS = ['full', 'subtle', 'off'];
 const VALID_HOME_LAYOUTS = ['masthead', 'split-cinema', 'fullscreen-reel', 'editorial-index'];
-const VALID_TOUR_CARDS = ['portrait-4x5', 'landscape-row', 'minimal-list'];
+const VALID_TOUR_CARDS = ['portrait-4x5', 'landscape-row', 'minimal-list', 'full-bleed-minimal'];
 const VALID_DEST_INDEX = ['map-index', 'grid-mosaic', 'horizontal-scroll'];
+const VALID_TOUR_DETAILS = ['dossier', 'story-scroll', 'tabs'];
 const VALID_HEADERS = ['swiss-bar', 'centered-logo', 'minimal-overlay', 'sidebar-rail'];
 const VALID_FOOTERS = ['atlas-columns', 'minimal', 'big-wordmark'];
 
@@ -94,6 +95,9 @@ function validateThemeConfigPayload(raw) {
     }
     if (raw.layout.destinationIndex !== undefined && !VALID_DEST_INDEX.includes(raw.layout.destinationIndex)) {
       return { valid: false, error: `Invalid layout.destinationIndex: ${raw.layout.destinationIndex}` };
+    }
+    if (raw.layout.tourDetail !== undefined && !VALID_TOUR_DETAILS.includes(raw.layout.tourDetail)) {
+      return { valid: false, error: `Invalid layout.tourDetail: ${raw.layout.tourDetail}` };
     }
     if (raw.layout.header !== undefined && !VALID_HEADERS.includes(raw.layout.header)) {
       return { valid: false, error: `Invalid layout.header: ${raw.layout.header}` };

@@ -5,7 +5,7 @@ import {
   getServerTours,
 } from "@/lib/data/server-catalog";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Curated Field Itineraries & Small-Group Routes",

@@ -5,7 +5,7 @@ import {
   getServerTours,
 } from "@/lib/data/server-catalog";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600;
 
 export const metadata: Metadata = {
   title: "Six Distinct Regions of Anatolia — Regional Gazetteer",

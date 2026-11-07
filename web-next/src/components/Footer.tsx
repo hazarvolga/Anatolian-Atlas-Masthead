@@ -12,7 +12,7 @@ import { isDemoMode, siteConfig } from "@/config/site";
 
 export default function Footer() {
   const { t, localizePath } = useLanguage();
-  const { config } = useDesignSystem();
+  const { config, concept } = useDesignSystem();
   const currentYear = new Date().getFullYear();
   const { settings } = useSiteSettings();
   const [newsletterEmail, setNewsletterEmail] = useState("");
@@ -63,79 +63,157 @@ export default function Footer() {
     { name: t.nav.contact || "Inquiries", path: "/contact" },
   ];
 
-  // Variant B: Big Wordmark Monumental Footer
-  if (config.layout.footer === "big-wordmark") {
+  // Variant C: Minimal Coastal Colophon (`aegean-linen` default — airy, borderless, soft corners)
+  if (config.layout.footer === "minimal") {
     return (
-      <footer className="bg-background text-foreground border-t border-border">
-        <div className="container py-14 space-y-12">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 pb-12 border-b border-border">
-            <div className="lg:col-span-5 space-y-4">
-              <span className="editorial-kicker block">
-                GALATA PLANNING DESK
-                {siteConfig.contact.coordinates
-                  ? ` · ${siteConfig.contact.coordinates}`
-                  : ""}
+      <footer
+        data-footer-variant="minimal"
+        className="bg-card/50 text-foreground border-t border-border/50"
+      >
+        <div className="container py-20 lg:py-24 space-y-16">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+            <div className="lg:col-span-6 space-y-5">
+              <span className="text-xs tracking-[0.12em] uppercase text-primary font-medium block">
+                {concept.voice.eyebrowPrefix}
               </span>
+              <h3 className="font-serif text-3xl sm:text-4xl text-foreground leading-tight max-w-lg">
+                {concept.voice.microcopySample}
+              </h3>
               <p className="text-sm text-text-secondary max-w-md leading-relaxed">
                 {t.footer.description}
               </p>
-              {(settings?.contact_phone ||
-                siteConfig.contact.phone ||
-                settings?.contact_email ||
-                siteConfig.contact.email) && (
-                <p className="font-mono text-xs text-foreground">
-                  {[
-                    settings?.contact_phone || siteConfig.contact.phone,
-                    settings?.contact_email || siteConfig.contact.email,
-                  ]
-                    .filter(Boolean)
-                    .join(" · ")}
-                </p>
-              )}
             </div>
 
-            <div className="lg:col-span-3 space-y-3">
-              <span className="editorial-meta block">Index</span>
-              <ul className="space-y-2 text-xs uppercase tracking-[0.13em]">
+            <div className="lg:col-span-6 flex flex-col sm:flex-row lg:justify-end gap-10">
+              <div className="space-y-4">
+                <span className="text-xs tracking-[0.12em] uppercase text-text-secondary block">
+                  Navigation
+                </span>
+                <ul className="flex flex-wrap sm:flex-col gap-x-6 gap-y-2.5 text-sm">
+                  {navLinks.map((link) => (
+                    <li key={link.path}>
+                      <Link
+                        href={localizePath(link.path)}
+                        className="text-foreground hover:text-primary transition-colors"
+                      >
+                        {link.name}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="space-y-4 max-w-xs w-full">
+                <span className="text-xs tracking-[0.12em] uppercase text-text-secondary block">
+                  {t.footer.newsletter}
+                </span>
+                <p className="text-xs text-text-secondary leading-relaxed">
+                  Seasonal coastal notes and small-group departure dates.
+                </p>
+                <form
+                  className="flex flex-col gap-2.5"
+                  onSubmit={handleNewsletterSubmit}
+                >
+                  <label htmlFor="minimal-newsletter-email" className="sr-only">
+                    {t.footer.yourEmail}
+                  </label>
+                  <input
+                    id="minimal-newsletter-email"
+                    type="email"
+                    placeholder={t.footer.yourEmail}
+                    className="w-full px-4 py-3 text-xs bg-background border border-border rounded-full text-foreground focus:border-primary focus:outline-none"
+                    value={newsletterEmail}
+                    onChange={(event) => setNewsletterEmail(event.target.value)}
+                    required
+                  />
+                  <button
+                    type="submit"
+                    className="px-5 py-3 rounded-full bg-primary text-primary-foreground hover:bg-primary-hover text-xs font-medium tracking-[0.08em] transition-colors inline-flex items-center justify-center gap-1.5"
+                    disabled={isSubscribing}
+                  >
+                    <span>{t.footer.subscribe}</span>
+                    <ArrowUpRight className="h-3.5 w-3.5" />
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          <div className="pt-8 border-t border-border/50 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-text-secondary">
+            <p>
+              &copy; {currentYear}{" "}
+              {settings?.site_title || siteConfig.brand.name}.{" "}
+              {t.footer.allRights}
+            </p>
+            <p className="tracking-[0.08em]">
+              Aegean Coast · Lycia · Cappadocia · İstanbul
+            </p>
+          </div>
+        </div>
+      </footer>
+    );
+  }
+
+  // Variant B: Big Wordmark Monumental Footer (`ottoman-noir` default — symmetrical centered salon frame)
+  if (config.layout.footer === "big-wordmark") {
+    return (
+      <footer
+        data-footer-variant="big-wordmark"
+        className="bg-background text-foreground border-t border-border"
+      >
+        <div className="container py-16 space-y-12">
+          <div className="border border-border p-8 sm:p-12 bg-card/40 text-center space-y-8 relative">
+            <div className="space-y-3 max-w-xl mx-auto">
+              <span className="text-[11px] font-mono uppercase tracking-[0.24em] text-primary block">
+                ✦ {concept.voice.eyebrowPrefix} ✦
+              </span>
+              <h3 className="font-serif text-2xl sm:text-3xl text-foreground">
+                {concept.voice.microcopySample}
+              </h3>
+              <p className="text-sm text-text-secondary leading-relaxed">
+                {t.footer.description}
+              </p>
+            </div>
+
+            <nav aria-label="Footer navigation">
+              <ul className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-xs uppercase tracking-[0.18em]">
                 {navLinks.map((link) => (
                   <li key={link.path}>
                     <Link
                       href={localizePath(link.path)}
-                      className="text-text-secondary hover:text-foreground transition-colors"
+                      className="text-text-secondary hover:text-primary transition-colors"
                     >
                       {link.name}
                     </Link>
                   </li>
                 ))}
               </ul>
-            </div>
+            </nav>
 
-            <div className="lg:col-span-4 space-y-3">
-              <span className="editorial-meta block">
-                {t.footer.newsletter}
-              </span>
-              <form className="flex gap-2" onSubmit={handleNewsletterSubmit}>
-                <label htmlFor="wordmark-newsletter-email" className="sr-only">
-                  {t.footer.yourEmail}
-                </label>
-                <input
-                  id="wordmark-newsletter-email"
-                  type="email"
-                  placeholder={t.footer.yourEmail}
-                  className="flex-1 px-3.5 py-2.5 text-xs bg-card border border-border rounded-control text-foreground focus:border-foreground focus:outline-none"
-                  value={newsletterEmail}
-                  onChange={(event) => setNewsletterEmail(event.target.value)}
-                  required
-                />
-                <button
-                  type="submit"
-                  className="btn-primary py-2.5 px-5"
-                  disabled={isSubscribing}
-                >
-                  <span>{t.footer.subscribe}</span>
-                </button>
-              </form>
-            </div>
+            <form
+              className="flex flex-col sm:flex-row gap-2 max-w-md mx-auto pt-2"
+              onSubmit={handleNewsletterSubmit}
+            >
+              <label htmlFor="wordmark-newsletter-email" className="sr-only">
+                {t.footer.yourEmail}
+              </label>
+              <input
+                id="wordmark-newsletter-email"
+                type="email"
+                placeholder={t.footer.yourEmail}
+                className="flex-1 px-4 py-3 text-xs bg-background border border-border text-foreground focus:border-primary focus:outline-none"
+                value={newsletterEmail}
+                onChange={(event) => setNewsletterEmail(event.target.value)}
+                required
+              />
+              <button
+                type="submit"
+                className="btn-primary py-3 px-6"
+                disabled={isSubscribing}
+              >
+                <span>{t.footer.subscribe}</span>
+              </button>
+            </form>
           </div>
 
           <div className="pt-2">
@@ -147,7 +225,7 @@ export default function Footer() {
             </p>
           </div>
 
-          <div className="pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] uppercase tracking-[0.14em] text-text-secondary tabular-nums">
+          <div className="pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] uppercase tracking-[0.16em] text-text-secondary tabular-nums">
             <p>
               &copy; {currentYear}{" "}
               {settings?.site_title || siteConfig.brand.name}.{" "}
@@ -162,9 +240,12 @@ export default function Footer() {
     );
   }
 
-  // Variant A (Default): Swiss Atlas Columns
+  // Variant A (Default): Swiss Atlas Columns (`atlas-editorial` default — 4-col hairline grid)
   return (
-    <footer className="bg-background text-foreground border-t border-border">
+    <footer
+      data-footer-variant="atlas-columns"
+      className="bg-background text-foreground border-t border-border"
+    >
       <div className="container">
         {/* Swiss Grid Monograph Colophon */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 border-x border-b border-border divide-y md:divide-y-0 md:divide-x divide-border">

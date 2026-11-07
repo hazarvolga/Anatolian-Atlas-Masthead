@@ -2,6 +2,7 @@
 
 import HeroSection from "@/components/HeroSection";
 import HeroSplitCinema from "./HeroSplitCinema";
+import HeroFullscreenReel from "./HeroFullscreenReel";
 import { useDesignSystem } from "@/contexts/DesignSystemContext";
 import type { HomeLayoutVariant } from "@/config/theme.config";
 import type { Destination } from "@/hooks/useDestinations";
@@ -22,6 +23,15 @@ export default function HeroSwitch({
   if (activeVariant === "split-cinema") {
     return (
       <HeroSplitCinema
+        initialDestinations={initialDestinations}
+        initialTours={initialTours}
+      />
+    );
+  }
+
+  if (activeVariant === "fullscreen-reel") {
+    return (
+      <HeroFullscreenReel
         initialDestinations={initialDestinations}
         initialTours={initialTours}
       />

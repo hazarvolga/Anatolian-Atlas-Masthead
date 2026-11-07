@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 933" width="1400" height="933" role="img" aria-label="Neutral Topographic Landscape Placeholder">
+  <rect width="1400" height="933" fill="#EAE5DA"/>
+  <rect x="24" y="24" width="1352" height="885" fill="#F5F2EB" stroke="#18262E" stroke-width="1.5"/>
+  <g stroke="#D6CFC1" stroke-width="1" fill="none">
+    <path d="M 24 680 Q 380 510 700 610 T 1376 540"/>
+    <path d="M 24 740 Q 420 590 740 670 T 1376 610"/>
+    <path d="M 24 800 Q 460 660 780 730 T 1376 680"/>
+  </g>
+  <g stroke="#18262E" stroke-width="1.25" fill="none" opacity="0.26">
+    <polygon points="700,250 920,620 480,620"/>
+    <line x1="700" y1="180" x2="700" y2="700"/>
+  </g>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#18262E" font-size="14" letter-spacing="3">
+    <text x="56" y="68">PLATE PLACEHOLDER · TOPOGRAPHIC &amp; VALLEY RELIEF</text>
+    <text x="1120" y="68">1400 × 933 · 3:2</text>
+    <text x="56" y="882">NEUTRAL PLACEHOLDER MODE ENABLED</text>
+    <text x="1140" y="882">38.6431° N, 34.8289° E</text>
+  </g>
+</svg>

@@ -1,18 +1,20 @@
-import { cookies } from "next/headers";
 import defaultThemeConfig, {
+  resolveThemeFromConcept,
   type DestinationIndexVariant,
   type FooterLayoutVariant,
   type HeaderLayoutVariant,
   type HomeLayoutVariant,
   type ThemeConfig,
+  type ThemeLayoutSlots,
   type TourCardVariant,
+  type TourDetailVariant,
 } from "@/config/theme.config";
 import {
+  normalizePresetId,
   THEME_PRESETS,
   type MotionLevel,
   type ThemeDensity,
   type ThemeMode,
-  type ThemePresetId,
   type ThemeRadius,
 } from "@/design/tokens";
 import { sanitizeSafeSeoUrlOrFallback } from "@/lib/seo/validate-seo-fields";
@@ -34,6 +36,7 @@ const VALID_TOUR_CARD_VARIANTS: TourCardVariant[] = [
   "portrait-4x5",
   "landscape-row",
   "minimal-list",
+  "full-bleed-minimal",
 ];
 const VALID_DEST_INDEX_VARIANTS: DestinationIndexVariant[] = [
   "map-index",
@@ -51,29 +54,39 @@ const VALID_FOOTER_VARIANTS: FooterLayoutVariant[] = [
   "minimal",
   "big-wordmark",
 ];
+const VALID_TOUR_DETAIL_VARIANTS: TourDetailVariant[] = [
+  "dossier",
+  "story-scroll",
+  "tabs",
+];
 
+/**
+ * Merges and validates an incoming `theme_config` payload on top of a base `ThemeConfig`.
+ * When `candidate.preset` is provided, defaults come from that preset's `ConceptPack`,
+ * and any explicit per-slot overrides in `candidate.layout` / `candidate.overrides` are applied on top.
+ */
 export function mergeAndValidateThemeConfig(
   base: ThemeConfig,
   raw: unknown
 ): ThemeConfig {
-  const next: ThemeConfig = {
-    ...base,
-    layout: { ...base.layout },
-    motion: { ...base.motion },
-  };
-
   if (!raw || typeof raw !== "object") {
-    return next;
+    return resolveThemeFromConcept(base.preset, base.overrides);
   }
 
   const candidate = raw as Record<string, any>;
+  const targetPreset =
+    typeof candidate.preset === "string" && candidate.preset in THEME_PRESETS
+      ? normalizePresetId(candidate.preset)
+      : normalizePresetId(base.preset);
 
-  if (
-    typeof candidate.preset === "string" &&
-    candidate.preset in THEME_PRESETS
-  ) {
-    next.preset = candidate.preset as ThemePresetId;
-  }
+  // Start from the target ConceptPack's canonical defaults
+  const conceptDefault = resolveThemeFromConcept(targetPreset);
+
+  const next: ThemeConfig = {
+    ...conceptDefault,
+    layout: { ...conceptDefault.layout },
+    motion: { ...conceptDefault.motion },
+  };
 
   if (candidate.mode === "light" || candidate.mode === "dark") {
     next.mode = candidate.mode as ThemeMode;
@@ -98,21 +111,45 @@ export function mergeAndValidateThemeConfig(
     next.motion.level = motionLevel as MotionLevel;
   }
 
-  if (candidate.layout && typeof candidate.layout === "object") {
-    if (VALID_HOME_VARIANTS.includes(candidate.layout.home)) {
-      next.layout.home = candidate.layout.home;
+  // Apply explicit layout slot overrides from either `candidate.overrides.layout` or `candidate.layout`
+  const rawLayout =
+    candidate.overrides?.layout && typeof candidate.overrides.layout === "object"
+      ? candidate.overrides.layout
+      : candidate.layout && typeof candidate.layout === "object"
+        ? candidate.layout
+        : null;
+
+  if (rawLayout) {
+    const layoutOverrides: Partial<ThemeLayoutSlots> = {};
+    if (VALID_HOME_VARIANTS.includes(rawLayout.home)) {
+      next.layout.home = rawLayout.home;
+      layoutOverrides.home = rawLayout.home;
     }
-    if (VALID_TOUR_CARD_VARIANTS.includes(candidate.layout.tourCard)) {
-      next.layout.tourCard = candidate.layout.tourCard;
+    if (VALID_TOUR_CARD_VARIANTS.includes(rawLayout.tourCard)) {
+      next.layout.tourCard = rawLayout.tourCard;
+      layoutOverrides.tourCard = rawLayout.tourCard;
     }
-    if (VALID_DEST_INDEX_VARIANTS.includes(candidate.layout.destinationIndex)) {
-      next.layout.destinationIndex = candidate.layout.destinationIndex;
+    if (VALID_DEST_INDEX_VARIANTS.includes(rawLayout.destinationIndex)) {
+      next.layout.destinationIndex = rawLayout.destinationIndex;
+      layoutOverrides.destinationIndex = rawLayout.destinationIndex;
     }
-    if (VALID_HEADER_VARIANTS.includes(candidate.layout.header)) {
-      next.layout.header = candidate.layout.header;
+    if (VALID_HEADER_VARIANTS.includes(rawLayout.header)) {
+      next.layout.header = rawLayout.header;
+      layoutOverrides.header = rawLayout.header;
     }
-    if (VALID_FOOTER_VARIANTS.includes(candidate.layout.footer)) {
-      next.layout.footer = candidate.layout.footer;
+    if (VALID_FOOTER_VARIANTS.includes(rawLayout.footer)) {
+      next.layout.footer = rawLayout.footer;
+      layoutOverrides.footer = rawLayout.footer;
+    }
+    if (VALID_TOUR_DETAIL_VARIANTS.includes(rawLayout.tourDetail)) {
+      next.layout.tourDetail = rawLayout.tourDetail;
+      layoutOverrides.tourDetail = rawLayout.tourDetail;
+    }
+    if (Object.keys(layoutOverrides).length > 0) {
+      next.overrides = {
+        ...next.overrides,
+        layout: layoutOverrides,
+      };
     }
   }
 
@@ -137,15 +174,22 @@ export interface ServerSiteSettingsPayload {
   theme_config?: Partial<ThemeConfig>;
 }
 
+/**
+ * Fetches site settings from Express backend using Next.js ISR Data Cache
+ * tagged with `site-settings`.
+ * NEVER reads `cookies()` or `headers()` so static/ISR routes (`/`, `/tours`, `/destinations`)
+ * remain Static/ISR (`○` / `revalidate`) in `next build`.
+ */
 export async function getServerSiteSettings(): Promise<ServerSiteSettingsPayload> {
   try {
     const res = await fetch(`${API_INTERNAL_URL}/api/site-settings`, {
-      next: { revalidate: 60, tags: ["site-settings"] },
+      next: { revalidate: 3600, tags: ["site-settings"] },
       signal: AbortSignal.timeout(1500),
     });
     if (!res.ok) return {};
     const data = await res.json();
-    const raw = data?.value && typeof data.value === "object" ? data.value : data;
+    const raw =
+      data?.value && typeof data.value === "object" ? data.value : data;
     if (!raw || typeof raw !== "object") return {};
 
     return {
@@ -166,32 +210,14 @@ export async function getServerSiteSettings(): Promise<ServerSiteSettingsPayload
 }
 
 /**
- * Resolves the active ThemeConfig on the server during SSR so `<html data-theme=...>`
- * and `<DesignSystemProvider initialConfig={...}>` render the exact theme on the first byte
- * with zero client-side flash (FOUC).
- *
- * Precedence:
- * 1. `defaultThemeConfig` (`theme.config.ts`)
- * 2. Admin-saved global theme (`SiteSettings.value.theme_config` from Express backend)
- * 3. Optional visitor/studio cookie (`nst_theme_config`)
+ * Resolves the active `ThemeConfig` on the server strictly from `defaultThemeConfig`
+ * and the `site-settings` tagged ISR fetch (revalidated immediately on Admin save).
+ * Does NOT call `cookies()` so root `app/layout.tsx` preserves Static/ISR rendering.
  */
 export async function getServerThemeConfig(): Promise<ThemeConfig> {
   const siteSettings = await getServerSiteSettings();
-  let resolved = mergeAndValidateThemeConfig(
+  return mergeAndValidateThemeConfig(
     defaultThemeConfig,
     siteSettings.theme_config
   );
-
-  try {
-    const cookieStore = await cookies();
-    const rawCookie = cookieStore.get(THEME_COOKIE_NAME)?.value;
-    if (rawCookie) {
-      const parsedCookie = JSON.parse(decodeURIComponent(rawCookie));
-      resolved = mergeAndValidateThemeConfig(resolved, parsedCookie);
-    }
-  } catch {
-    // Ignore malformed cookie or static generation context
-  }
-
-  return resolved;
 }

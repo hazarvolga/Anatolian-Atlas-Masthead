@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, ArrowUpRight, Check, Minus } from "lucide-react";
 import { useTour } from "@/hooks/useTours";
+import { useDesignSystem } from "@/contexts/DesignSystemContext";
 import { formatPrice, siteConfig } from "@/config/site";
 import { SplitTextHeading, MagneticCTA } from "@/components/motion";
 import { useScrollActiveStep } from "@/lib/motion/hooks";
@@ -109,12 +110,16 @@ export default function TourDetailClient({
   id: string;
   initialTour?: any;
 }) {
+  const { config, concept } = useDesignSystem();
   const { data: fetchedTour, isLoading: queryLoading, error } = useTour(id);
   const rawTour = fetchedTour || initialTour;
   const isLoading = !rawTour && queryLoading;
   const tour = normaliseTour(rawTour);
   const itineraryContainerRef = useRef<HTMLDivElement | null>(null);
   const [activeDayIndex, setActiveDayIndex] = useState(0);
+  const [activeNoirTab, setActiveNoirTab] = useState<
+    "overview" | "chronicle" | "provisions"
+  >("overview");
 
   // Vertical scroll-active itinerary tracker (NO horizontal pin on tour detail)
   useScrollActiveStep(
@@ -169,8 +174,365 @@ export default function TourDetailClient({
     ? tour.difficulty.charAt(0).toUpperCase() + tour.difficulty.slice(1)
     : "Moderate";
 
+  const detailVariant = config.layout.tourDetail || "dossier";
+
+  // Variant B (`aegean-linen` default): `story-scroll` — Asymmetric sun-drenched narrative scroll
+  if (detailVariant === "story-scroll") {
+    return (
+      <main
+        data-tour-detail-variant="story-scroll"
+        className="pt-24 pb-24 bg-background min-h-screen space-y-20"
+      >
+        <div className="container">
+          <Link
+            href="/tours"
+            className="inline-flex items-center gap-2 text-xs tracking-[0.1em] uppercase text-text-secondary hover:text-primary mb-8"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            <span>All Coastal &amp; Inland Journeys</span>
+          </Link>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            <div className="lg:col-span-5 space-y-6">
+              <span className="text-xs tracking-[0.12em] uppercase text-primary font-medium block">
+                {concept.voice.eyebrowPrefix} · {tour.location}
+              </span>
+              <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl text-foreground leading-[1.03]">
+                {tour.name}
+              </h1>
+              <p className="text-base sm:text-lg text-text-secondary leading-relaxed">
+                {tour.description}
+              </p>
+
+              <div className="flex flex-wrap gap-3 pt-2">
+                <span className="px-4 py-2 rounded-full bg-card border border-border/60 text-xs text-foreground">
+                  {durationLabel}
+                </span>
+                <span className="px-4 py-2 rounded-full bg-card border border-border/60 text-xs text-foreground">
+                  Max {tour.max_group_size} Guests
+                </span>
+                <span className="px-4 py-2 rounded-full bg-card border border-border/60 text-xs text-foreground">
+                  Pace: {paceLabel}
+                </span>
+              </div>
+
+              <div className="pt-4 flex flex-wrap items-center gap-5">
+                <div>
+                  <span className="block text-[11px] uppercase tracking-[0.1em] text-text-secondary">
+                    Journey Tariff
+                  </span>
+                  <span className="font-serif text-3xl text-foreground tabular-nums">
+                    {formatPrice(tour.price)}
+                  </span>
+                </div>
+                <Link
+                  href={`/book/${tour.id}`}
+                  className="px-7 py-3.5 rounded-full bg-primary text-primary-foreground hover:bg-primary-hover text-xs font-medium tracking-[0.08em] uppercase inline-flex items-center gap-2 transition-colors"
+                >
+                  <span>Reserve This Journey</span>
+                  <ArrowUpRight className="w-4 h-4" />
+                </Link>
+              </div>
+            </div>
+
+            <div className="lg:col-span-7">
+              <div className="relative aspect-[16/10] rounded-2xl overflow-hidden bg-muted shadow-md">
+                <Image
+                  src={tour.image_url}
+                  alt={tour.name}
+                  width={1280}
+                  height={800}
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 58vw"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Flowing Narrative Story Chapters */}
+        <section className="container max-w-5xl space-y-12">
+          <div className="space-y-3">
+            <span className="text-xs tracking-[0.12em] uppercase text-primary font-medium block">
+              Daily Narrative Sequence
+            </span>
+            <h2 className="font-serif text-3xl sm:text-4xl text-foreground">
+              The Rhythm of the Route
+            </h2>
+          </div>
+
+          <div className="space-y-8">
+            {tour.itinerary.map((item: ItineraryItem, idx: number) => (
+              <article
+                key={idx}
+                className={`p-8 sm:p-10 rounded-2xl bg-card border border-border/50 grid grid-cols-1 md:grid-cols-12 gap-6 items-start ${
+                  idx % 2 === 1 ? "md:ml-12" : "md:mr-12"
+                }`}
+              >
+                <div className="md:col-span-3">
+                  <span className="inline-block px-3.5 py-1.5 rounded-full bg-primary-subtle text-primary text-xs font-medium tracking-[0.08em]">
+                    Chapter 0{item.day || idx + 1}
+                  </span>
+                </div>
+                <div className="md:col-span-9 space-y-3">
+                  <h3 className="font-serif text-2xl sm:text-3xl text-foreground">
+                    {item.title}
+                  </h3>
+                  <p className="text-base text-text-secondary leading-relaxed">
+                    {item.description}
+                  </p>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+
+        {/* Airy Inclusions & Private Charter Invitation */}
+        <section className="container max-w-5xl">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="p-8 rounded-2xl bg-card border border-border/50 space-y-4">
+              <h3 className="font-serif text-2xl text-foreground">
+                Included in Your Journey
+              </h3>
+              <ul className="space-y-3 text-sm text-foreground">
+                {tour.included.map((inc: string, idx: number) => (
+                  <li key={idx} className="flex items-start gap-3">
+                    <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                    <span>{inc}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="p-8 rounded-2xl bg-card/50 border border-border/50 flex flex-col justify-between space-y-6">
+              <div className="space-y-3">
+                <span className="text-xs tracking-[0.1em] uppercase text-primary font-medium block">
+                  Private &amp; Small-Group Dates
+                </span>
+                <h3 className="font-serif text-2xl text-foreground">
+                  Ready to step onto the route?
+                </h3>
+                <p className="text-sm text-text-secondary leading-relaxed">
+                  Reserve your place online in four calm steps or consult our Galata planning desk for bespoke dates.
+                </p>
+              </div>
+              <div className="flex flex-wrap gap-3">
+                <Link
+                  href={`/book/${tour.id}`}
+                  className="px-6 py-3 rounded-full bg-primary text-primary-foreground text-xs font-medium uppercase tracking-[0.08em] inline-flex items-center gap-1.5"
+                >
+                  <span>Proceed to Reservation</span>
+                  <ArrowUpRight className="w-3.5 h-3.5" />
+                </Link>
+                <Link
+                  href="/contact"
+                  className="px-6 py-3 rounded-full border border-border text-foreground text-xs font-medium uppercase tracking-[0.08em]"
+                >
+                  Inquire Privately
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    );
+  }
+
+  // Variant C (`ottoman-noir` default): `tabs` — Centered Symmetrical Salon Monument + Interactive Tab Switcher
+  if (detailVariant === "tabs") {
+    return (
+      <main
+        data-tour-detail-variant="tabs"
+        className="pt-24 pb-24 bg-background min-h-screen space-y-14"
+      >
+        {/* Symmetrical Gold-Framed Hero Stage */}
+        <section className="container">
+          <div className="border border-primary/50 p-2 bg-card">
+            <div className="relative min-h-[520px] border border-border overflow-hidden flex flex-col justify-between bg-black text-white p-8 sm:p-14 text-center">
+              <Image
+                src={tour.image_url}
+                alt={tour.name}
+                width={1400}
+                height={900}
+                priority
+                sizes="(max-width: 640px) 320px, 100vw"
+                className="hidden sm:block absolute inset-0 w-full h-full object-cover opacity-55"
+              />
+              <div
+                className="absolute inset-0 bg-gradient-to-b from-black/80 via-black/50 to-black/90"
+                aria-hidden="true"
+              />
+
+              <div className="relative z-10 flex items-center justify-between text-[11px] font-mono uppercase tracking-[0.2em] text-white/80">
+                <Link
+                  href="/tours"
+                  className="inline-flex items-center gap-2 text-white hover:text-[#DEC089]"
+                >
+                  <ArrowLeft className="h-3.5 w-3.5" />
+                  <span>ALL CHRONICLES</span>
+                </Link>
+                <span className="text-[#DEC089]">
+                  ✦ {concept.voice.eyebrowPrefix} ✦
+                </span>
+                <span>{tour.location.toUpperCase()}</span>
+              </div>
+
+              <div className="relative z-10 max-w-3xl mx-auto my-auto py-10 space-y-5">
+                <span className="inline-block px-4 py-1 border border-[#C8A464]/60 bg-black/70 text-[10px] font-mono uppercase tracking-[0.22em] text-[#DEC089]">
+                  {durationLabel} · MAX {tour.max_group_size} GUESTS · PACE:{" "}
+                  {paceLabel.toUpperCase()}
+                </span>
+                <h1 className="font-serif text-4xl sm:text-6xl text-white leading-[0.98]">
+                  {tour.name}
+                </h1>
+                <p className="text-sm sm:text-base text-white/85 max-w-2xl mx-auto leading-relaxed">
+                  {tour.description}
+                </p>
+              </div>
+
+              <div className="relative z-10 pt-6 border-t border-white/20 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div className="text-center sm:text-left">
+                  <span className="block text-[10px] font-mono uppercase tracking-[0.2em] text-white/75">
+                    ALL-INCLUSIVE SALON TARIFF
+                  </span>
+                  <span className="font-serif text-3xl text-[#DEC089] tabular-nums">
+                    {formatPrice(tour.price)}
+                  </span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Link
+                    href={`/book/${tour.id}`}
+                    className="px-7 py-3.5 bg-[#C8A464] text-[#121316] hover:bg-[#DEC089] text-xs uppercase tracking-[0.18em] font-semibold inline-flex items-center gap-2 transition-colors"
+                  >
+                    <span>Reserve Private Commission</span>
+                    <ArrowUpRight className="w-4 h-4" />
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Centered Symmetrical Tab Switcher */}
+        <section className="container max-w-4xl space-y-10">
+          <div
+            role="tablist"
+            aria-label="Chronicle Sections"
+            className="grid grid-cols-1 sm:grid-cols-3 border border-border bg-card divide-y sm:divide-y-0 sm:divide-x divide-border"
+          >
+            {[
+              { id: "overview", label: "I. Curatorial Premise & Stops" },
+              { id: "chronicle", label: "II. Daily Chronicle" },
+              { id: "provisions", label: "III. Salon Provisions & Tariff" },
+            ].map((tab) => {
+              const selected = activeNoirTab === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={selected}
+                  onClick={() => setActiveNoirTab(tab.id as any)}
+                  className={`py-4 px-5 text-xs font-mono uppercase tracking-[0.18em] transition-colors text-center ${
+                    selected
+                      ? "bg-primary text-primary-foreground font-semibold"
+                      : "text-text-secondary hover:text-foreground"
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {activeNoirTab === "overview" && (
+            <div className="border border-border bg-card p-8 sm:p-12 space-y-8 text-center">
+              <div className="space-y-3 max-w-2xl mx-auto">
+                <span className="font-mono text-[11px] uppercase tracking-[0.22em] text-primary block">
+                  ✦ ARCHITECTURAL &amp; ARCHAEOLOGICAL HIGHLIGHTS ✦
+                </span>
+                <h2 className="font-serif text-3xl text-foreground">
+                  Key Monuments &amp; Private Entries
+                </h2>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-left">
+                {tour.highlights.map((hl: string, idx: number) => (
+                  <div
+                    key={idx}
+                    className="p-5 border border-border bg-background flex items-baseline gap-3.5"
+                  >
+                    <span className="font-mono text-xs text-primary font-semibold">
+                      0{idx + 1}
+                    </span>
+                    <span className="text-sm text-foreground">{hl}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeNoirTab === "chronicle" && (
+            <div className="border border-border bg-card divide-y divide-border">
+              {tour.itinerary.map((item: ItineraryItem, idx: number) => (
+                <div
+                  key={idx}
+                  className="p-8 sm:p-10 text-center space-y-3 max-w-2xl mx-auto"
+                >
+                  <span className="font-mono text-[11px] uppercase tracking-[0.22em] text-primary block">
+                    ✦ CHAPTER 0{item.day || idx + 1} ✦
+                  </span>
+                  <h3 className="font-serif text-2xl sm:text-3xl text-foreground">
+                    {item.title}
+                  </h3>
+                  <p className="text-sm sm:text-base text-text-secondary leading-relaxed">
+                    {item.description}
+                  </p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {activeNoirTab === "provisions" && (
+            <div className="grid grid-cols-1 md:grid-cols-2 border border-border bg-card divide-y md:divide-y-0 md:divide-x divide-border">
+              <div className="p-8 space-y-4">
+                <h3 className="font-serif text-2xl text-foreground">
+                  Included Provisions
+                </h3>
+                <ul className="space-y-3 text-sm text-foreground">
+                  {tour.included.map((inc: string, idx: number) => (
+                    <li key={idx} className="flex items-start gap-3">
+                      <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                      <span>{inc}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="p-8 space-y-4">
+                <h3 className="font-serif text-2xl text-foreground">
+                  Exclusions
+                </h3>
+                <ul className="space-y-3 text-sm text-text-secondary">
+                  {tour.excluded.map((exc: string, idx: number) => (
+                    <li key={idx} className="flex items-start gap-3">
+                      <Minus className="h-4 w-4 text-text-tertiary shrink-0 mt-0.5" />
+                      <span>{exc}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )}
+        </section>
+      </main>
+    );
+  }
+
+  // Variant A (`atlas-editorial` default): `dossier` — 12-Col Swiss Specification Ledger + Vertical Route Timeline
   return (
-    <main className="pt-20 bg-background min-h-screen">
+    <main
+      data-tour-detail-variant="dossier"
+      className="pt-20 bg-background min-h-screen"
+    >
       {/* Top Breadcrumb & Dossier Strip */}
       <div className="border-b border-border bg-card">
         <div className="container py-3 flex flex-wrap items-center justify-between gap-4 text-[11px] uppercase tracking-[0.16em] text-text-secondary tabular-nums">
@@ -181,9 +543,7 @@ export default function TourDetailClient({
             <ArrowLeft className="h-3.5 w-3.5" />
             <span>BACK TO EXPEDITION CATALOGUE</span>
           </Link>
-          <span>
-            EXPEDITION DOSSIER · {tour.location.toUpperCase()}
-          </span>
+          <span>EXPEDITION DOSSIER · {tour.location.toUpperCase()}</span>
         </div>
       </div>
 
@@ -264,7 +624,7 @@ export default function TourDetailClient({
               <div className="p-6 border-t border-background/15 flex items-center justify-between gap-4">
                 <div className="text-xs">
                   <span className="block text-[10px] uppercase tracking-[0.15em] text-background/60">
-                    ASSEMBLY & DISPATCH
+                    ASSEMBLY &amp; DISPATCH
                   </span>
                   <span className="text-background font-medium">
                     {tour.departure_location || tour.location} ·{" "}
@@ -392,7 +752,7 @@ export default function TourDetailClient({
                 <div className="space-y-6">
                   <div className="border-b border-border pb-4">
                     <span className="editorial-kicker">
-                      02 — KEY ARCHAEOLOGICAL & CULTURAL STOPS
+                      02 — KEY ARCHAEOLOGICAL &amp; CULTURAL STOPS
                     </span>
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-2 border border-border divide-y sm:divide-y-0 sm:divide-x divide-border bg-card">
@@ -438,7 +798,7 @@ export default function TourDetailClient({
               <div className="space-y-6">
                 <div className="border-b border-border pb-4">
                   <span className="editorial-kicker">
-                    03 — EXPEDITION PROVISIONS & LOGISTICS
+                    03 — EXPEDITION PROVISIONS &amp; LOGISTICS
                   </span>
                 </div>
 

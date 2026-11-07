@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 933" width="1400" height="933" role="img" aria-label="Neutral Maritime Littoral Placeholder">
+  <rect width="1400" height="933" fill="#DFECEE"/>
+  <rect x="24" y="24" width="1352" height="885" fill="#FCFBF8" stroke="#1F5E63" stroke-width="1.5"/>
+  <g stroke="#1F5E63" stroke-width="1" fill="none" opacity="0.25">
+    <line x1="24" y1="466" x2="1376" y2="466"/>
+    <line x1="24" y1="520" x2="1376" y2="520"/>
+    <line x1="24" y1="574" x2="1376" y2="574"/>
+    <line x1="24" y1="628" x2="1376" y2="628"/>
+    <circle cx="700" cy="360" r="96"/>
+  </g>
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" fill="#18262E" font-size="14" letter-spacing="3">
+    <text x="56" y="68">PLATE PLACEHOLDER · MARITIME &amp; COASTAL CHART</text>
+    <text x="1120" y="68">1400 × 933 · 3:2</text>
+    <text x="56" y="882">COMMERCIAL THEME DISTRIBUTION PLACEHOLDER</text>
+    <text x="1140" y="882">36.2018° N, 29.6377° E</text>
+  </g>
+</svg>

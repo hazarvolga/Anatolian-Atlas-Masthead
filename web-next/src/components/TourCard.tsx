@@ -61,6 +61,84 @@ export default function TourCard({
       ? String(indexNumber).padStart(2, "0")
       : "01";
 
+  // Variant 4: Full-Bleed Minimal Salon Plate (`ottoman-noir` default — centered symmetrical overlay, thin gold frame)
+  if (activeVariant === "full-bleed-minimal") {
+    return (
+      <SpotlightTourCard className="h-full overflow-hidden">
+        <article
+          data-tourcard-variant="full-bleed-minimal"
+          className="group relative min-h-[480px] border border-border bg-black text-white overflow-hidden flex flex-col justify-between p-3"
+        >
+          <Image
+            src={tour.image_url || DEFAULT_TOUR_IMAGE}
+            alt={`${tour.name} — ${regionLabel}`}
+            width={960}
+            height={1280}
+            priority={indexNumber === 1}
+            sizes="(max-width: 768px) 100vw, 50vw"
+            className="absolute inset-0 w-full h-full object-cover opacity-65 transition-transform duration-1000 ease-out group-hover:scale-[1.04]"
+          />
+          <div
+            className="absolute inset-0 bg-gradient-to-b from-black/75 via-black/35 to-black/90"
+            aria-hidden="true"
+          />
+
+          {/* Thin Burnished Gold Inset Frame */}
+          <div className="relative z-10 flex-1 border border-[#C8A464]/50 p-6 sm:p-8 flex flex-col justify-between text-center">
+            <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-[0.22em] text-white/80">
+              <span>CHRONICLE {formattedIndex}</span>
+              <span className="text-[#DEC089]">✦ {regionLabel} ✦</span>
+              <span>{durationLabel}</span>
+            </div>
+
+            <div className="my-auto py-8 space-y-4 max-w-md mx-auto">
+              <span className="inline-block px-3 py-1 border border-[#C8A464]/60 bg-black/70 text-[10px] font-mono uppercase tracking-[0.2em] text-[#DEC089]">
+                MAX {tour.max_group_size || 12} GUESTS · {paceLabel.toUpperCase()}
+              </span>
+              <h3 className="font-serif text-3xl sm:text-4xl text-white leading-tight">
+                <Link href={`/tours/${tour.id}`} className="hover:text-[#DEC089] transition-colors">
+                  {tour.name}
+                </Link>
+              </h3>
+              {tour.description && (
+                <p className="text-xs sm:text-sm text-white/80 line-clamp-2 leading-relaxed">
+                  {tour.description}
+                </p>
+              )}
+            </div>
+
+            <div className="pt-5 border-t border-white/20 flex items-center justify-between gap-4">
+              <div className="text-left">
+                <span className="block text-[10px] font-mono uppercase tracking-[0.18em] text-white/75">
+                  PRIVATE SALON TARIFF
+                </span>
+                <span className="font-serif text-2xl sm:text-3xl text-[#DEC089] tabular-nums">
+                  {formatPrice(tour.price)}
+                </span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Link
+                  href={`/tours/${tour.id}`}
+                  className="px-4 py-2.5 border border-white/35 bg-black/60 text-white hover:bg-white hover:text-black text-[11px] uppercase tracking-[0.16em] font-medium transition-colors"
+                >
+                  Chronicle
+                </Link>
+                <Link
+                  href={`/book/${tour.id}`}
+                  className="px-4 py-2.5 bg-[#C8A464] text-[#121316] hover:bg-[#DEC089] text-[11px] uppercase tracking-[0.16em] font-semibold inline-flex items-center gap-1.5 transition-colors"
+                >
+                  <span>{t.nav?.bookNow || "Reserve"}</span>
+                  <ArrowUpRight className="h-3.5 w-3.5" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </article>
+      </SpotlightTourCard>
+    );
+  }
+
   // Variant 3: Minimal Archival Index List Row
   if (activeVariant === "minimal-list") {
     return (
@@ -134,6 +212,7 @@ export default function TourCard({
             alt={`${tour.name} — ${regionLabel}`}
             width={1120}
             height={700}
+            priority={indexNumber === 1}
             sizes="(max-width: 1024px) 100vw, 42vw"
             className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
           />
@@ -257,6 +336,7 @@ export default function TourCard({
             alt={`${tour.name} — ${regionLabel}`}
             width={880}
             height={1100}
+            priority={indexNumber === 1}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
           />

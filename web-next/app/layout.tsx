@@ -9,16 +9,12 @@ import {
   IBM_Plex_Mono,
 } from "next/font/google";
 import { siteConfig } from "@/config/site.config";
-import {
-  getServerLocale,
-  getServerPathname,
-} from "@/lib/i18n/server-locale";
 import { getServerThemeConfig } from "@/lib/data/server-theme";
+import { getConceptPack } from "@/design/concepts";
+import { normalizePresetId } from "@/design/tokens";
 import {
   buildAlternatesMetadata,
   DEFAULT_LOCALE,
-  isFullyTranslatedRoute,
-  isNonLocalizedPath,
 } from "@/lib/i18n/locale-utils";
 import { Providers } from "./providers";
 import "./globals.css";
@@ -41,28 +37,28 @@ const fraunces = Fraunces({
   subsets: ["latin", "latin-ext"],
   variable: "--font-display-aegean",
   display: "swap",
-  preload: false,
+  preload: true,
 });
 
 const instrumentSans = Instrument_Sans({
   subsets: ["latin", "latin-ext"],
   variable: "--font-sans-aegean",
   display: "swap",
-  preload: false,
+  preload: true,
 });
 
 const bodoniModa = Bodoni_Moda({
   subsets: ["latin", "latin-ext"],
   variable: "--font-display-noir",
   display: "swap",
-  preload: false,
+  preload: true,
 });
 
 const albertSans = Albert_Sans({
   subsets: ["latin", "latin-ext"],
   variable: "--font-sans-noir",
   display: "swap",
-  preload: false,
+  preload: true,
 });
 
 const ibmPlexMono = IBM_Plex_Mono({
@@ -74,13 +70,6 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export async function generateMetadata(): Promise<Metadata> {
-  const locale = await getServerLocale();
-  const pathname = await getServerPathname("/");
-  const nonLocalized = isNonLocalizedPath(pathname);
-  const translatedRoute = isFullyTranslatedRoute(pathname);
-  const noindexUntranslatedLocale =
-    locale !== DEFAULT_LOCALE && !translatedRoute;
-
   return {
     metadataBase: new URL(siteConfig.seo.siteUrl),
     title: {
@@ -88,22 +77,17 @@ export async function generateMetadata(): Promise<Metadata> {
       template: siteConfig.seo.titleTemplate,
     },
     description: siteConfig.brand.description,
-    alternates: nonLocalized
-      ? undefined
-      : buildAlternatesMetadata(pathname, locale),
-    ...(noindexUntranslatedLocale
-      ? { robots: { index: false, follow: true } }
-      : {}),
+    alternates: buildAlternatesMetadata("/", DEFAULT_LOCALE),
   };
 }
 
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const [serverLocale, activeTheme] = await Promise.all([
-    getServerLocale(),
-    getServerThemeConfig(),
-  ]);
+  // Resolved strictly from `site-settings` tagged ISR fetch — NEVER calls `cookies()` or `headers()`
+  const activeTheme = await getServerThemeConfig();
+  const canonicalConceptId = normalizePresetId(activeTheme.preset);
+  const concept = getConceptPack(canonicalConceptId);
 
   const fontVariables = [
     newsreader.variable,
@@ -117,13 +101,19 @@ export default async function RootLayout({
 
   return (
     <html
-      lang={serverLocale}
+      lang={DEFAULT_LOCALE}
       suppressHydrationWarning
-      data-theme={activeTheme.preset}
+      data-theme={canonicalConceptId}
+      data-concept={canonicalConceptId}
       data-mode={activeTheme.mode}
       data-radius={activeTheme.radius}
       data-density={activeTheme.density}
       data-motion={activeTheme.motion.level}
+      data-frame={concept.shape.frameStyle}
+      data-ornament={concept.shape.ornamentSvg}
+      data-entrance={concept.motion.entrance}
+      data-vignette={concept.imageTreatment.vignette ? "true" : "false"}
+      data-grain={concept.imageTreatment.grain ? "true" : "false"}
       className={`${fontVariables} ${activeTheme.mode === "dark" ? "dark" : ""}`.trim()}
     >
       <body className="font-sans antialiased bg-background text-foreground">
@@ -134,7 +124,7 @@ export default async function RootLayout({
           Skip to main content
         </a>
         <Providers
-          initialLocale={serverLocale}
+          initialLocale={DEFAULT_LOCALE}
           initialThemeConfig={activeTheme}
         >
           {children}

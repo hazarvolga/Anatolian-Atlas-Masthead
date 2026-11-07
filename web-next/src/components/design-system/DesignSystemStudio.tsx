@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useDesignSystem } from "@/contexts/DesignSystemContext";
 import {
+  normalizePresetId,
   THEME_PRESETS,
   type MotionLevel,
   type ThemeDensity,
@@ -41,7 +42,11 @@ import {
   Sun,
 } from "lucide-react";
 
-const PRESET_LIST = Object.values(THEME_PRESETS);
+const PRESET_LIST = [
+  THEME_PRESETS["atlas-editorial"],
+  THEME_PRESETS["aegean-linen"],
+  THEME_PRESETS["ottoman-noir"],
+];
 
 export default function DesignSystemStudio() {
   const {
@@ -56,7 +61,7 @@ export default function DesignSystemStudio() {
   } = useDesignSystem();
 
   const [copiedConfig, setCopiedConfig] = useState(false);
-  const activePreset = THEME_PRESETS[config.preset];
+  const activePreset = THEME_PRESETS[normalizePresetId(config.preset)];
   const activeModeTokens = activePreset.modes[config.mode];
 
   const configSnippet = `// web-next/src/config/theme.config.ts

@@ -48,10 +48,13 @@
     --card-border-hover: var(--color-border-strong);
     --input-height: 2.875rem;
 
-    /* Font Stack (Preset: Atlas Editorial) */
+    /* Font Stack & Concept Pack Scales (Preset: Atlas Editorial) */
     --font-serif: var(--font-display-atlas), Georgia, serif;
     --font-sans: var(--font-sans-atlas), -apple-system, BlinkMacSystemFont, sans-serif;
     --font-mono: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
+    --concept-type-scale: 1.25;
+    --concept-spacing-multiplier: 1;
+    --concept-img-filter: contrast(1.02) saturate(0.98);
 
     /* Layer 2: Semantic Hex Tokens */
     --color-bg-canvas: #F4F1EA;
@@ -140,10 +143,13 @@
   :root.dark,
   :root[data-mode="dark"] {
 
-    /* Font Stack (Preset: Atlas Editorial) */
+    /* Font Stack & Concept Pack Scales (Preset: Atlas Editorial) */
     --font-serif: var(--font-display-atlas), Georgia, serif;
     --font-sans: var(--font-sans-atlas), -apple-system, BlinkMacSystemFont, sans-serif;
     --font-mono: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
+    --concept-type-scale: 1.25;
+    --concept-spacing-multiplier: 1;
+    --concept-img-filter: contrast(1.02) saturate(0.98);
 
     /* Layer 2: Semantic Hex Tokens */
     --color-bg-canvas: #101918;
@@ -230,12 +236,17 @@
 
   /* Preset: Atlas Editorial (Light) */
   :root[data-theme="atlas-editorial"],
-  :root[data-theme="atlas-editorial"][data-mode="light"] {
+  :root[data-theme="atlas-editorial"][data-mode="light"],
+  :root[data-theme="anatolian-atlas"],
+  :root[data-theme="anatolian-atlas"][data-mode="light"] {
 
-    /* Font Stack (Preset: Atlas Editorial) */
+    /* Font Stack & Concept Pack Scales (Preset: Atlas Editorial) */
     --font-serif: var(--font-display-atlas), Georgia, serif;
     --font-sans: var(--font-sans-atlas), -apple-system, BlinkMacSystemFont, sans-serif;
     --font-mono: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
+    --concept-type-scale: 1.25;
+    --concept-spacing-multiplier: 1;
+    --concept-img-filter: contrast(1.02) saturate(0.98);
 
     /* Layer 2: Semantic Hex Tokens */
     --color-bg-canvas: #F4F1EA;
@@ -322,12 +333,17 @@
 
   /* Preset: Atlas Editorial (Dark) */
   :root[data-theme="atlas-editorial"].dark,
-  :root[data-theme="atlas-editorial"][data-mode="dark"] {
+  :root[data-theme="atlas-editorial"][data-mode="dark"],
+  :root[data-theme="anatolian-atlas"].dark,
+  :root[data-theme="anatolian-atlas"][data-mode="dark"] {
 
-    /* Font Stack (Preset: Atlas Editorial) */
+    /* Font Stack & Concept Pack Scales (Preset: Atlas Editorial) */
     --font-serif: var(--font-display-atlas), Georgia, serif;
     --font-sans: var(--font-sans-atlas), -apple-system, BlinkMacSystemFont, sans-serif;
     --font-mono: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
+    --concept-type-scale: 1.25;
+    --concept-spacing-multiplier: 1;
+    --concept-img-filter: contrast(1.02) saturate(0.98);
 
     /* Layer 2: Semantic Hex Tokens */
     --color-bg-canvas: #101918;
@@ -416,10 +432,13 @@
   :root[data-theme="aegean-linen"],
   :root[data-theme="aegean-linen"][data-mode="light"] {
 
-    /* Font Stack (Preset: Aegean Linen) */
+    /* Font Stack & Concept Pack Scales (Preset: Aegean Linen) */
     --font-serif: var(--font-display-aegean), Georgia, serif;
     --font-sans: var(--font-sans-aegean), -apple-system, BlinkMacSystemFont, sans-serif;
     --font-mono: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
+    --concept-type-scale: 1.333;
+    --concept-spacing-multiplier: 1.25;
+    --concept-img-filter: brightness(1.04) contrast(0.96) saturate(0.92) sepia(0.06);
 
     /* Layer 2: Semantic Hex Tokens */
     --color-bg-canvas: #F5F2EB;
@@ -508,10 +527,13 @@
   :root[data-theme="aegean-linen"].dark,
   :root[data-theme="aegean-linen"][data-mode="dark"] {
 
-    /* Font Stack (Preset: Aegean Linen) */
+    /* Font Stack & Concept Pack Scales (Preset: Aegean Linen) */
     --font-serif: var(--font-display-aegean), Georgia, serif;
     --font-sans: var(--font-sans-aegean), -apple-system, BlinkMacSystemFont, sans-serif;
     --font-mono: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
+    --concept-type-scale: 1.333;
+    --concept-spacing-multiplier: 1.25;
+    --concept-img-filter: brightness(1.04) contrast(0.96) saturate(0.92) sepia(0.06);
 
     /* Layer 2: Semantic Hex Tokens */
     --color-bg-canvas: #0F181D;
@@ -600,10 +622,13 @@
   :root[data-theme="ottoman-noir"],
   :root[data-theme="ottoman-noir"][data-mode="light"] {
 
-    /* Font Stack (Preset: Ottoman Noir) */
+    /* Font Stack & Concept Pack Scales (Preset: Ottoman Noir) */
     --font-serif: var(--font-display-noir), Georgia, serif;
     --font-sans: var(--font-sans-noir), -apple-system, BlinkMacSystemFont, sans-serif;
     --font-mono: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
+    --concept-type-scale: 1.38;
+    --concept-spacing-multiplier: 1.15;
+    --concept-img-filter: brightness(0.9) contrast(1.12) saturate(0.84) sepia(0.12);
 
     /* Layer 2: Semantic Hex Tokens */
     --color-bg-canvas: #F3EFEA;
@@ -692,10 +717,13 @@
   :root[data-theme="ottoman-noir"].dark,
   :root[data-theme="ottoman-noir"][data-mode="dark"] {
 
-    /* Font Stack (Preset: Ottoman Noir) */
+    /* Font Stack & Concept Pack Scales (Preset: Ottoman Noir) */
     --font-serif: var(--font-display-noir), Georgia, serif;
     --font-sans: var(--font-sans-noir), -apple-system, BlinkMacSystemFont, sans-serif;
     --font-mono: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
+    --concept-type-scale: 1.38;
+    --concept-spacing-multiplier: 1.15;
+    --concept-img-filter: brightness(0.9) contrast(1.12) saturate(0.84) sepia(0.12);
 
     /* Layer 2: Semantic Hex Tokens */
     --color-bg-canvas: #121316;
@@ -778,6 +806,42 @@
     --shadow-md: 0 8px 20px -4px rgba(0, 0, 0, 0.55);
     --shadow-lg: 0 20px 42px -10px rgba(0, 0, 0, 0.7);
     --shadow-xl: 0 20px 42px -10px rgba(0, 0, 0, 0.7);
+  }
+
+  /* Concept Pack Image Treatment & Tactile Grain Rules */
+  :root[data-theme] main img {
+    filter: var(--concept-img-filter, none);
+  }
+
+  :root[data-concept="ottoman-noir"] article > header {
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  :root[data-concept="ottoman-noir"] article > header > div:first-child {
+    justify-content: center;
+  }
+
+  :root[data-concept="ottoman-noir"] article > figure {
+    padding: 0.75rem;
+    border-color: var(--color-accent-primary);
+  }
+
+  :root[data-concept="aegean-linen"] article > figure {
+    border-radius: 1rem;
+    overflow: hidden;
+    border-color: transparent;
+    box-shadow: var(--shadow-lg);
+  }
+
+  :root[data-grain="true"] body::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 45;
+    opacity: 0.032;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   }
 
   /* Orthogonal Radius Tokens */

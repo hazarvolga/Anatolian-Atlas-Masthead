@@ -3,7 +3,12 @@
 import React, { useState, useEffect } from "react";
 import { useSiteSettings, SiteSettings } from "@/hooks/useSiteSettings";
 import { useDesignSystem } from "@/contexts/DesignSystemContext";
-import defaultThemeConfig, { type ThemeConfig } from "@/config/theme.config";
+import defaultThemeConfig, {
+  resolveThemeFromConcept,
+  type ThemeConfig,
+} from "@/config/theme.config";
+import { ALL_CONCEPT_PACKS } from "@/design/concepts";
+import { normalizePresetId, type ThemePresetId } from "@/design/tokens";
 import { validateSafeSeoUrl } from "@/lib/seo/validate-seo-fields";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -214,6 +219,10 @@ export default function AdminSiteSettings() {
     field: "preset" | "mode" | "radius" | "density",
     value: string
   ) => {
+    if (field === "preset") {
+      setThemeState(resolveThemeFromConcept(value as ThemePresetId));
+      return;
+    }
     setThemeState((prev) => ({
       ...prev,
       [field]: value as any,
@@ -368,21 +377,17 @@ export default function AdminSiteSettings() {
                 <Label htmlFor="theme-preset-select">Brand Concept Preset</Label>
                 <select
                   id="theme-preset-select"
-                  value={themeState.preset}
+                  value={normalizePresetId(themeState.preset)}
                   onChange={(e) =>
                     handleThemeFieldChange("preset", e.target.value)
                   }
                   className="mt-1 w-full h-10 px-3 rounded border border-border bg-background text-sm"
                 >
-                  <option value="anatolian-atlas">
-                    Anatolian Atlas (Warm Limestone & Terracotta)
-                  </option>
-                  <option value="aegean-linen">
-                    Aegean Linen (Sun-Bleached Chalk & Cobalt)
-                  </option>
-                  <option value="ottoman-noir">
-                    Ottoman Noir (Obsidian & Burnished Brass)
-                  </option>
+                  {ALL_CONCEPT_PACKS.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.label} — {c.character}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -470,7 +475,10 @@ export default function AdminSiteSettings() {
                 >
                   <option value="masthead">Masthead (7/5 Editorial)</option>
                   <option value="split-cinema">
-                    Split Cinema (5/7 Interactive Atlas)
+                    Split Cinema (Asymmetric Full-Bleed)
+                  </option>
+                  <option value="fullscreen-reel">
+                    Fullscreen Reel (Centered Salon)
                   </option>
                 </select>
               </div>
@@ -493,8 +501,11 @@ export default function AdminSiteSettings() {
                   <option value="map-index">
                     Map Index (5/7 Tabular Dossier)
                   </option>
+                  <option value="horizontal-scroll">
+                    Horizontal Scroll (Desktop Gallery)
+                  </option>
                   <option value="grid-mosaic">
-                    Grid Mosaic (Alternating 7/5 & 5/7)
+                    Grid Mosaic (Symmetrical Salon)
                   </option>
                 </select>
               </div>
@@ -512,8 +523,33 @@ export default function AdminSiteSettings() {
                   className="mt-1 w-full h-10 px-3 rounded border border-border bg-background text-sm"
                 >
                   <option value="portrait-4x5">Portrait 4:5 Plate</option>
-                  <option value="landscape-row">Landscape Row</option>
+                  <option value="landscape-row">Landscape Row (16:10)</option>
+                  <option value="full-bleed-minimal">
+                    Full-Bleed Minimal (Gold Frame)
+                  </option>
                   <option value="minimal-list">Minimal Archival List</option>
+                </select>
+              </div>
+
+              <div>
+                <Label htmlFor="layout-tourdetail-select">
+                  Tour Detail Variant
+                </Label>
+                <select
+                  id="layout-tourdetail-select"
+                  value={themeState.layout.tourDetail || "dossier"}
+                  onChange={(e) =>
+                    handleLayoutChange("tourDetail", e.target.value as any)
+                  }
+                  className="mt-1 w-full h-10 px-3 rounded border border-border bg-background text-sm"
+                >
+                  <option value="dossier">Dossier (7/5 Ledger + Sticky Rail)</option>
+                  <option value="story-scroll">
+                    Story Scroll (Asymmetric Chapters)
+                  </option>
+                  <option value="tabs">
+                    Tabs (Centered Salon Switcher)
+                  </option>
                 </select>
               </div>
 
@@ -528,7 +564,8 @@ export default function AdminSiteSettings() {
                   className="mt-1 w-full h-10 px-3 rounded border border-border bg-background text-sm"
                 >
                   <option value="swiss-bar">Swiss Hairline Bar</option>
-                  <option value="centered-logo">Centered Editorial Logo</option>
+                  <option value="minimal-overlay">Minimal Floating Bar</option>
+                  <option value="centered-logo">Centered Salon Logo</option>
                 </select>
               </div>
 
@@ -543,6 +580,7 @@ export default function AdminSiteSettings() {
                   className="mt-1 w-full h-10 px-3 rounded border border-border bg-background text-sm"
                 >
                   <option value="atlas-columns">Atlas 4-Column Colophon</option>
+                  <option value="minimal">Minimal Coastal Horizon</option>
                   <option value="big-wordmark">Monumental Wordmark</option>
                 </select>
               </div>

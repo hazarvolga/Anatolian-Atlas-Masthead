@@ -8,23 +8,31 @@ import React, {
   useMemo,
   useState,
 } from "react";
-import defaultThemeConfig, { type ThemeConfig } from "@/config/theme.config";
-import { siteConfig } from "@/config/site.config";
+import defaultThemeConfig, {
+  resolveThemeFromConcept,
+  type ThemeConfig,
+} from "@/config/theme.config";
+import { isDemoMode, siteConfig } from "@/config/site.config";
 import {
+  normalizePresetId,
   THEME_PRESETS,
+  type CanonicalConceptId,
   type MotionLevel,
   type ThemeDensity,
   type ThemeMode,
   type ThemePresetId,
   type ThemeRadius,
 } from "@/design/tokens";
+import { getConceptPack, type ConceptPack } from "@/design/concepts";
 
 const STORAGE_KEY = "nst_theme_config_v1";
 const COOKIE_KEY = "nst_theme_config";
 
 interface DesignSystemContextValue {
   config: ThemeConfig;
-  setPreset: (preset: ThemePresetId, syncDefaultMode?: boolean) => void;
+  concept: ConceptPack;
+  canonicalPreset: CanonicalConceptId;
+  setPreset: (preset: ThemePresetId, syncConceptDefaults?: boolean) => void;
   setMode: (mode: ThemeMode) => void;
   toggleMode: () => void;
   setRadius: (radius: ThemeRadius) => void;
@@ -62,23 +70,45 @@ function isValidMotion(val: string | null): val is MotionLevel {
   return val === "full" || val === "subtle" || val === "off";
 }
 
-function resolveInitialConfig(baseConfig: ThemeConfig = defaultThemeConfig): ThemeConfig {
-  const nextConfig: ThemeConfig = {
+function readThemeCookie(): Partial<ThemeConfig> | null {
+  if (typeof document === "undefined") return null;
+  try {
+    const match = document.cookie
+      .split("; ")
+      .find((row) => row.startsWith(`${COOKIE_KEY}=`));
+    if (!match) return null;
+    const rawVal = match.slice(COOKIE_KEY.length + 1);
+    return JSON.parse(decodeURIComponent(rawVal)) as Partial<ThemeConfig>;
+  } catch {
+    return null;
+  }
+}
+
+function resolveInitialConfig(
+  baseConfig: ThemeConfig = defaultThemeConfig
+): ThemeConfig {
+  let nextConfig: ThemeConfig = {
     ...baseConfig,
+    preset: normalizePresetId(baseConfig.preset),
     layout: { ...baseConfig.layout },
     motion: { ...baseConfig.motion },
   };
 
-  if (typeof window === "undefined") {
+  // Client-side overrides (`nst_theme_config` cookie/localStorage and `?preset=` URL preview)
+  // are ONLY enabled when `NEXT_PUBLIC_DEMO_MODE=true` (`isDemoMode() === true`).
+  if (typeof window === "undefined" || !isDemoMode()) {
     return nextConfig;
   }
 
   try {
+    const cookieParsed = readThemeCookie();
     const savedRaw = window.localStorage.getItem(STORAGE_KEY);
-    if (savedRaw) {
-      const parsed = JSON.parse(savedRaw) as Partial<ThemeConfig>;
+    const parsed: Partial<ThemeConfig> | null =
+      cookieParsed || (savedRaw ? (JSON.parse(savedRaw) as Partial<ThemeConfig>) : null);
+
+    if (parsed) {
       if (parsed.preset && isValidPreset(parsed.preset)) {
-        nextConfig.preset = parsed.preset;
+        nextConfig = resolveThemeFromConcept(parsed.preset);
       }
       if (parsed.mode && isValidMode(parsed.mode)) {
         nextConfig.mode = parsed.mode;
@@ -105,7 +135,7 @@ function resolveInitialConfig(baseConfig: ThemeConfig = defaultThemeConfig): The
 
   if (siteConfig.features.allowUrlThemePreview) {
     const params = new URLSearchParams(window.location.search);
-    const qPreset = params.get("preset");
+    const qPreset = params.get("preset") || params.get("concept");
     const qMode = params.get("mode");
     const qRadius = params.get("radius");
     const qDensity = params.get("density");
@@ -115,12 +145,11 @@ function resolveInitialConfig(baseConfig: ThemeConfig = defaultThemeConfig): The
     const qDestIndex = params.get("destinationIndex");
     const qHeader = params.get("header");
     const qFooter = params.get("footer");
+    const qTourDetail = params.get("tourDetail");
 
     if (isValidPreset(qPreset)) {
-      nextConfig.preset = qPreset;
-      if (!isValidMode(qMode)) {
-        nextConfig.mode = THEME_PRESETS[qPreset].defaultMode;
-      }
+      // Switching preset via ?preset= loads the complete ConceptPack identity
+      nextConfig = resolveThemeFromConcept(qPreset);
     }
     if (isValidMode(qMode)) nextConfig.mode = qMode;
     if (isValidRadius(qRadius)) nextConfig.radius = qRadius;
@@ -138,7 +167,8 @@ function resolveInitialConfig(baseConfig: ThemeConfig = defaultThemeConfig): The
     if (
       qTourCard === "portrait-4x5" ||
       qTourCard === "landscape-row" ||
-      qTourCard === "minimal-list"
+      qTourCard === "minimal-list" ||
+      qTourCard === "full-bleed-minimal"
     ) {
       nextConfig.layout.tourCard = qTourCard;
     }
@@ -164,6 +194,13 @@ function resolveInitialConfig(baseConfig: ThemeConfig = defaultThemeConfig): The
     ) {
       nextConfig.layout.footer = qFooter;
     }
+    if (
+      qTourDetail === "dossier" ||
+      qTourDetail === "story-scroll" ||
+      qTourDetail === "tabs"
+    ) {
+      nextConfig.layout.tourDetail = qTourDetail;
+    }
   }
 
   return nextConfig;
@@ -172,11 +209,26 @@ function resolveInitialConfig(baseConfig: ThemeConfig = defaultThemeConfig): The
 function applyAttributesToDocument(cfg: ThemeConfig) {
   if (typeof document === "undefined") return;
   const root = document.documentElement;
-  root.setAttribute("data-theme", cfg.preset);
+  const canonical = normalizePresetId(cfg.preset);
+  const concept = getConceptPack(canonical);
+
+  root.setAttribute("data-theme", canonical);
+  root.setAttribute("data-concept", canonical);
   root.setAttribute("data-mode", cfg.mode);
   root.setAttribute("data-radius", cfg.radius);
   root.setAttribute("data-density", cfg.density);
   root.setAttribute("data-motion", cfg.motion.level);
+  root.setAttribute("data-frame", concept.shape.frameStyle);
+  root.setAttribute("data-ornament", concept.shape.ornamentSvg);
+  root.setAttribute("data-entrance", concept.motion.entrance);
+  root.setAttribute(
+    "data-vignette",
+    concept.imageTreatment.vignette ? "true" : "false"
+  );
+  root.setAttribute(
+    "data-grain",
+    concept.imageTreatment.grain ? "true" : "false"
+  );
 
   if (cfg.mode === "dark") {
     root.classList.add("dark");
@@ -186,7 +238,7 @@ function applyAttributesToDocument(cfg: ThemeConfig) {
 }
 
 function writeThemeCookie(cfg: ThemeConfig | null) {
-  if (typeof document === "undefined") return;
+  if (typeof document === "undefined" || !isDemoMode()) return;
   try {
     if (!cfg) {
       document.cookie = `${COOKIE_KEY}=; Path=/; Max-Age=0; SameSite=Lax`;
@@ -207,7 +259,10 @@ export function DesignSystemProvider({
   initialConfig?: ThemeConfig;
 }) {
   const baseInitial = initialConfig || defaultThemeConfig;
-  const [config, setConfig] = useState<ThemeConfig>(baseInitial);
+  const [config, setConfig] = useState<ThemeConfig>(() => ({
+    ...baseInitial,
+    preset: normalizePresetId(baseInitial.preset),
+  }));
 
   useEffect(() => {
     const initial = resolveInitialConfig(baseInitial);
@@ -221,11 +276,13 @@ export function DesignSystemProvider({
       setConfig((prev) => {
         const updated = updater(prev);
         applyAttributesToDocument(updated);
-        writeThemeCookie(updated);
-        try {
-          window.localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-        } catch {
-          // Ignore storage write errors
+        if (isDemoMode()) {
+          writeThemeCookie(updated);
+          try {
+            window.localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+          } catch {
+            // Ignore storage write errors
+          }
         }
         return updated;
       });
@@ -234,12 +291,17 @@ export function DesignSystemProvider({
   );
 
   const setPreset = useCallback(
-    (preset: ThemePresetId, syncDefaultMode = true) => {
-      persistAndApply((prev) => ({
-        ...prev,
-        preset,
-        mode: syncDefaultMode ? THEME_PRESETS[preset].defaultMode : prev.mode,
-      }));
+    (preset: ThemePresetId, syncConceptDefaults = true) => {
+      persistAndApply((prev) => {
+        if (syncConceptDefaults) {
+          return resolveThemeFromConcept(preset);
+        }
+        const canonical = normalizePresetId(preset);
+        return {
+          ...prev,
+          preset: canonical,
+        };
+      });
     },
     [persistAndApply]
   );
@@ -302,6 +364,7 @@ export function DesignSystemProvider({
     (nextConfig: ThemeConfig) => {
       persistAndApply(() => ({
         ...nextConfig,
+        preset: normalizePresetId(nextConfig.preset),
         layout: { ...nextConfig.layout },
         motion: { ...nextConfig.motion },
       }));
@@ -320,9 +383,17 @@ export function DesignSystemProvider({
     applyAttributesToDocument(defaultThemeConfig);
   }, []);
 
+  const canonicalPreset = normalizePresetId(config.preset);
+  const concept = useMemo(
+    () => getConceptPack(canonicalPreset),
+    [canonicalPreset]
+  );
+
   const value = useMemo(
     () => ({
       config,
+      concept,
+      canonicalPreset,
       setPreset,
       setMode,
       toggleMode,
@@ -335,6 +406,8 @@ export function DesignSystemProvider({
     }),
     [
       config,
+      concept,
+      canonicalPreset,
       setPreset,
       setMode,
       toggleMode,
@@ -357,7 +430,9 @@ export function DesignSystemProvider({
 export function useDesignSystem(): DesignSystemContextValue {
   const ctx = useContext(DesignSystemContext);
   if (!ctx) {
-    throw new Error("useDesignSystem must be used within a DesignSystemProvider");
+    throw new Error(
+      "useDesignSystem must be used within a DesignSystemProvider"
+    );
   }
   return ctx;
 }

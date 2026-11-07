@@ -1,4 +1,3 @@
-import { headers } from "next/headers";
 import type { Metadata } from "next";
 import { en } from "@/locales/en";
 import { tr } from "@/locales/tr";
@@ -20,32 +19,25 @@ const translations: Record<SupportedLocale, typeof en> = {
   it,
 };
 
-export async function getServerLocale(): Promise<SupportedLocale> {
-  try {
-    const hdrs = await headers();
-    const rawLocale = hdrs.get("x-nst-locale");
-    if (isSupportedLocale(rawLocale)) {
-      return rawLocale;
-    }
-  } catch {
-    // Fallback outside request context (e.g., static generation)
+/**
+ * Resolves the active locale on the server without invoking `headers()` or `cookies()`,
+ * preserving Static/ISR (`○` / `revalidate`) generation across `/`, `/tours`, `/destinations`, etc.
+ */
+export async function getServerLocale(
+  explicitLocale?: string | null
+): Promise<SupportedLocale> {
+  if (isSupportedLocale(explicitLocale)) {
+    return explicitLocale;
   }
   return DEFAULT_LOCALE;
 }
 
 export async function getServerPathname(fallbackPath = "/"): Promise<string> {
-  try {
-    const hdrs = await headers();
-    const rawPath = hdrs.get("x-nst-stripped-pathname");
-    if (rawPath) return rawPath;
-  } catch {
-    // Ignore outside request context
-  }
   return fallbackPath;
 }
 
-export async function getServerDictionary() {
-  const locale = await getServerLocale();
+export async function getServerDictionary(explicitLocale?: string | null) {
+  const locale = await getServerLocale(explicitLocale);
   return {
     locale,
     t: translations[locale] || translations.en,
@@ -61,6 +53,7 @@ export async function buildPageSeoMetadata({
   canonicalUrl,
   ogImage,
   noindex = false,
+  locale: explicitLocale,
 }: {
   pathname: string;
   title: string;
@@ -70,8 +63,9 @@ export async function buildPageSeoMetadata({
   canonicalUrl?: string;
   ogImage?: string;
   noindex?: boolean;
+  locale?: SupportedLocale;
 }): Promise<Metadata> {
-  const locale = await getServerLocale();
+  const locale = explicitLocale || (await getServerLocale());
   const translatedRoute = isFullyTranslatedRoute(pathname);
 
   // If a page has English-only prose/DB content and is accessed under /tr, /es, or /it,
