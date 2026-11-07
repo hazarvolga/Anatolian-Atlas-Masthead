@@ -35,10 +35,13 @@ app.use(helmet({
 
 app.use(cors({
   origin: [
-    process.env.FRONTEND_URL || 'http://localhost:5173',
-    'http://localhost:8080',
+    process.env.FRONTEND_URL || 'http://localhost:3100',
+    'http://localhost:3100',
+    'http://127.0.0.1:3100',
     'http://localhost:3000',
-    'http://localhost:5174' // Vite alternative port
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'http://localhost:8080'
   ],
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
