@@ -59,19 +59,19 @@ export default function CTASection() {
 
             <div className="space-y-3 pt-6 border-t border-background/15 text-xs tabular-nums">
               <div>
-                <span className="block text-[10px] uppercase tracking-[0.15em] text-background/50">
-                  TELEPHONE DISPATCH
+                <span className="block text-[10px] uppercase tracking-[0.15em] text-background/80">
+                  DISPATCH CHANNEL
                 </span>
                 <span className="text-background font-medium">
-                  {siteConfig.contact.phone}
+                  {siteConfig.contact.phone || "Direct Written Inquiry via Planning Desk"}
                 </span>
               </div>
               <div>
-                <span className="block text-[10px] uppercase tracking-[0.15em] text-background/50">
-                  ELECTRONIC MAIL
+                <span className="block text-[10px] uppercase tracking-[0.15em] text-background/80">
+                  RESPONSE WINDOW
                 </span>
                 <span className="text-background font-medium">
-                  {siteConfig.contact.email}
+                  {siteConfig.contact.email || siteConfig.contact.hours}
                 </span>
               </div>
             </div>

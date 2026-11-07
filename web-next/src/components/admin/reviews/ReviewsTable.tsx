@@ -2,6 +2,7 @@
 
 
 import { useState } from "react";
+import Image from "next/image";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -118,9 +119,12 @@ export default function ReviewsTable({
               <TableCell>
                 <div className="flex items-center gap-2">
                   {review.tours?.image_url && (
-                    <img 
-                      src={review.tours.image_url} 
+                    <Image
+                      src={review.tours.image_url}
                       alt={review.tours.name}
+                      width={32}
+                      height={32}
+                      sizes="32px"
                       className="w-8 h-8 rounded object-cover"
                     />
                   )}

@@ -8,6 +8,103 @@ const router = express.Router();
 const NEXT_INTERNAL_URL = process.env.NEXT_INTERNAL_URL || 'http://127.0.0.1:3100';
 const REVALIDATE_SECRET = process.env.REVALIDATE_SECRET || 'nst-internal-revalidate-secret';
 
+const DANGEROUS_SEO_CHARS = /[<>"'`\u0000-\u001F\u007F\s]/;
+const DANGEROUS_SEO_SCHEME = /^\s*(?:javascript|data|vbscript|file|blob):/i;
+
+function validateSafeSeoUrl(raw, fieldName = 'url', { allowRelative = true } = {}) {
+  if (raw === undefined || raw === null || raw === '') {
+    return { valid: true, sanitized: '' };
+  }
+  if (typeof raw !== 'string') {
+    return { valid: false, error: `${fieldName} must be a string.` };
+  }
+  const trimmed = raw.trim();
+  if (trimmed === '') {
+    return { valid: true, sanitized: '' };
+  }
+  if (trimmed.length > 2048) {
+    return { valid: false, error: `${fieldName} exceeds maximum length of 2048 characters.` };
+  }
+  if (DANGEROUS_SEO_SCHEME.test(trimmed)) {
+    return { valid: false, error: `Invalid ${fieldName}: dangerous URI scheme is forbidden.` };
+  }
+  if (DANGEROUS_SEO_CHARS.test(trimmed)) {
+    return { valid: false, error: `Invalid ${fieldName}: contains forbidden HTML, quote, whitespace, or control characters.` };
+  }
+  if (trimmed.startsWith('/')) {
+    if (trimmed.startsWith('//')) {
+      return { valid: false, error: `Invalid ${fieldName}: protocol-relative URLs (//...) are not allowed.` };
+    }
+    if (!allowRelative) {
+      return { valid: false, error: `Invalid ${fieldName}: must be an absolute http(s):// URL.` };
+    }
+    return { valid: true, sanitized: trimmed };
+  }
+  try {
+    const parsed = new URL(trimmed);
+    if (parsed.protocol !== 'https:' && parsed.protocol !== 'http:') {
+      return { valid: false, error: `Invalid ${fieldName}: only http:// and https:// protocols are permitted.` };
+    }
+    return { valid: true, sanitized: parsed.toString() };
+  } catch {
+    return { valid: false, error: `Invalid ${fieldName}: must be a valid http(s):// URL or root-relative / path.` };
+  }
+}
+
+const VALID_THEME_PRESETS = ['anatolian-atlas', 'aegean-linen', 'ottoman-noir'];
+const VALID_THEME_MODES = ['light', 'dark'];
+const VALID_THEME_RADII = ['sharp', 'soft'];
+const VALID_THEME_DENSITIES = ['airy', 'comfortable'];
+const VALID_MOTION_LEVELS = ['full', 'subtle', 'off'];
+const VALID_HOME_LAYOUTS = ['masthead', 'split-cinema', 'fullscreen-reel', 'editorial-index'];
+const VALID_TOUR_CARDS = ['portrait-4x5', 'landscape-row', 'minimal-list'];
+const VALID_DEST_INDEX = ['map-index', 'grid-mosaic', 'horizontal-scroll'];
+const VALID_HEADERS = ['swiss-bar', 'centered-logo', 'minimal-overlay', 'sidebar-rail'];
+const VALID_FOOTERS = ['atlas-columns', 'minimal', 'big-wordmark'];
+
+function validateThemeConfigPayload(raw) {
+  if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
+    return { valid: false, error: 'theme_config must be a JSON object.' };
+  }
+  if (raw.preset !== undefined && !VALID_THEME_PRESETS.includes(raw.preset)) {
+    return { valid: false, error: `Invalid theme preset: ${raw.preset}` };
+  }
+  if (raw.mode !== undefined && !VALID_THEME_MODES.includes(raw.mode)) {
+    return { valid: false, error: `Invalid theme mode: ${raw.mode}` };
+  }
+  if (raw.radius !== undefined && !VALID_THEME_RADII.includes(raw.radius)) {
+    return { valid: false, error: `Invalid theme radius: ${raw.radius}` };
+  }
+  if (raw.density !== undefined && !VALID_THEME_DENSITIES.includes(raw.density)) {
+    return { valid: false, error: `Invalid theme density: ${raw.density}` };
+  }
+  const motionLevel = raw.motion?.level ?? (typeof raw.motion === 'string' ? raw.motion : undefined);
+  if (motionLevel !== undefined && !VALID_MOTION_LEVELS.includes(motionLevel)) {
+    return { valid: false, error: `Invalid motion level: ${motionLevel}` };
+  }
+  if (raw.layout !== undefined) {
+    if (!raw.layout || typeof raw.layout !== 'object') {
+      return { valid: false, error: 'theme_config.layout must be an object.' };
+    }
+    if (raw.layout.home !== undefined && !VALID_HOME_LAYOUTS.includes(raw.layout.home)) {
+      return { valid: false, error: `Invalid layout.home: ${raw.layout.home}` };
+    }
+    if (raw.layout.tourCard !== undefined && !VALID_TOUR_CARDS.includes(raw.layout.tourCard)) {
+      return { valid: false, error: `Invalid layout.tourCard: ${raw.layout.tourCard}` };
+    }
+    if (raw.layout.destinationIndex !== undefined && !VALID_DEST_INDEX.includes(raw.layout.destinationIndex)) {
+      return { valid: false, error: `Invalid layout.destinationIndex: ${raw.layout.destinationIndex}` };
+    }
+    if (raw.layout.header !== undefined && !VALID_HEADERS.includes(raw.layout.header)) {
+      return { valid: false, error: `Invalid layout.header: ${raw.layout.header}` };
+    }
+    if (raw.layout.footer !== undefined && !VALID_FOOTERS.includes(raw.layout.footer)) {
+      return { valid: false, error: `Invalid layout.footer: ${raw.layout.footer}` };
+    }
+  }
+  return { valid: true };
+}
+
 async function notifyNextRevalidate(tags, paths = ['/', '/tours', '/destinations']) {
   try {
     await fetch(`${NEXT_INTERNAL_URL}/api/revalidate`, {
@@ -132,9 +229,18 @@ router.get('/tours/:id', async (req, res) => {
     }
 });
 
-router.post('/tours', async (req, res) => {
+router.post('/tours', adminMiddleware, async (req, res) => {
     try {
         console.log('POST /tours - Request body:', JSON.stringify(req.body, null, 2));
+        
+        if (req.body.canonical_url !== undefined) {
+            const cVal = validateSafeSeoUrl(req.body.canonical_url, 'canonical_url');
+            if (!cVal.valid) return res.status(400).json({ message: cVal.error });
+        }
+        if (req.body.og_image !== undefined) {
+            const oVal = validateSafeSeoUrl(req.body.og_image, 'og_image');
+            if (!oVal.valid) return res.status(400).json({ message: oVal.error });
+        }
         
         // Frontend formatını backend formatına dönüştür
         const { 
@@ -293,11 +399,19 @@ router.post('/tours', async (req, res) => {
     }
 });
 
-router.put('/tours/:id', async (req, res) => {
+router.put('/tours/:id', adminMiddleware, async (req, res) => {
     const { id } = req.params;
     console.log('=== PUT /tours/:id DEBUG START ===');
     console.log('Body received:', JSON.stringify(req.body, null, 2));
     try {
+        if (req.body.canonical_url !== undefined) {
+            const cVal = validateSafeSeoUrl(req.body.canonical_url, 'canonical_url');
+            if (!cVal.valid) return res.status(400).json({ message: cVal.error });
+        }
+        if (req.body.og_image !== undefined) {
+            const oVal = validateSafeSeoUrl(req.body.og_image, 'og_image');
+            if (!oVal.valid) return res.status(400).json({ message: oVal.error });
+        }
         // Frontend formatını backend formatına dönüştür
         const { 
             title, name, description, price, price_adult, duration, duration_hours,
@@ -646,9 +760,17 @@ router.get('/destinations', async (req, res) => {
     }
 });
 
-router.post('/destinations', async (req, res) => {
+router.post('/destinations', adminMiddleware, async (req, res) => {
     try {
         console.log('POST /destinations - Request body:', JSON.stringify(req.body, null, 2));
+        if (req.body.canonical_url !== undefined) {
+            const cVal = validateSafeSeoUrl(req.body.canonical_url, 'canonical_url');
+            if (!cVal.valid) return res.status(400).json({ message: cVal.error });
+        }
+        if (req.body.og_image !== undefined) {
+            const oVal = validateSafeSeoUrl(req.body.og_image, 'og_image');
+            if (!oVal.valid) return res.status(400).json({ message: oVal.error });
+        }
         
         // Generate unique slug for destination
         const generateUniqueDestinationSlug = async (name) => {
@@ -731,9 +853,17 @@ router.post('/destinations', async (req, res) => {
     }
 });
 
-router.put('/destinations/:id', async (req, res) => {
+router.put('/destinations/:id', adminMiddleware, async (req, res) => {
     const { id } = req.params;
     try {
+        if (req.body.canonical_url !== undefined) {
+            const cVal = validateSafeSeoUrl(req.body.canonical_url, 'canonical_url');
+            if (!cVal.valid) return res.status(400).json({ message: cVal.error });
+        }
+        if (req.body.og_image !== undefined) {
+            const oVal = validateSafeSeoUrl(req.body.og_image, 'og_image');
+            if (!oVal.valid) return res.status(400).json({ message: oVal.error });
+        }
         const updatedDestination = await prisma.destination.update({
             where: { id },
             data: req.body
@@ -906,7 +1036,19 @@ const validatePageData = (data, { partial = false } = {}) => {
   return null;
 };
 
-router.get('/pages', async (req, res) => {
+const validatePageSeoOverrides = (body) => {
+  if (body.canonical_url !== undefined) {
+    const cVal = validateSafeSeoUrl(body.canonical_url, 'canonical_url');
+    if (!cVal.valid) return cVal.error;
+  }
+  if (body.og_image !== undefined) {
+    const oVal = validateSafeSeoUrl(body.og_image, 'og_image');
+    if (!oVal.valid) return oVal.error;
+  }
+  return null;
+};
+
+router.get('/pages', adminMiddleware, async (req, res) => {
   try {
     const pages = await prisma.page.findMany({ orderBy: { created_at: 'desc' } });
     res.json(pages);
@@ -916,7 +1058,7 @@ router.get('/pages', async (req, res) => {
   }
 });
 
-router.get('/pages/:id', async (req, res) => {
+router.get('/pages/:id', adminMiddleware, async (req, res) => {
   try {
     const page = await prisma.page.findUnique({ where: { id: req.params.id } });
     if (!page) {
@@ -929,7 +1071,11 @@ router.get('/pages/:id', async (req, res) => {
   }
 });
 
-router.post('/pages', async (req, res) => {
+router.post('/pages', adminMiddleware, async (req, res) => {
+  const seoError = validatePageSeoOverrides(req.body);
+  if (seoError) {
+    return res.status(400).json({ message: seoError });
+  }
   const data = buildPageData(req.body);
   const validationError = validatePageData(data);
   if (validationError) {
@@ -954,7 +1100,11 @@ router.post('/pages', async (req, res) => {
   }
 });
 
-router.put('/pages/:id', async (req, res) => {
+router.put('/pages/:id', adminMiddleware, async (req, res) => {
+  const seoError = validatePageSeoOverrides(req.body);
+  if (seoError) {
+    return res.status(400).json({ message: seoError });
+  }
   const data = buildPageData(req.body);
   const validationError = validatePageData(data, { partial: true });
   if (validationError) {
@@ -1073,39 +1223,59 @@ router.put('/users/:id/role', adminMiddleware, async (req, res) => {
 });
 
 
-// --- SITE SETTINGS --- //
+// --- SITE SETTINGS & THEME CONFIGURATION --- //
+const DEFAULT_SITE_SETTINGS_VALUE = {
+  site_title: 'NextStopTurkey',
+  site_tagline: 'Anatolian Geographic & Cultural Monograph',
+  company_name: '',
+  tursab_license_no: '',
+  tax_id: '',
+  website_url: 'https://nextstopturkey.com',
+  contact_email: '',
+  support_email: '',
+  contact_phone: '',
+  address: '',
+  canonical_url: '',
+  og_image: '/demo/istanbul-bosphorus.jpg',
+  og_image_url: '/demo/istanbul-bosphorus.jpg',
+  primary_color: '#8F3B24',
+  secondary_color: '#173A47',
+  copyright_text: `© ${new Date().getFullYear()} NextStopTurkey. All Rights Reserved.`,
+  default_meta_description: 'Curated cultural, archaeological, and coastal journeys across Türkiye.',
+  default_meta_keywords: 'turkey, anatolia, cultural tours, istanbul, cappadocia, ephesus',
+  google_analytics_id: '',
+  google_tag_manager_id: '',
+  social_media_links: {
+    facebook: '',
+    twitter: '',
+    instagram: '',
+    linkedin: '',
+    youtube: ''
+  },
+  theme_config: {
+    preset: 'anatolian-atlas',
+    mode: 'light',
+    radius: 'sharp',
+    density: 'airy',
+    motion: { level: 'full' },
+    layout: {
+      home: 'masthead',
+      tourCard: 'portrait-4x5',
+      destinationIndex: 'map-index',
+      header: 'swiss-bar',
+      footer: 'atlas-columns'
+    }
+  }
+};
+
 router.get('/site-settings', adminMiddleware, async (req, res) => {
   try {
     const settings = await prisma.siteSettings.findFirst();
     if (!settings) {
-      // If no settings exist, create a default entry
       const defaultSettings = await prisma.siteSettings.create({
         data: {
-          key: 'default', // Add a default key to satisfy schema requirements
-          value: {
-            site_title: 'NextStopTurkey',
-            site_tagline: 'Your adventure starts here',
-            company_name: 'NextStopTurkey LLC',
-            website_url: 'https://nextstopturkey.com',
-            contact_email: 'info@nextstopturkey.com',
-            support_email: 'support@nextstopturkey.com',
-            contact_phone: '+90 555 555 5555',
-            address: '123 Tour St, Istanbul, Turkey',
-            primary_color: '#FF5722',
-            secondary_color: '#2A3F54',
-            copyright_text: `© ${new Date().getFullYear()} NextStopTurkey. All Rights Reserved.`,
-            default_meta_description: 'Explore the best tours and travel packages in Turkey with NextStopTurkey.',
-            default_meta_keywords: 'turkey, travel, tours, istanbul, cappadocia',
-            google_analytics_id: 'UA-XXXXX-Y',
-            google_tag_manager_id: 'GTM-XXXX',
-            social_media_links: {
-              facebook: 'https://facebook.com/nextstopturkey',
-              twitter: 'https://twitter.com/nextstopturkey',
-              instagram: 'https://instagram.com/nextstopturkey',
-              linkedin: '',
-              youtube: ''
-            }
-          }
+          key: 'default',
+          value: DEFAULT_SITE_SETTINGS_VALUE
         },
       });
       return res.json(defaultSettings);
@@ -1118,17 +1288,58 @@ router.get('/site-settings', adminMiddleware, async (req, res) => {
 });
 
 router.put('/site-settings', adminMiddleware, async (req, res) => {
-  const settingsData = req.body;
+  const settingsData = req.body && typeof req.body === 'object' ? req.body : {};
+
+  // Server-side validation of SEO & URL fields
+  const urlFields = [
+    { key: 'canonical_url', allowRelative: true },
+    { key: 'og_image', allowRelative: true },
+    { key: 'og_image_url', allowRelative: true },
+    { key: 'website_url', allowRelative: false },
+    { key: 'site_logo_url', allowRelative: true },
+    { key: 'favicon_url', allowRelative: true },
+  ];
+
+  for (const { key, allowRelative } of urlFields) {
+    if (settingsData[key] !== undefined) {
+      const check = validateSafeSeoUrl(settingsData[key], key, { allowRelative });
+      if (!check.valid) {
+        return res.status(400).json({ message: check.error, field: key });
+      }
+      settingsData[key] = check.sanitized;
+    }
+  }
+
+  if (settingsData.theme_config !== undefined) {
+    const themeCheck = validateThemeConfigPayload(settingsData.theme_config);
+    if (!themeCheck.valid) {
+      return res.status(400).json({ message: themeCheck.error, field: 'theme_config' });
+    }
+  }
+
   try {
     const currentSettings = await prisma.siteSettings.findFirst();
-    if (!currentSettings) {
-        return res.status(404).json({ message: 'Site settings not found. Cannot update.' });
-    }
-    
-    const updatedSettings = await prisma.siteSettings.update({
-      where: { id: currentSettings.id },
-      data: { value: settingsData },
-    });
+    const currentVal = (currentSettings?.value && typeof currentSettings.value === 'object')
+      ? currentSettings.value
+      : DEFAULT_SITE_SETTINGS_VALUE;
+
+    const mergedValue = {
+      ...currentVal,
+      ...settingsData,
+      ...(settingsData.og_image !== undefined && { og_image_url: settingsData.og_image }),
+      ...(settingsData.og_image_url !== undefined && settingsData.og_image === undefined && { og_image: settingsData.og_image_url }),
+    };
+
+    const updatedSettings = currentSettings
+      ? await prisma.siteSettings.update({
+          where: { id: currentSettings.id },
+          data: { value: mergedValue },
+        })
+      : await prisma.siteSettings.create({
+          data: { key: 'default', value: mergedValue },
+        });
+
+    await notifyNextRevalidate(['site-settings', 'catalog-tours', 'catalog-destinations', 'cms-pages'], ['/', '/tours', '/destinations']);
     res.json(updatedSettings);
   } catch (error) {
     console.error('Failed to update site settings:', error);
@@ -1136,8 +1347,69 @@ router.put('/site-settings', adminMiddleware, async (req, res) => {
   }
 });
 
+router.get('/theme-settings', adminMiddleware, async (req, res) => {
+  try {
+    const settings = await prisma.siteSettings.findFirst();
+    const val = (settings?.value && typeof settings.value === 'object') ? settings.value : DEFAULT_SITE_SETTINGS_VALUE;
+    res.json(val.theme_config || DEFAULT_SITE_SETTINGS_VALUE.theme_config);
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch theme settings', error: error.message });
+  }
+});
+
+router.put('/theme-settings', adminMiddleware, async (req, res) => {
+  const themePayload = req.body;
+  const themeCheck = validateThemeConfigPayload(themePayload);
+  if (!themeCheck.valid) {
+    return res.status(400).json({ message: themeCheck.error, field: 'theme_config' });
+  }
+
+  try {
+    const currentSettings = await prisma.siteSettings.findFirst();
+    const currentVal = (currentSettings?.value && typeof currentSettings.value === 'object')
+      ? currentSettings.value
+      : DEFAULT_SITE_SETTINGS_VALUE;
+    const prevTheme = currentVal.theme_config || DEFAULT_SITE_SETTINGS_VALUE.theme_config;
+
+    const nextTheme = {
+      ...prevTheme,
+      ...themePayload,
+      motion: {
+        ...(prevTheme.motion || { level: 'full' }),
+        ...(typeof themePayload.motion === 'object' ? themePayload.motion : (typeof themePayload.motion === 'string' ? { level: themePayload.motion } : {})),
+      },
+      layout: {
+        ...(prevTheme.layout || DEFAULT_SITE_SETTINGS_VALUE.theme_config.layout),
+        ...(themePayload.layout || {}),
+      },
+    };
+
+    const nextVal = {
+      ...currentVal,
+      theme_config: nextTheme,
+    };
+
+    if (currentSettings) {
+      await prisma.siteSettings.update({
+        where: { id: currentSettings.id },
+        data: { value: nextVal },
+      });
+    } else {
+      await prisma.siteSettings.create({
+        data: { key: 'default', value: nextVal },
+      });
+    }
+
+    await notifyNextRevalidate(['site-settings'], ['/', '/tours', '/destinations']);
+    res.json({ theme_config: nextTheme });
+  } catch (error) {
+    console.error('Failed to update theme settings:', error);
+    res.status(500).json({ message: 'Failed to update theme settings', error: error.message });
+  }
+});
+
 // --- EMAIL SUBSCRIPTIONS --- //
-router.get('/email-subscriptions', async (req, res) => {
+router.get('/email-subscriptions', adminMiddleware, async (req, res) => {
   try {
     const subscriptions = await prisma.emailSubscription.findMany({
       orderBy: { consent_given_at: 'desc' },
@@ -1152,7 +1424,7 @@ router.get('/email-subscriptions', async (req, res) => {
 
 const CONTACT_MESSAGE_STATUSES = ['new', 'read', 'replied', 'archived'];
 
-router.get('/contact-messages', async (req, res) => {
+router.get('/contact-messages', adminMiddleware, async (req, res) => {
   const { status } = req.query;
 
   if (status && !CONTACT_MESSAGE_STATUSES.includes(status)) {
@@ -1172,7 +1444,7 @@ router.get('/contact-messages', async (req, res) => {
   }
 });
 
-router.patch('/contact-messages/:id', async (req, res) => {
+router.patch('/contact-messages/:id', adminMiddleware, async (req, res) => {
   const { status } = req.body ?? {};
 
   if (!CONTACT_MESSAGE_STATUSES.includes(status)) {

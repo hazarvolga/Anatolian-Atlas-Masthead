@@ -1,4 +1,6 @@
+import Image from "next/image";
 import { MapPin, Star } from "lucide-react";
+import { DEFAULT_DEMO_HERO_IMAGE } from "@/lib/data/demo-images";
 
 interface TourHeroSectionProps {
   tour: {
@@ -18,12 +20,13 @@ export default function TourHeroSection({
 
   return (
     <div className="relative h-[52vh] min-h-[360px] overflow-hidden bg-atlas-ink">
-      <img
-        src={
-          tour.image_url ||
-          "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1400&q=85"
-        }
+      <Image
+        src={tour.image_url || DEFAULT_DEMO_HERO_IMAGE}
         alt={tour.name}
+        width={1400}
+        height={800}
+        priority
+        sizes="100vw"
         className="w-full h-full object-cover opacity-85"
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/30 to-transparent" />

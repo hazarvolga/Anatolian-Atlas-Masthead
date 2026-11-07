@@ -1,9 +1,11 @@
 
+import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin } from "lucide-react";
 import Link from "next/link";
+import { DEFAULT_DEMO_HERO_IMAGE } from "@/lib/data/demo-images";
 
 interface Destination {
   id: string;
@@ -43,10 +45,13 @@ export default function DestinationsListSection({ destinations }: DestinationsLi
                 className="group overflow-hidden hover:shadow-xl transition-all duration-300 animate-fade-in" 
                 style={{ animationDelay: `${index * 100}ms` }}
               >
-                <div className="aspect-[4/3] overflow-hidden">
-                  <img 
-                    src={destination.image_url || `https://images.unsplash.com/photo-1472396961693-142e6e269027?w=800&h=600&fit=crop`}
+                <div className="relative aspect-[4/3] overflow-hidden">
+                  <Image
+                    src={destination.image_url || DEFAULT_DEMO_HERO_IMAGE}
                     alt={destination.name}
+                    width={800}
+                    height={600}
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                   />
                 </div>

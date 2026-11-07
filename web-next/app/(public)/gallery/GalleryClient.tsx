@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
+import Image from "next/image";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -19,6 +20,25 @@ export default function GalleryClient() {
   const [filteredImages, setFilteredImages] =
     useState<GalleryItem[]>(DEMO_GALLERY_ITEMS);
   const [activeFilter, setActiveFilter] = useState<FilterCategory>("all");
+  const lightboxRef = useRef<HTMLDivElement | null>(null);
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+  const triggerElementRef = useRef<HTMLElement | null>(null);
+
+  const openLightbox = (id: number, triggerEl?: HTMLElement | null) => {
+    triggerElementRef.current =
+      triggerEl || (document.activeElement as HTMLElement | null);
+    setSelectedImage(id);
+  };
+
+  const closeLightbox = useCallback(() => {
+    setSelectedImage(null);
+    const toRestore = triggerElementRef.current;
+    if (toRestore && typeof toRestore.focus === "function") {
+      requestAnimationFrame(() => {
+        toRestore.focus();
+      });
+    }
+  }, []);
 
   const filterGallery = (category: FilterCategory) => {
     setActiveFilter(category);
@@ -53,21 +73,52 @@ export default function GalleryClient() {
   );
 
   useEffect(() => {
+    if (selectedImage !== null) {
+      requestAnimationFrame(() => {
+        closeButtonRef.current?.focus();
+      });
+    }
+  }, [selectedImage]);
+
+  useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (selectedImage === null) return;
 
       if (e.key === "Escape") {
-        setSelectedImage(null);
+        e.preventDefault();
+        closeLightbox();
       } else if (e.key === "ArrowLeft") {
         navigateGallery("prev");
       } else if (e.key === "ArrowRight") {
         navigateGallery("next");
+      } else if (e.key === "Tab" && lightboxRef.current) {
+        const focusable = Array.from(
+          lightboxRef.current.querySelectorAll<HTMLElement>(
+            'button:not([disabled]), [href], [tabindex]:not([tabindex="-1"])'
+          )
+        );
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        const active = document.activeElement as HTMLElement | null;
+
+        if (e.shiftKey) {
+          if (active === first || !lightboxRef.current.contains(active)) {
+            e.preventDefault();
+            last.focus();
+          }
+        } else {
+          if (active === last || !lightboxRef.current.contains(active)) {
+            e.preventDefault();
+            first.focus();
+          }
+        }
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedImage, navigateGallery]);
+  }, [selectedImage, navigateGallery, closeLightbox]);
 
   const filterOptions: { key: FilterCategory; label: string }[] = [
     { key: "all", label: t.gallery.filters.all || "All Plates" },
@@ -127,7 +178,16 @@ export default function GalleryClient() {
                     : "bg-card text-text-secondary hover:text-foreground hover:bg-background"
                 )}
               >
-                <span className="text-primary mr-2">0{idx + 1}</span>
+                <span
+                  className={cn(
+                    "mr-2",
+                    activeFilter === option.key
+                      ? "text-primary-subtle"
+                      : "text-primary"
+                  )}
+                >
+                  0{idx + 1}
+                </span>
                 {option.label}
               </button>
             ))}
@@ -146,16 +206,16 @@ export default function GalleryClient() {
                   key={image.id}
                   tabIndex={0}
                   role="button"
-                  aria-label={`Open Plate ${String(index + 1).padStart(2, "0")}: ${image.location} — ${image.alt}`}
+                  data-plate-id={image.id}
                   className={cn(
                     "group bg-card border border-border cursor-pointer transition-colors hover:border-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary flex flex-col justify-between",
                     isWide ? "md:col-span-7" : "md:col-span-5"
                   )}
-                  onClick={() => setSelectedImage(image.id)}
+                  onClick={(e) => openLightbox(image.id, e.currentTarget)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
-                      setSelectedImage(image.id);
+                      openLightbox(image.id, e.currentTarget);
                     }
                   }}
                 >
@@ -167,13 +227,12 @@ export default function GalleryClient() {
                       <span>{image.region}</span>
                     </div>
                     <div className="relative aspect-[16/10] overflow-hidden bg-foreground border-b border-border">
-                      <img
+                      <Image
                         src={image.src}
                         alt={image.alt}
                         width={1200}
                         height={750}
-                        loading={index < 2 ? "eager" : "lazy"}
-                        decoding="async"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 58vw, 720px"
                         className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
                       />
                     </div>
@@ -196,15 +255,17 @@ export default function GalleryClient() {
       {/* Lightbox */}
       {activeLightboxItem && (
         <div
+          ref={lightboxRef}
           className="fixed inset-0 z-50 bg-foreground/95 flex items-center justify-center p-4"
           role="dialog"
           aria-modal="true"
           aria-label={activeLightboxItem.alt}
         >
           <button
+            ref={closeButtonRef}
             type="button"
             className="absolute top-6 right-6 text-background p-3 border border-background/25 hover:bg-background hover:text-foreground transition-colors"
-            onClick={() => setSelectedImage(null)}
+            onClick={closeLightbox}
             aria-label="Close lightbox"
           >
             <X className="h-5 w-5" />
@@ -220,11 +281,14 @@ export default function GalleryClient() {
           </button>
 
           <figure className="max-w-4xl w-full space-y-4">
-            <div className="max-h-[75vh] overflow-hidden border border-background/20 flex items-center justify-center bg-foreground">
-              <img
+            <div className="relative max-h-[75vh] overflow-hidden border border-background/20 flex items-center justify-center bg-foreground">
+              <Image
                 src={activeLightboxItem.src}
                 alt={activeLightboxItem.alt}
-                className="max-w-full max-h-[75vh] object-contain"
+                width={1400}
+                height={900}
+                sizes="(max-width: 1024px) 100vw, 896px"
+                className="max-w-full max-h-[75vh] w-auto h-auto object-contain"
               />
             </div>
             <figcaption className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-background/90 px-1 uppercase tracking-[0.14em]">

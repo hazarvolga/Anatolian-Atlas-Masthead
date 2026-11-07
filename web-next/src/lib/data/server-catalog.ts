@@ -5,6 +5,10 @@ import {
   DEMO_TOURS,
   type DemoTour,
 } from "./demo-content.ts";
+import {
+  DEFAULT_DEMO_HERO_IMAGE,
+  resolveDemoImageUrl,
+} from "./demo-images.ts";
 import type { Destination } from "../../hooks/useDestinations.ts";
 
 const CATALOG_REVALIDATE_SECONDS = 120;
@@ -186,11 +190,15 @@ function normalizeServerTour(raw: Record<string, unknown>): DemoTour {
       ? raw.price_adult
       : parseFloat(String(raw.price_adult ?? raw.price ?? 0)) || 0;
 
-  const images = Array.isArray(raw.images) ? (raw.images as string[]) : [];
-  const imageUrl =
-    (typeof raw.image_url === "string" && raw.image_url) ||
-    images[0] ||
-    "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1200&q=85";
+  const images = Array.isArray(raw.images)
+    ? (raw.images as string[]).map((u) =>
+        resolveDemoImageUrl(u, DEFAULT_DEMO_HERO_IMAGE)
+      )
+    : [];
+  const imageUrl = resolveDemoImageUrl(
+    (typeof raw.image_url === "string" && raw.image_url) || images[0],
+    DEFAULT_DEMO_HERO_IMAGE
+  );
 
   const durationHours = Number(raw.duration_hours ?? raw.duration ?? 8);
   const tourType =
@@ -271,11 +279,12 @@ function normalizeServerDestination(raw: Record<string, unknown>): Destination {
     city: String(raw.city || raw.name || "Türkiye"),
     country: String(raw.country || "Türkiye"),
     description: String(raw.description || ""),
-    image_url:
+    image_url: resolveDemoImageUrl(
       (typeof raw.image_url === "string" && raw.image_url) ||
-      (typeof extraObj.image_url === "string" && extraObj.image_url) ||
-      gallery[0] ||
-      "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1200&q=85",
+        (typeof extraObj.image_url === "string" && extraObj.image_url) ||
+        gallery[0],
+      DEFAULT_DEMO_HERO_IMAGE
+    ),
     coords: typeof raw.coords === "string" ? raw.coords : undefined,
     best_time: typeof raw.best_time === "string" ? raw.best_time : undefined,
     activities:

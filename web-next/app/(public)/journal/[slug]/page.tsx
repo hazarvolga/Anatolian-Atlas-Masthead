@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
@@ -166,13 +167,13 @@ export default async function JournalArticlePage({
         {/* Full-Width Archival Plate */}
         <figure className="mb-14 border border-border bg-card">
           <div className="relative aspect-[21/9] overflow-hidden">
-            <img
+            <Image
               src={article.heroImage}
               alt={article.heroCaption}
               width={1680}
               height={720}
-              fetchPriority="high"
-              decoding="async"
+              priority
+              sizes="(max-width: 1280px) 100vw, 1280px"
               className="w-full h-full object-cover"
             />
           </div>

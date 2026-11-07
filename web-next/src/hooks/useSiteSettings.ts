@@ -3,12 +3,8 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api/client";
 import { toast } from "sonner";
-import { isDemoMode, siteConfig } from "@/config/site";
-
-const getAuthHeaders = () => {
-  const token = localStorage.getItem("authToken");
-  return token ? { Authorization: `Bearer ${token}` } : {};
-};
+import { siteConfig } from "@/config/site";
+import defaultThemeConfig, { type ThemeConfig } from "@/config/theme.config";
 
 export type SiteSettings = {
   id: string;
@@ -22,6 +18,8 @@ export type SiteSettings = {
   social_media_links?: Record<string, string>;
   default_meta_description?: string;
   default_meta_keywords?: string;
+  canonical_url?: string;
+  og_image?: string;
   og_image_url?: string;
   primary_color?: string;
   secondary_color?: string;
@@ -29,11 +27,14 @@ export type SiteSettings = {
   google_analytics_id?: string;
   google_tag_manager_id?: string;
   company_name?: string;
+  tursab_license_no?: string;
+  tax_id?: string;
   website_url?: string;
   support_email?: string;
   email_footer_text?: string;
   email_header_text?: string;
   unsubscribe_text?: string;
+  theme_config?: ThemeConfig;
 };
 
 const DEFAULT_SITE_SETTINGS: SiteSettings = {
@@ -45,10 +46,23 @@ const DEFAULT_SITE_SETTINGS: SiteSettings = {
   address: siteConfig.contact.addressLines.join("\n"),
   social_media_links: siteConfig.social,
   default_meta_description: siteConfig.brand.description,
-  company_name: siteConfig.brand.name,
+  canonical_url: "",
+  og_image: "/demo/istanbul-bosphorus.jpg",
+  og_image_url: "/demo/istanbul-bosphorus.jpg",
+  company_name: "",
+  tursab_license_no: siteConfig.brand.tursabLicenseNo,
+  tax_id: "",
+  theme_config: defaultThemeConfig,
 };
 
-function sanitizeSiteSettings(raw: SiteSettings | null | undefined): SiteSettings {
+function sanitizeSiteSettings(
+  rawInput: any
+): SiteSettings {
+  const raw: Partial<SiteSettings> | null | undefined =
+    rawInput?.value && typeof rawInput.value === "object"
+      ? rawInput.value
+      : rawInput;
+
   if (!raw) return DEFAULT_SITE_SETTINGS;
   const isLegacyTitle =
     !raw.site_title || /mare\s*sereno/i.test(raw.site_title);
@@ -60,7 +74,7 @@ function sanitizeSiteSettings(raw: SiteSettings | null | undefined): SiteSetting
   return {
     ...DEFAULT_SITE_SETTINGS,
     ...raw,
-    site_title: isLegacyTitle ? siteConfig.brand.name : raw.site_title,
+    site_title: isLegacyTitle ? siteConfig.brand.name : raw.site_title!,
     site_tagline:
       !raw.site_tagline || /resort|paradise/i.test(raw.site_tagline)
         ? siteConfig.brand.tagline
@@ -73,6 +87,20 @@ function sanitizeSiteSettings(raw: SiteSettings | null | undefined): SiteSetting
     address: isLegacyAddress
       ? siteConfig.contact.addressLines.join("\n")
       : raw.address,
+    theme_config: raw.theme_config
+      ? {
+          ...defaultThemeConfig,
+          ...raw.theme_config,
+          motion: {
+            ...defaultThemeConfig.motion,
+            ...(raw.theme_config.motion || {}),
+          },
+          layout: {
+            ...defaultThemeConfig.layout,
+            ...(raw.theme_config.layout || {}),
+          },
+        }
+      : defaultThemeConfig,
   };
 }
 
@@ -82,9 +110,6 @@ export function useSiteSettings() {
   const { data: settings, isLoading, error, refetch } = useQuery<SiteSettings>({
     queryKey: ["site-settings"],
     queryFn: async () => {
-      if (isDemoMode()) {
-        return DEFAULT_SITE_SETTINGS;
-      }
       try {
         const { data } = await api.get("/api/site-settings");
         return sanitizeSiteSettings(data);
@@ -96,14 +121,12 @@ export function useSiteSettings() {
 
   const updateMutation = useMutation({
     mutationFn: async (updates: Partial<SiteSettings>) => {
-      const { data } = await api.put("/api/admin/site-settings", updates, {
-        headers: getAuthHeaders(),
-      });
+      const { data } = await api.put("/api/admin/site-settings", updates);
       return data;
     },
     onSuccess: (data) => {
       queryClient.setQueryData(["site-settings"], sanitizeSiteSettings(data));
-      toast.success("Site settings updated successfully.");
+      toast.success("Site settings and SSR theme updated.");
     },
     onError: (error: any) => {
       toast.error(

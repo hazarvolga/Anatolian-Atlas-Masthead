@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { CoordTag } from "@/components/ui/coord-tag";
@@ -10,6 +11,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { isDemoMode } from "@/config/site";
 import type { Destination } from "@/hooks/useDestinations";
 import { DEMO_DESTINATIONS } from "@/lib/data/demo-content";
+import { DEFAULT_DEMO_HERO_IMAGE } from "@/lib/data/demo-images";
 
 const ROMAN_NUMERALS = ["I", "II", "III", "IV", "V", "VI"];
 
@@ -81,14 +83,13 @@ export default function DestinationsGridMosaic({
                   href={`/destinations/${dest.id}`}
                   className="relative aspect-[16/10] overflow-hidden bg-foreground border-b border-border block"
                 >
-                  <img
-                    src={
-                      dest.image_url ||
-                      "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1200&q=80"
-                    }
+                  <Image
+                    src={dest.image_url || DEFAULT_DEMO_HERO_IMAGE}
                     alt={dest.name}
+                    width={1000}
+                    height={625}
+                    sizes="(max-width: 1024px) 100vw, 58vw"
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                    loading="lazy"
                   />
                   <div className="absolute top-4 left-4">
                     <CoordTag

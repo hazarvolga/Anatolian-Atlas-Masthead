@@ -1,12 +1,14 @@
 "use client";
 
 import { useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, ArrowUpRight, Check, Minus } from "lucide-react";
 import { useTour } from "@/hooks/useTours";
 import { formatPrice, siteConfig } from "@/config/site";
 import { SplitTextHeading, MagneticCTA } from "@/components/motion";
 import { useScrollActiveStep } from "@/lib/motion/hooks";
+import { DEFAULT_DEMO_TOUR_IMAGE } from "@/lib/data/demo-images";
 
 interface ItineraryItem {
   day: number;
@@ -14,8 +16,7 @@ interface ItineraryItem {
   description: string;
 }
 
-const DEFAULT_TOUR_IMAGE =
-  "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1400&q=85";
+const DEFAULT_TOUR_IMAGE = DEFAULT_DEMO_TOUR_IMAGE;
 
 function normaliseTour(raw: any) {
   if (!raw) return null;
@@ -250,13 +251,13 @@ export default function TourDetailClient({
                 <span>SCHOLAR-LED</span>
               </div>
               <div className="relative aspect-[4/5] overflow-hidden bg-foreground">
-                <img
+                <Image
                   src={tour.image_url}
                   alt={tour.name}
                   width={1120}
                   height={1400}
-                  fetchPriority="high"
-                  decoding="async"
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 42vw"
                   className="w-full h-full object-cover"
                 />
               </div>

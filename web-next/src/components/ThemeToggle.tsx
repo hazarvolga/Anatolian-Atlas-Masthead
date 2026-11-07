@@ -26,7 +26,7 @@ export default function ThemeToggle() {
           <Button
             variant="ghost"
             size="sm"
-            aria-label="Select theme preset"
+            aria-label={`${THEME_PRESETS[config.preset].label.split(" ")[0]} — Select theme preset`}
             className="h-9 px-2.5 rounded-control border border-border/70 hover:border-foreground font-mono text-[10px] uppercase tracking-[0.12em] gap-1.5"
           >
             <Palette className="h-3.5 w-3.5 text-primary" />

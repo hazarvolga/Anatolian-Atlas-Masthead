@@ -1,10 +1,12 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, ArrowUpRight } from "lucide-react";
 import { useDestinations } from "@/hooks/useDestinations";
 import { useTours } from "@/hooks/useTours";
 import TourCard from "@/components/TourCard";
+import { DEFAULT_DEMO_HERO_IMAGE } from "@/lib/data/demo-images";
 
 export default function DestinationDetailClient({ id }: { id: string }) {
   const { data: destinations = [], isLoading: destinationsLoading } =
@@ -90,29 +92,28 @@ export default function DestinationDetailClient({ id }: { id: string }) {
                 <span>PRIMARY GEOGRAPHIC PLATE</span>
                 <span>{destination.city || "ANATOLIA"}</span>
               </div>
-              <div className="aspect-[4/3] overflow-hidden bg-foreground">
-                <img
-                  src={
-                    destination.image_url ||
-                    "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1200&q=85"
-                  }
+              <div className="relative aspect-[4/3] overflow-hidden bg-foreground">
+                <Image
+                  src={destination.image_url || DEFAULT_DEMO_HERO_IMAGE}
                   alt={destination.name}
                   width={1200}
                   height={900}
-                  fetchPriority="high"
-                  decoding="async"
+                  priority
+                  sizes="(max-width: 1024px) 100vw, 50vw"
                   className="w-full h-full object-cover"
                 />
               </div>
               {galleryImages.length > 0 && (
                 <div className="grid grid-cols-3 divide-x divide-background/15 border-t border-background/15">
                   {galleryImages.slice(0, 3).map((url: string, i: number) => (
-                    <img
+                    <Image
                       key={url + i}
                       src={url}
                       alt={`${destination.name} archive ${i + 1}`}
+                      width={400}
+                      height={240}
+                      sizes="(max-width: 1024px) 33vw, 17vw"
                       className="w-full h-24 object-cover bg-foreground"
-                      onError={(e) => (e.currentTarget.style.display = "none")}
                     />
                   ))}
                 </div>

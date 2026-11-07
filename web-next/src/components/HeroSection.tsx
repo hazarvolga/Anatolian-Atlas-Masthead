@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowUpRight } from "lucide-react";
@@ -8,6 +9,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useDestinations, type Destination } from "@/hooks/useDestinations";
 import { SplitTextHeading, MagneticCTA } from "@/components/motion";
 import { useParallaxImage } from "@/lib/motion/hooks";
+import { DEMO_IMAGES } from "@/lib/data/demo-images";
 
 export default function HeroSection({
   initialDestinations,
@@ -195,14 +197,14 @@ export default function HeroSection({
 
             {/* Tall Editorial Monograph Photograph */}
             <div className="relative aspect-[4/5] w-full overflow-hidden bg-black">
-              <img
+              <Image
                 ref={heroImageRef}
-                src="https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1400&q=85"
+                src={DEMO_IMAGES.istanbulBosphorus}
                 alt="Morning ferry crossing the Bosphorus Strait toward Ortaköy in İstanbul, Türkiye"
                 width={1120}
                 height={1400}
-                fetchPriority="high"
-                decoding="async"
+                priority
+                sizes="(max-width: 1024px) 100vw, 42vw"
                 className="w-full h-full object-cover opacity-95 contrast-[1.03]"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-transparent" />

@@ -1,4 +1,5 @@
 import type { Destination } from "../../hooks/useDestinations.ts";
+import { DEMO_IMAGES } from "./demo-images.ts";
 
 export interface DemoTour {
   id: string;
@@ -64,11 +65,10 @@ export const DEMO_DESTINATIONS: Destination[] = [
       "Byzantine & Ottoman architecture, Bosphorus ferry crossings, historic neighborhood walks, spice market tastings",
     description:
       "Straddling Europe and Asia across the deep current of the Bosphorus, İstanbul layers fifteen centuries of imperial stone, timber-framed quarters, and neighborhood lokantas.",
-    image_url:
-      "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1400&q=85",
+    image_url: DEMO_IMAGES.istanbulBosphorus,
     gallery_images: [
-      "https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?auto=format&fit=crop&w=1000&q=80",
-      "https://images.unsplash.com/photo-1527838832700-5059252407fa?auto=format&fit=crop&w=1000&q=80",
+      DEMO_IMAGES.suleymaniyeGoldenHorn,
+      DEMO_IMAGES.galataKarakoy,
     ],
     extra_info:
       "Private historian-led walks depart from Sultanahmet and Karaköy piers. Museum Pass Türkiye is included on multi-day itineraries.",
@@ -88,11 +88,8 @@ export const DEMO_DESTINATIONS: Destination[] = [
       "Volcanic valley hikes, rock-cut monastic churches, Avanos pottery workshops, sunrise ballooning",
     description:
       "Wind-carved tuff valleys, subterranean settlements, and eleventh-century frescoed chapels across the high plateau of Central Anatolia.",
-    image_url:
-      "https://images.unsplash.com/photo-1570939274717-7eda259b50ed?auto=format&fit=crop&w=1400&q=85",
-    gallery_images: [
-      "https://images.unsplash.com/photo-1570939274717-7eda259b50ed?auto=format&fit=crop&w=1000&q=80",
-    ],
+    image_url: DEMO_IMAGES.cappadociaGoreme,
+    gallery_images: [DEMO_IMAGES.cappadociaGoreme],
     extra_info:
       "High-altitude plateau climate brings cool mornings even in summer; layered walking attire is recommended.",
     is_active: true,
@@ -111,8 +108,7 @@ export const DEMO_DESTINATIONS: Destination[] = [
       "Classical archaeology, Terrace Houses conservation visit, olive oil mill tastings in Şirince",
     description:
       "Marble colonnades of the Roman provincial capital, hillside villas with intact mosaics, and fertile Aegean olive groves around Selçuk and Urla.",
-    image_url:
-      "https://images.unsplash.com/photo-1589561454226-796a8aa89b05?auto=format&fit=crop&w=1400&q=85",
+    image_url: DEMO_IMAGES.ephesusCelsus,
     gallery_images: [],
     extra_info:
       "Early-morning entry to the Celsus Library and Terrace Houses avoids cruise-ship midday crowds.",
@@ -132,8 +128,7 @@ export const DEMO_DESTINATIONS: Destination[] = [
       "Lycian Way coastal trekking, Kekova sunken ruins by wooden gulet, Xanthos & Patara sanctuaries",
     description:
       "Limestone cliffs plunging into turquoise coves, Lycian rock tombs, and pine-shaded footpaths tracing antiquity's southern maritime frontier.",
-    image_url:
-      "https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=1400&q=85",
+    image_url: DEMO_IMAGES.lyciaKasCoast,
     gallery_images: [],
     extra_info:
       "Coastal walks combine footpath segments of the Lycian Way with private boat support between Kekova and Üçağız.",
@@ -153,8 +148,7 @@ export const DEMO_DESTINATIONS: Destination[] = [
       "Thermal calcium terraces, Roman theatre of Hierapolis, Laodicea archaeological excavation",
     description:
       "Mineral-rich thermal springs cascading over white travertine terraces beneath the colonnaded streets and necropolis of ancient Hierapolis.",
-    image_url:
-      "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?auto=format&fit=crop&w=1400&q=85",
+    image_url: DEMO_IMAGES.pamukkaleTravertines,
     gallery_images: [],
     extra_info:
       "Footwear is removed on the protected travertine pools; upper Hierapolis trails require comfortable walking shoes.",
@@ -174,8 +168,7 @@ export const DEMO_DESTINATIONS: Destination[] = [
       "Honey-stone Artuqid architecture, Deyrulzafaran Monastery, Dara Roman cisterns, Göbeklitepe excursion",
     description:
       "Carved limestone courtyard houses overlooking the Mesopotamian plain, Syriac monasteries, and the Neolithic enclosures of Taş Tepeler.",
-    image_url:
-      "https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?auto=format&fit=crop&w=1400&q=85",
+    image_url: DEMO_IMAGES.suleymaniyeGoldenHorn,
     gallery_images: [],
     extra_info:
       "Routes connect Mardin, Midyat, and Şanlıurfa with specialist archaeological lecturers.",
@@ -207,11 +200,10 @@ export const DEMO_TOURS: DemoTour[] = [
     max_group_size: 10,
     difficulty: "easy",
     tour_type: "one_day",
-    image_url:
-      "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1200&q=85",
+    image_url: DEMO_IMAGES.istanbulBosphorus,
     images: [
-      "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1200&q=85",
-      "https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?auto=format&fit=crop&w=1200&q=85",
+      DEMO_IMAGES.istanbulBosphorus,
+      DEMO_IMAGES.suleymaniyeGoldenHorn,
     ],
     includes: [
       "Licensed architectural historian guide",
@@ -279,11 +271,10 @@ export const DEMO_TOURS: DemoTour[] = [
     max_group_size: 12,
     difficulty: "moderate",
     tour_type: "multiple_day",
-    image_url:
-      "https://images.unsplash.com/photo-1570939274717-7eda259b50ed?auto=format&fit=crop&w=1200&q=85",
+    image_url: DEMO_IMAGES.cappadociaGoreme,
     images: [
-      "https://images.unsplash.com/photo-1570939274717-7eda259b50ed?auto=format&fit=crop&w=1200&q=85",
-      "https://images.unsplash.com/photo-1570939274717-7eda259b50ed?auto=format&fit=crop&w=1200&q=80",
+      DEMO_IMAGES.cappadociaGoreme,
+      DEMO_IMAGES.cappadociaIgnimbrite,
     ],
     includes: [
       "2 nights in a restored stone cave-house in Ürgüp",
@@ -363,11 +354,8 @@ export const DEMO_TOURS: DemoTour[] = [
     max_group_size: 10,
     difficulty: "easy",
     tour_type: "one_day",
-    image_url:
-      "https://images.unsplash.com/photo-1589561454226-796a8aa89b05?auto=format&fit=crop&w=1200&q=85",
-    images: [
-      "https://images.unsplash.com/photo-1589561454226-796a8aa89b05?auto=format&fit=crop&w=1200&q=85",
-    ],
+    image_url: DEMO_IMAGES.ephesusCelsus,
+    images: [DEMO_IMAGES.ephesusCelsus],
     includes: [
       "Archaeologist guide throughout Ephesus & Ephesus Museum",
       "Terrace Houses (Yamaç Evler) special entry ticket",
@@ -430,11 +418,8 @@ export const DEMO_TOURS: DemoTour[] = [
     max_group_size: 8,
     difficulty: "moderate",
     tour_type: "multiple_day",
-    image_url:
-      "https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=1200&q=85",
-    images: [
-      "https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=1200&q=85",
-    ],
+    image_url: DEMO_IMAGES.lyciaKasCoast,
+    images: [DEMO_IMAGES.lyciaKasCoast],
     includes: [
       "3 nights in coastal pension and gulet cabin",
       "Luggage transfers between trailheads",
@@ -515,11 +500,8 @@ export const DEMO_TOURS: DemoTour[] = [
     max_group_size: 12,
     difficulty: "easy",
     tour_type: "one_day",
-    image_url:
-      "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?auto=format&fit=crop&w=1200&q=85",
-    images: [
-      "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?auto=format&fit=crop&w=1200&q=85",
-    ],
+    image_url: DEMO_IMAGES.pamukkaleTravertines,
+    images: [DEMO_IMAGES.pamukkaleTravertines],
     includes: [
       "Entry to Hierapolis, Pamukkale Travertines & Laodicea",
       "Specialist classical guide",
@@ -579,11 +561,8 @@ export const DEMO_TOURS: DemoTour[] = [
     max_group_size: 10,
     difficulty: "easy",
     tour_type: "multiple_day",
-    image_url:
-      "https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?auto=format&fit=crop&w=1200&q=85",
-    images: [
-      "https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?auto=format&fit=crop&w=1200&q=85",
-    ],
+    image_url: DEMO_IMAGES.suleymaniyeGoldenHorn,
+    images: [DEMO_IMAGES.suleymaniyeGoldenHorn],
     includes: [
       "2 nights in a heritage stone mansion in Old Mardin",
       "Prehistoric archaeologist lecturer for Göbeklitepe & Karahantepe",
@@ -642,7 +621,7 @@ export const DEMO_TOURS: DemoTour[] = [
 export const DEMO_GALLERY_ITEMS: GalleryItem[] = [
   {
     id: 1,
-    src: "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1200&q=85",
+    src: DEMO_IMAGES.istanbulBosphorus,
     alt: "Morning ferry crossing the Bosphorus toward Ortaköy Mosque, İstanbul",
     location: "Ortaköy & Bosphorus Strait",
     region: "İstanbul",
@@ -650,7 +629,7 @@ export const DEMO_GALLERY_ITEMS: GalleryItem[] = [
   },
   {
     id: 2,
-    src: "https://images.unsplash.com/photo-1570939274717-7eda259b50ed?auto=format&fit=crop&w=1200&q=85",
+    src: DEMO_IMAGES.cappadociaGoreme,
     alt: "Tuff rock formations and dawn light across Göreme valley, Cappadocia",
     location: "Göreme National Park",
     region: "Central Anatolia",
@@ -658,7 +637,7 @@ export const DEMO_GALLERY_ITEMS: GalleryItem[] = [
   },
   {
     id: 3,
-    src: "https://images.unsplash.com/photo-1589561454226-796a8aa89b05?auto=format&fit=crop&w=1200&q=85",
+    src: DEMO_IMAGES.ephesusCelsus,
     alt: "Two-story marble facade of the Library of Celsus at Ephesus",
     location: "Ephesus, Selçuk",
     region: "Aegean",
@@ -666,7 +645,7 @@ export const DEMO_GALLERY_ITEMS: GalleryItem[] = [
   },
   {
     id: 4,
-    src: "https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=1200&q=85",
+    src: DEMO_IMAGES.lyciaKasCoast,
     alt: "Turquoise limestone cove along the Lycian Way near Kaş",
     location: "Kaş & Kaputaş Coast",
     region: "Mediterranean",
@@ -674,7 +653,7 @@ export const DEMO_GALLERY_ITEMS: GalleryItem[] = [
   },
   {
     id: 5,
-    src: "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?auto=format&fit=crop&w=1200&q=85",
+    src: DEMO_IMAGES.pamukkaleTravertines,
     alt: "Mineral-rich thermal pools on the white travertine terraces of Pamukkale",
     location: "Pamukkale & Hierapolis",
     region: "Inner Aegean",
@@ -682,7 +661,7 @@ export const DEMO_GALLERY_ITEMS: GalleryItem[] = [
   },
   {
     id: 6,
-    src: "https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?auto=format&fit=crop&w=1200&q=85",
+    src: DEMO_IMAGES.suleymaniyeGoldenHorn,
     alt: "Domes and minarets along the Golden Horn at dusk, İstanbul",
     location: "Süleymaniye & Golden Horn",
     region: "İstanbul",
@@ -690,7 +669,7 @@ export const DEMO_GALLERY_ITEMS: GalleryItem[] = [
   },
   {
     id: 7,
-    src: "https://images.unsplash.com/photo-1570939274717-7eda259b50ed?auto=format&fit=crop&w=1200&q=85",
+    src: DEMO_IMAGES.cappadociaIgnimbrite,
     alt: "Hand-woven Anatolian kilims and copperwork in a historic caravanserai",
     location: "Ürgüp & Avanos",
     region: "Central Anatolia",
@@ -698,7 +677,7 @@ export const DEMO_GALLERY_ITEMS: GalleryItem[] = [
   },
   {
     id: 8,
-    src: "https://images.unsplash.com/photo-1527838832700-5059252407fa?auto=format&fit=crop&w=1200&q=85",
+    src: DEMO_IMAGES.galataKarakoy,
     alt: "Galata Tower overlooking the Karaköy waterfront and Bosphorus",
     location: "Galata, Beyoğlu",
     region: "İstanbul",

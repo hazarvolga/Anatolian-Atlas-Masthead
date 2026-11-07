@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -10,6 +11,7 @@ import { isDemoMode } from "@/config/site";
 import type { Destination } from "@/hooks/useDestinations";
 import type { DemoTour } from "@/lib/data/demo-content";
 import { DEMO_DESTINATIONS, DEMO_TOURS } from "@/lib/data/demo-content";
+import { DEFAULT_DEMO_HERO_IMAGE } from "@/lib/data/demo-images";
 
 const ROMAN_NUMERALS = ["I", "II", "III", "IV", "V", "VI"];
 
@@ -164,16 +166,13 @@ export default function HeroSplitCinema({
 
           {/* Right 7 Columns: Full-Height Cinema Viewport */}
           <div className="lg:col-span-7 relative min-h-[460px] lg:min-h-[680px] bg-black text-white flex flex-col justify-between overflow-hidden">
-            <img
-              src={
-                activeRegion?.image_url ||
-                "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1400&q=85"
-              }
+            <Image
+              src={activeRegion?.image_url || DEFAULT_DEMO_HERO_IMAGE}
               alt={`${activeRegion?.name} — ${activeRegion?.city}, Türkiye`}
               width={1400}
               height={960}
-              fetchPriority="high"
-              decoding="async"
+              priority
+              sizes="(max-width: 1024px) 100vw, 58vw"
               className="absolute inset-0 w-full h-full object-cover opacity-90 transition-all duration-700"
             />
             <div

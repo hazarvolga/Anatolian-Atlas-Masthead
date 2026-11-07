@@ -1,6 +1,7 @@
 "use client";
 
 
+import Image from "next/image";
 import { UseFormRegister, FieldErrors, UseFormSetValue, UseFormWatch } from "react-hook-form";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -129,12 +130,14 @@ export default function BasicDestinationInfo({
             </div>
             {image_url && (
               <div className="flex items-center gap-3 mt-2">
-                <img
+                <Image
                   src={image_url}
                   alt="Önizleme"
+                  width={80}
+                  height={80}
+                  unoptimized
                   className="w-20 h-20 object-cover rounded border"
                   style={{ minWidth: 56, background: "#f4f4f5" }}
-                  onError={e => (e.currentTarget.style.display = "none")}
                 />
                 <span className="text-xs text-muted-foreground">Girilen URL'nin önizlemesi</span>
               </div>

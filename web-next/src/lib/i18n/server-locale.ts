@@ -11,6 +11,7 @@ import {
   buildAlternatesMetadata,
   type SupportedLocale,
 } from "./locale-utils";
+import { validateSafeSeoUrl } from "@/lib/seo/validate-seo-fields";
 
 const translations: Record<SupportedLocale, typeof en> = {
   en,
@@ -57,6 +58,8 @@ export async function buildPageSeoMetadata({
   description,
   openGraphType = "website",
   images,
+  canonicalUrl,
+  ogImage,
   noindex = false,
 }: {
   pathname: string;
@@ -64,6 +67,8 @@ export async function buildPageSeoMetadata({
   description: string;
   openGraphType?: "website" | "article";
   images?: string[];
+  canonicalUrl?: string;
+  ogImage?: string;
   noindex?: boolean;
 }): Promise<Metadata> {
   const locale = await getServerLocale();
@@ -75,9 +80,34 @@ export async function buildPageSeoMetadata({
     locale !== DEFAULT_LOCALE && !translatedRoute;
   const effectiveNoindex = noindex || shouldNoindexUntranslatedLocale;
 
-  const alternates = noindex
+  const baseAlternates = noindex
     ? undefined
     : buildAlternatesMetadata(pathname, locale);
+
+  // Server-side validation of optional custom canonical_url
+  let alternates = baseAlternates;
+  if (!noindex && canonicalUrl) {
+    const validatedCanonical = validateSafeSeoUrl(
+      canonicalUrl,
+      "canonical_url"
+    );
+    if (validatedCanonical.valid && validatedCanonical.sanitized) {
+      alternates = {
+        ...baseAlternates,
+        canonical: validatedCanonical.sanitized,
+      };
+    }
+  }
+
+  // Server-side validation of og_image and images[]
+  const rawImages = [
+    ...(ogImage ? [ogImage] : []),
+    ...(Array.isArray(images) ? images : []),
+  ];
+  const validatedImages = rawImages
+    .map((img) => validateSafeSeoUrl(img, "og_image"))
+    .filter((res) => res.valid && Boolean(res.sanitized))
+    .map((res) => res.sanitized);
 
   const ogLocaleMap: Record<SupportedLocale, string> = {
     en: "en_US",
@@ -107,13 +137,13 @@ export async function buildPageSeoMetadata({
             ).filter((l) => l !== activeOgLocale),
           }
         : {}),
-      ...(images && images.length > 0 ? { images } : {}),
+      ...(validatedImages.length > 0 ? { images: validatedImages } : {}),
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      ...(images && images.length > 0 ? { images } : {}),
+      ...(validatedImages.length > 0 ? { images: validatedImages } : {}),
     },
   };
 }

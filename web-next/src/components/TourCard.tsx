@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { formatPrice } from "@/config/site";
@@ -7,9 +8,9 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { useDesignSystem } from "@/contexts/DesignSystemContext";
 import { SpotlightTourCard } from "@/components/motion";
 import type { TourCardVariant } from "@/config/theme.config";
+import { DEFAULT_DEMO_TOUR_IMAGE } from "@/lib/data/demo-images";
 
-const DEFAULT_TOUR_IMAGE =
-  "https://images.unsplash.com/photo-1570939274717-7eda259b50ed?auto=format&fit=crop&w=1000&q=80";
+const DEFAULT_TOUR_IMAGE = DEFAULT_DEMO_TOUR_IMAGE;
 
 export interface TourCardProps {
   tour: {
@@ -128,14 +129,13 @@ export default function TourCard({
           href={`/tours/${tour.id}`}
           className="lg:col-span-5 relative aspect-[16/10] lg:aspect-auto lg:min-h-[260px] overflow-hidden bg-foreground border-b lg:border-b-0 lg:border-r border-border"
         >
-          <img
+          <Image
             src={tour.image_url || DEFAULT_TOUR_IMAGE}
             alt={`${tour.name} — ${regionLabel}`}
             width={1120}
             height={700}
-            decoding="async"
+            sizes="(max-width: 1024px) 100vw, 42vw"
             className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
-            loading="lazy"
           />
           <div className="absolute top-3 left-3 bg-background/90 backdrop-blur-sm border border-border px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.14em] text-foreground">
             {formattedIndex} · {regionLabel}
@@ -252,14 +252,13 @@ export default function TourCard({
           href={`/tours/${tour.id}`}
           className="block relative aspect-[4/5] overflow-hidden bg-foreground border-b border-border"
         >
-          <img
+          <Image
             src={tour.image_url || DEFAULT_TOUR_IMAGE}
             alt={`${tour.name} — ${regionLabel}`}
-            width={1120}
-            height={700}
-            decoding="async"
+            width={880}
+            height={1100}
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
-            loading="lazy"
           />
         </Link>
 

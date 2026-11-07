@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -19,9 +20,12 @@ export default function NavbarLogo() {
     >
       {hasLogo && (
         <div className="w-9 h-9 flex items-center justify-center overflow-hidden bg-card border border-border">
-          <img
+          <Image
             src={settings.site_logo_url}
             alt={`${siteTitle} logo`}
+            width={28}
+            height={28}
+            sizes="28px"
             className="object-contain w-7 h-7"
           />
         </div>

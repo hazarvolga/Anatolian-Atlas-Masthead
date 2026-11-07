@@ -52,8 +52,8 @@ app.use(cors({
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // limit each IP to 100 requests per windowMs
-  skip: (req) => req.originalUrl === '/api/payments/webhook'
+  max: 1500, // allow SSR & Lighthouse burst traffic while protecting against abuse
+  skip: (req) => req.originalUrl === '/api/payments/webhook' || req.originalUrl === '/api/site-settings'
 });
 app.use(limiter);
 

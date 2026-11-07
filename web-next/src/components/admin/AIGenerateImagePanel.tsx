@@ -2,6 +2,7 @@
 
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -68,14 +69,17 @@ export default function AIGenerateImagePanel({
             </Button>
             {loading && (
               <div className="flex items-center justify-center py-4">
-                <img src={DUMMY_LOADING_IMAGE} alt="Yükleniyor" className="w-12 h-12" />
+                <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" aria-label="Yükleniyor" />
               </div>
             )}
             {imageUrl && (
               <div className="mt-2 flex flex-col gap-2 items-center">
-                <img
+                <Image
                   src={imageUrl}
                   alt="AI Görseli"
+                  width={160}
+                  height={160}
+                  unoptimized
                   className="w-40 h-40 object-cover rounded border"
                 />
                 <Button

@@ -11,7 +11,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
-import themeConfig from "@/config/theme.config";
+import themeConfig, { type ThemeConfig } from "@/config/theme.config";
 import type { SupportedLocale } from "@/lib/i18n/locale-utils";
 
 // Disable Zod v4 new Function() JIT so strict CSP without 'unsafe-eval' never triggers a violation
@@ -22,20 +22,23 @@ if (typeof z.config === "function") {
 export function Providers({
   children,
   initialLocale = "en",
+  initialThemeConfig,
 }: {
   children: React.ReactNode;
   initialLocale?: SupportedLocale;
+  initialThemeConfig?: ThemeConfig;
 }) {
   const [queryClient] = useState(() => new QueryClient());
+  const activeTheme = initialThemeConfig || themeConfig;
 
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider
         attribute="class"
-        defaultTheme={themeConfig.mode}
+        defaultTheme={activeTheme.mode}
         enableSystem={false}
       >
-        <DesignSystemProvider>
+        <DesignSystemProvider initialConfig={activeTheme}>
           <LanguageProvider initialLocale={initialLocale}>
             <AuthProvider>
               <TooltipProvider>

@@ -9,11 +9,11 @@ import {
   IBM_Plex_Mono,
 } from "next/font/google";
 import { siteConfig } from "@/config/site.config";
-import themeConfig from "@/config/theme.config";
 import {
   getServerLocale,
   getServerPathname,
 } from "@/lib/i18n/server-locale";
+import { getServerThemeConfig } from "@/lib/data/server-theme";
 import {
   buildAlternatesMetadata,
   DEFAULT_LOCALE,
@@ -100,7 +100,10 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const serverLocale = await getServerLocale();
+  const [serverLocale, activeTheme] = await Promise.all([
+    getServerLocale(),
+    getServerThemeConfig(),
+  ]);
 
   const fontVariables = [
     newsreader.variable,
@@ -116,20 +119,13 @@ export default async function RootLayout({
     <html
       lang={serverLocale}
       suppressHydrationWarning
-      data-theme={themeConfig.preset}
-      data-mode={themeConfig.mode}
-      data-radius={themeConfig.radius}
-      data-density={themeConfig.density}
-      data-motion={themeConfig.motion.level}
-      className={`${fontVariables} ${themeConfig.mode === "dark" ? "dark" : ""}`.trim()}
+      data-theme={activeTheme.preset}
+      data-mode={activeTheme.mode}
+      data-radius={activeTheme.radius}
+      data-density={activeTheme.density}
+      data-motion={activeTheme.motion.level}
+      className={`${fontVariables} ${activeTheme.mode === "dark" ? "dark" : ""}`.trim()}
     >
-      <head>
-        <link
-          rel="preconnect"
-          href="https://images.unsplash.com"
-          crossOrigin="anonymous"
-        />
-      </head>
       <body className="font-sans antialiased bg-background text-foreground">
         <a
           href="#main-content"
@@ -137,7 +133,12 @@ export default async function RootLayout({
         >
           Skip to main content
         </a>
-        <Providers initialLocale={serverLocale}>{children}</Providers>
+        <Providers
+          initialLocale={serverLocale}
+          initialThemeConfig={activeTheme}
+        >
+          {children}
+        </Providers>
       </body>
     </html>
   );

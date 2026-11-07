@@ -1,6 +1,8 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { DEMO_IMAGES } from "@/lib/data/demo-images";
 
 export default function OverviewSection() {
   return (
@@ -8,10 +10,13 @@ export default function OverviewSection() {
       <div className="container">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           <div className="lg:col-span-5">
-            <div className="aspect-[4/3] rounded-lg overflow-hidden border border-border bg-card p-2 shadow-sm">
-              <img
-                src="https://images.unsplash.com/photo-1589561454226-796a8aa89b05?auto=format&fit=crop&w=1000&q=85"
+            <div className="relative aspect-[4/3] rounded-lg overflow-hidden border border-border bg-card p-2 shadow-sm">
+              <Image
+                src={DEMO_IMAGES.ephesusCelsus}
                 alt="Ancient marble ruins of Ephesus in Selçuk, Türkiye"
+                width={1000}
+                height={750}
+                sizes="(max-width: 1024px) 100vw, 42vw"
                 className="w-full h-full object-cover rounded"
               />
             </div>

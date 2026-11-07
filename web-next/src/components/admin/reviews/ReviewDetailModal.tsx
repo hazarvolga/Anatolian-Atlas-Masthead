@@ -1,6 +1,7 @@
 "use client";
 
 
+import Image from "next/image";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -69,9 +70,12 @@ export default function ReviewDetailModal({ review, isOpen, onClose }: ReviewDet
           {/* Tour Information */}
           <div className="flex items-start gap-4 p-4 bg-muted/50 rounded-lg">
             {review.tours?.image_url && (
-              <img 
-                src={review.tours.image_url} 
+              <Image
+                src={review.tours.image_url}
                 alt={review.tours.name}
+                width={64}
+                height={64}
+                sizes="64px"
                 className="w-16 h-16 rounded object-cover"
               />
             )}

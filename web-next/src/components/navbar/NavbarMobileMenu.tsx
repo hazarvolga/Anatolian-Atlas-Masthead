@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import Link from "next/link";
 import { ArrowUpRight, LogOut, User, X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -23,17 +23,73 @@ export default function NavbarMobileMenu({
   const { t, localizePath } = useLanguage();
   const { user, signOut } = useAuth();
   const isAdmin = useIsAdmin();
+  const drawerRef = useRef<HTMLDivElement | null>(null);
+  const closeButtonRef = useRef<HTMLButtonElement | null>(null);
+  const triggerElementRef = useRef<HTMLElement | null>(null);
+
+  const closeMenuAndRestoreFocus = useCallback(() => {
+    setMobileMenuOpen(false);
+    const trigger =
+      triggerElementRef.current ||
+      document.querySelector<HTMLElement>(
+        'button[aria-controls="mobile-navigation-drawer"]'
+      );
+    if (trigger && typeof trigger.focus === "function") {
+      requestAnimationFrame(() => {
+        trigger.focus();
+      });
+    }
+  }, [setMobileMenuOpen]);
+
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      const active = document.activeElement as HTMLElement | null;
+      if (active && active !== document.body) {
+        triggerElementRef.current = active;
+      } else {
+        triggerElementRef.current = document.querySelector<HTMLElement>(
+          'button[aria-controls="mobile-navigation-drawer"]'
+        );
+      }
+      requestAnimationFrame(() => {
+        closeButtonRef.current?.focus();
+      });
+    }
+  }, [mobileMenuOpen]);
 
   useEffect(() => {
     if (!mobileMenuOpen) return;
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        setMobileMenuOpen(false);
+        event.preventDefault();
+        closeMenuAndRestoreFocus();
+      } else if (event.key === "Tab" && drawerRef.current) {
+        const focusable = Array.from(
+          drawerRef.current.querySelectorAll<HTMLElement>(
+            'button:not([disabled]), a[href], select:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'
+          )
+        );
+        if (focusable.length === 0) return;
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+        const active = document.activeElement as HTMLElement | null;
+
+        if (event.shiftKey) {
+          if (active === first || !drawerRef.current.contains(active)) {
+            event.preventDefault();
+            last.focus();
+          }
+        } else {
+          if (active === last || !drawerRef.current.contains(active)) {
+            event.preventDefault();
+            first.focus();
+          }
+        }
       }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [mobileMenuOpen, setMobileMenuOpen]);
+  }, [mobileMenuOpen, closeMenuAndRestoreFocus]);
 
   const navLinks = [
     { index: "01", name: t.nav.home || "Atlas", path: "/" },
@@ -56,20 +112,22 @@ export default function NavbarMobileMenu({
   return (
     <div
       id="mobile-navigation-drawer"
+      ref={drawerRef}
       role="dialog"
       aria-modal={mobileMenuOpen ? "true" : undefined}
       aria-label="Mobile navigation menu"
+      inert={!mobileMenuOpen ? true : undefined}
       className={cn(
         "fixed inset-0 z-50 lg:hidden transition-opacity duration-200",
         mobileMenuOpen
-          ? "opacity-100 pointer-events-auto"
-          : "opacity-0 pointer-events-none"
+          ? "opacity-100 pointer-events-auto visible"
+          : "opacity-0 pointer-events-none invisible"
       )}
       aria-hidden={!mobileMenuOpen}
     >
       <div
         className="absolute inset-0 bg-foreground/50 backdrop-blur-xs"
-        onClick={() => setMobileMenuOpen(false)}
+        onClick={closeMenuAndRestoreFocus}
       />
       <div
         className={cn(
@@ -89,8 +147,9 @@ export default function NavbarMobileMenu({
               </span>
             </div>
             <button
+              ref={closeButtonRef}
               type="button"
-              onClick={() => setMobileMenuOpen(false)}
+              onClick={closeMenuAndRestoreFocus}
               className="p-2 border border-border text-text-secondary hover:text-foreground"
               aria-label="Close navigation menu"
             >

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight, BookOpen, Compass, Clock } from "lucide-react";
 import {
@@ -63,13 +64,13 @@ export default function JournalIndexPage() {
                 className="lg:col-span-7 group block overflow-hidden border border-border bg-card"
               >
                 <div className="relative aspect-[16/10] overflow-hidden">
-                  <img
+                  <Image
                     src={featured.heroImage}
                     alt={featured.heroCaption}
                     width={1400}
                     height={875}
-                    fetchPriority="high"
-                    decoding="async"
+                    priority
+                    sizes="(max-width: 1024px) 100vw, 58vw"
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02]"
                   />
                   <div className="absolute top-4 left-4 bg-background/95 backdrop-blur-sm px-3 py-1.5 border border-border font-mono text-[11px] tracking-widest uppercase text-foreground">
@@ -168,11 +169,13 @@ export default function JournalIndexPage() {
                     href={`/journal/${article.slug}`}
                     className="block relative aspect-[3/2] overflow-hidden border-b border-border"
                   >
-                    <img
+                    <Image
                       src={article.heroImage}
                       alt={article.heroCaption}
+                      width={900}
+                      height={600}
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
                       className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
-                      loading="lazy"
                     />
                     <div className="absolute top-3 left-3 bg-background/95 px-2.5 py-1 border border-border font-mono text-[10px] tracking-widest uppercase text-foreground">
                       {article.folioNo} · {article.category}

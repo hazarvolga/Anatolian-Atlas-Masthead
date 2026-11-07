@@ -1,3 +1,5 @@
+import { DEMO_IMAGES } from "./demo-images";
+
 export interface JournalCitation {
   id: string;
   source: string;
@@ -71,8 +73,7 @@ export const JOURNAL_ARTICLES: JournalArticle[] = [
     elevation: "Germuş Mountain Range, Şanlıurfa",
     publishedAt: "2026-02-14",
     readingMinutes: 7,
-    heroImage:
-      "https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?auto=format&fit=crop&w=1600&q=85",
+    heroImage: DEMO_IMAGES.suleymaniyeGoldenHorn,
     heroCaption:
       "Upper Mesopotamian limestone plateau looking south toward the Harran basin at dusk.",
     author: {
@@ -141,8 +142,7 @@ export const JOURNAL_ARTICLES: JournalArticle[] = [
     elevation: "Third Hill of the Historic Peninsula, İstanbul",
     publishedAt: "2026-02-28",
     readingMinutes: 8,
-    heroImage:
-      "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1600&q=85",
+    heroImage: DEMO_IMAGES.istanbulBosphorus,
     heroCaption:
       "Cascading lead-sheathed domes and buttress piers above the Golden Horn at first light.",
     author: {
@@ -216,8 +216,7 @@ export const JOURNAL_ARTICLES: JournalArticle[] = [
     elevation: "Göreme Valley Basin, Nevşehir",
     publishedAt: "2026-03-10",
     readingMinutes: 6,
-    heroImage:
-      "https://images.unsplash.com/photo-1641128324972-af3212f0f6bd?auto=format&fit=crop&w=1600&q=85",
+    heroImage: DEMO_IMAGES.cappadociaIgnimbrite,
     heroCaption:
       "Differential erosion columns in the Cappadocian ignimbrite formations at dawn.",
     author: {
@@ -291,8 +290,7 @@ export const JOURNAL_ARTICLES: JournalArticle[] = [
     elevation: "Patara Harbor Estuary, Antalya",
     publishedAt: "2026-03-22",
     readingMinutes: 7,
-    heroImage:
-      "https://images.unsplash.com/photo-1519451241324-20b4ea2c4220?auto=format&fit=crop&w=1600&q=85",
+    heroImage: DEMO_IMAGES.lyciaPataraHarbor,
     heroCaption:
       "Limestone littoral and submerged harbor breakwaters between Kaş and Kekova Island.",
     author: {
@@ -361,8 +359,7 @@ export const JOURNAL_ARTICLES: JournalArticle[] = [
     elevation: "Panayırdağ & Bülbül Dağı Saddle, Selçuk",
     publishedAt: "2026-04-02",
     readingMinutes: 7,
-    heroImage:
-      "https://images.unsplash.com/photo-1570077188670-e3a8d69ac5ff?auto=format&fit=crop&w=1600&q=85",
+    heroImage: DEMO_IMAGES.aegeanIonia,
     heroCaption:
       "Marble colonnades along the Curetes Way and the facade of the Library of Celsus.",
     author: {
@@ -431,8 +428,7 @@ export const JOURNAL_ARTICLES: JournalArticle[] = [
     elevation: "Çürüksu Graben & Dandalas Valley",
     publishedAt: "2026-04-12",
     readingMinutes: 6,
-    heroImage:
-      "https://images.unsplash.com/photo-1589561454226-796a8aa89b05?auto=format&fit=crop&w=1600&q=85",
+    heroImage: DEMO_IMAGES.ephesusCelsus,
     heroCaption:
       "Calcite rimstone pools and travertine escarpment above the Lycos Valley.",
     author: {

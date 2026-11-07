@@ -6,16 +6,23 @@ import {
   buildPageSeoMetadata,
   getServerLocale,
 } from "@/lib/i18n/server-locale";
+import { getServerSiteSettings } from "@/lib/data/server-theme";
 import { buildTravelAgencyJsonLd } from "@/lib/seo/jsonld";
 import JsonLd from "@/components/seo/JsonLd";
 
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {
+  const serverSettings = await getServerSiteSettings();
   return buildPageSeoMetadata({
     pathname: "/",
-    title: siteConfig.seo.defaultTitle,
-    description: siteConfig.brand.description,
+    title: serverSettings.site_title
+      ? `${serverSettings.site_title} — ${serverSettings.site_tagline || siteConfig.brand.tagline}`
+      : siteConfig.seo.defaultTitle,
+    description:
+      serverSettings.default_meta_description || siteConfig.brand.description,
+    canonicalUrl: serverSettings.canonical_url,
+    ogImage: serverSettings.og_image || serverSettings.og_image_url,
   });
 }
 

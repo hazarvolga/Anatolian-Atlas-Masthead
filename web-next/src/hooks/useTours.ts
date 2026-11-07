@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api/client";
 import { isDemoMode } from "@/config/site";
 import { DEMO_TOURS } from "@/lib/data/demo-content";
+import { DEMO_IMAGES, resolveDemoImageUrl } from "@/lib/data/demo-images";
 
 function resolveAuthenticTourImage(tour: any): string {
   const rawImg =
@@ -20,15 +21,15 @@ function resolveAuthenticTourImage(tour: any): string {
     rawImg.includes("1532403431143")
   ) {
     if (titleLower.includes("cappadocia") || titleLower.includes("balloon")) {
-      return "https://images.unsplash.com/photo-1570939274717-7eda259b50ed?auto=format&fit=crop&w=1200&q=85";
+      return DEMO_IMAGES.cappadociaGoreme;
     }
     if (titleLower.includes("istanbul")) {
-      return "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1200&q=85";
+      return DEMO_IMAGES.istanbulBosphorus;
     }
-    return "https://images.unsplash.com/photo-1589561454226-796a8aa89b05?auto=format&fit=crop&w=1200&q=85";
+    return DEMO_IMAGES.ephesusCelsus;
   }
 
-  return rawImg;
+  return resolveDemoImageUrl(rawImg, DEMO_IMAGES.istanbulBosphorus);
 }
 
 function mapBackendTour(tour: any) {

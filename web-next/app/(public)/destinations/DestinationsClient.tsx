@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { useDestinations, type Destination } from "@/hooks/useDestinations";
@@ -10,9 +11,9 @@ import { CoordTag } from "@/components/ui/coord-tag";
 import { SplitTextHeading, TiltRegionCard } from "@/components/motion";
 import { useHorizontalPin } from "@/lib/motion/hooks";
 import type { DemoTour } from "@/lib/data/demo-content";
+import { DEFAULT_DEMO_HERO_IMAGE } from "@/lib/data/demo-images";
 
-const DEFAULT_FALLBACK_IMAGE =
-  "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1400&q=85";
+const DEFAULT_FALLBACK_IMAGE = DEFAULT_DEMO_HERO_IMAGE;
 
 export default function DestinationsClient({
   initialDestinations,
@@ -108,11 +109,13 @@ export default function DestinationsClient({
                     className="group h-full flex flex-col justify-between bg-card border border-border rounded-card overflow-hidden hover:border-foreground transition-colors"
                   >
                     <div className="relative aspect-[16/10] overflow-hidden bg-black border-b border-border">
-                      <img
+                      <Image
                         src={dest.image_url || DEFAULT_FALLBACK_IMAGE}
                         alt={dest.name}
+                        width={840}
+                        height={525}
+                        sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 420px"
                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-                        loading="lazy"
                       />
                       <div className="absolute top-3 left-3">
                         <CoordTag
@@ -188,9 +191,12 @@ export default function DestinationsClient({
                       isDarkAccent ? "border-background/15" : "border-border"
                     }`}
                   >
-                    <img
+                    <Image
                       src={dest.image_url || DEFAULT_FALLBACK_IMAGE}
                       alt={`${dest.name} — ${dest.city || "Türkiye"}`}
+                      width={1200}
+                      height={800}
+                      sizes="(max-width: 1024px) 100vw, 58vw"
                       className="w-full h-full object-cover"
                     />
                     <div className="absolute top-6 left-6 bg-background/95 text-foreground px-3.5 py-1.5 border border-border text-[10px] uppercase tracking-[0.18em] font-semibold tabular-nums">

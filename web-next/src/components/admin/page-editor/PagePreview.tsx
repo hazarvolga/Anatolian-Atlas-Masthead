@@ -1,6 +1,7 @@
 "use client";
 
 
+import Image from "next/image";
 import { Card } from "@/components/ui/card";
 import { Monitor, Tablet, Smartphone, Layout } from "lucide-react";
 import { useState } from "react";
@@ -82,9 +83,12 @@ export default function PagePreview({ pageData, onPageDataChange }: PagePreviewP
                 {(section.content?.cards || []).map((card: any, index: number) => (
                   <Card key={index} className="p-6">
                     {card.image && (
-                      <img 
-                        src={card.image} 
-                        alt={card.title}
+                      <Image
+                        src={card.image}
+                        alt={card.title || "Card preview"}
+                        width={600}
+                        height={384}
+                        unoptimized
                         className="w-full h-48 object-cover rounded-lg mb-4"
                       />
                     )}
@@ -102,9 +106,12 @@ export default function PagePreview({ pageData, onPageDataChange }: PagePreviewP
           <div key={section.id} className="py-12">
             {section.content?.image && (
               <div className="max-w-6xl mx-auto px-6">
-                <img 
+                <Image
                   src={section.content.image}
-                  alt={section.content?.altText || ""}
+                  alt={section.content?.altText || "Section preview"}
+                  width={1200}
+                  height={768}
+                  unoptimized
                   className="w-full h-96 object-cover rounded-lg"
                 />
                 {section.content?.caption && (

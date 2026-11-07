@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useDestinations, type Destination } from "@/hooks/useDestinations";
+import { DEFAULT_DEMO_HERO_IMAGE } from "@/lib/data/demo-images";
 
-const DEFAULT_FALLBACK_IMAGE =
-  "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1200&q=80";
+const DEFAULT_FALLBACK_IMAGE = DEFAULT_DEMO_HERO_IMAGE;
 
 export default function DestinationsSection({
   initialDestinations,
@@ -78,7 +79,7 @@ export default function DestinationsSection({
             {/* Left 5 Columns: Numbered Swiss Tabular Index */}
             <div
               className="lg:col-span-5 divide-y divide-border border-b lg:border-b-0 lg:border-r border-border"
-              role="tablist"
+              role="region"
               aria-label="Anatolian regional index"
             >
               {safeDestinations.map((dest: any, index: number) => {
@@ -89,23 +90,18 @@ export default function DestinationsSection({
                   <div
                     key={dest.id}
                     onMouseEnter={() => setActiveIndex(index)}
-                    onClick={() => setActiveIndex(index)}
-                    role="tab"
-                    aria-selected={isSelected}
-                    tabIndex={0}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        setActiveIndex(index);
-                      }
-                    }}
-                    className={`group cursor-pointer p-5 sm:p-6 transition-colors duration-150 flex items-start justify-between gap-4 ${
+                    className={`group p-5 sm:p-6 transition-colors duration-150 flex items-start justify-between gap-4 ${
                       isSelected
                         ? "bg-foreground text-background"
                         : "bg-card hover:bg-background text-foreground"
                     }`}
                   >
-                    <div className="flex items-baseline gap-4">
+                    <button
+                      type="button"
+                      aria-pressed={isSelected}
+                      onClick={() => setActiveIndex(index)}
+                      className="flex items-baseline gap-4 text-left flex-1 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                    >
                       <span
                         className={`text-xs font-semibold uppercase tracking-[0.16em] tabular-nums ${
                           isSelected ? "text-primary-subtle" : "text-primary"
@@ -124,7 +120,7 @@ export default function DestinationsSection({
                         <div
                           className={`mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] uppercase tracking-[0.13em] tabular-nums ${
                             isSelected
-                              ? "text-background/70"
+                              ? "text-background/75"
                               : "text-text-secondary"
                           }`}
                         >
@@ -137,11 +133,10 @@ export default function DestinationsSection({
                           )}
                         </div>
                       </div>
-                    </div>
+                    </button>
 
                     <Link
                       href={`/destinations/${dest.id}`}
-                      onClick={(e) => e.stopPropagation()}
                       className={`shrink-0 p-2 border transition-colors ${
                         isSelected
                           ? "border-background/25 text-background hover:bg-primary hover:border-primary"
@@ -176,11 +171,14 @@ export default function DestinationsSection({
 
                   {/* Large Unrounded Monograph Plate */}
                   <div className="relative aspect-[16/10] overflow-hidden bg-black border-b border-border">
-                    <img
+                    <Image
                       src={
                         activeDestination.image_url || DEFAULT_FALLBACK_IMAGE
                       }
                       alt={`${activeDestination.name} landscape in Türkiye`}
+                      width={1200}
+                      height={750}
+                      sizes="(max-width: 1024px) 100vw, 58vw"
                       className="w-full h-full object-cover transition-all duration-500"
                     />
                     <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent p-6 sm:p-8">

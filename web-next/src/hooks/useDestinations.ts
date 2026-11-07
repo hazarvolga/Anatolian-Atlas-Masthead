@@ -5,6 +5,10 @@ import { api } from "@/lib/api/client";
 import { toast } from "@/components/ui/use-toast";
 import { isDemoMode } from "@/config/site";
 import { DEMO_DESTINATIONS } from "@/lib/data/demo-content";
+import {
+  DEFAULT_DEMO_HERO_IMAGE,
+  resolveDemoImageUrl,
+} from "@/lib/data/demo-images";
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem("authToken");
@@ -60,11 +64,10 @@ function normalizeDestination(item: any): Destination {
     id: item.slug || item.id,
     name: item.name,
     description: item.description,
-    image_url:
-      item.image_url ||
-      extraObj.image_url ||
-      gallery[0] ||
-      "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1200&q=85",
+    image_url: resolveDemoImageUrl(
+      item.image_url || extraObj.image_url || gallery[0],
+      DEFAULT_DEMO_HERO_IMAGE
+    ),
     city: item.city || item.name,
     country: item.country || "Türkiye",
     coords: item.coords,

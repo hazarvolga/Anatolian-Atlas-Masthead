@@ -20,6 +20,7 @@ import {
 } from "@/design/tokens";
 
 const STORAGE_KEY = "nst_theme_config_v1";
+const COOKIE_KEY = "nst_theme_config";
 
 interface DesignSystemContextValue {
   config: ThemeConfig;
@@ -33,6 +34,7 @@ interface DesignSystemContextValue {
     key: K,
     value: ThemeConfig["layout"][K]
   ) => void;
+  replaceConfig: (nextConfig: ThemeConfig) => void;
   resetConfig: () => void;
 }
 
@@ -60,11 +62,11 @@ function isValidMotion(val: string | null): val is MotionLevel {
   return val === "full" || val === "subtle" || val === "off";
 }
 
-function resolveInitialConfig(): ThemeConfig {
+function resolveInitialConfig(baseConfig: ThemeConfig = defaultThemeConfig): ThemeConfig {
   const nextConfig: ThemeConfig = {
-    ...defaultThemeConfig,
-    layout: { ...defaultThemeConfig.layout },
-    motion: { ...defaultThemeConfig.motion },
+    ...baseConfig,
+    layout: { ...baseConfig.layout },
+    motion: { ...baseConfig.motion },
   };
 
   if (typeof window === "undefined") {
@@ -183,25 +185,43 @@ function applyAttributesToDocument(cfg: ThemeConfig) {
   }
 }
 
+function writeThemeCookie(cfg: ThemeConfig | null) {
+  if (typeof document === "undefined") return;
+  try {
+    if (!cfg) {
+      document.cookie = `${COOKIE_KEY}=; Path=/; Max-Age=0; SameSite=Lax`;
+      return;
+    }
+    const serialized = encodeURIComponent(JSON.stringify(cfg));
+    document.cookie = `${COOKIE_KEY}=${serialized}; Path=/; Max-Age=31536000; SameSite=Lax`;
+  } catch {
+    // Ignore cookie write errors
+  }
+}
+
 export function DesignSystemProvider({
   children,
+  initialConfig,
 }: {
   children: React.ReactNode;
+  initialConfig?: ThemeConfig;
 }) {
-  const [config, setConfig] = useState<ThemeConfig>(defaultThemeConfig);
+  const baseInitial = initialConfig || defaultThemeConfig;
+  const [config, setConfig] = useState<ThemeConfig>(baseInitial);
 
   useEffect(() => {
-    const initial = resolveInitialConfig();
+    const initial = resolveInitialConfig(baseInitial);
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setConfig(initial);
     applyAttributesToDocument(initial);
-  }, []);
+  }, [baseInitial]);
 
   const persistAndApply = useCallback(
     (updater: (prev: ThemeConfig) => ThemeConfig) => {
       setConfig((prev) => {
         const updated = updater(prev);
         applyAttributesToDocument(updated);
+        writeThemeCookie(updated);
         try {
           window.localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
         } catch {
@@ -278,12 +298,24 @@ export function DesignSystemProvider({
     [persistAndApply]
   );
 
+  const replaceConfig = useCallback(
+    (nextConfig: ThemeConfig) => {
+      persistAndApply(() => ({
+        ...nextConfig,
+        layout: { ...nextConfig.layout },
+        motion: { ...nextConfig.motion },
+      }));
+    },
+    [persistAndApply]
+  );
+
   const resetConfig = useCallback(() => {
     try {
       window.localStorage.removeItem(STORAGE_KEY);
     } catch {
       // Ignore
     }
+    writeThemeCookie(null);
     setConfig(defaultThemeConfig);
     applyAttributesToDocument(defaultThemeConfig);
   }, []);
@@ -298,6 +330,7 @@ export function DesignSystemProvider({
       setDensity,
       setMotionLevel,
       setLayoutVariant,
+      replaceConfig,
       resetConfig,
     }),
     [
@@ -309,6 +342,7 @@ export function DesignSystemProvider({
       setDensity,
       setMotionLevel,
       setLayoutVariant,
+      replaceConfig,
       resetConfig,
     ]
   );

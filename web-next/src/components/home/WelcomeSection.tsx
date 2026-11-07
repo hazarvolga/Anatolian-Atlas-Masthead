@@ -1,11 +1,13 @@
 "use client";
 
 import { useRef } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { CountUpStat, SplitTextHeading, MagneticCTA } from "@/components/motion";
 import { useRevealOnScroll } from "@/lib/motion/hooks";
+import { DEMO_IMAGES } from "@/lib/data/demo-images";
 
 export default function WelcomeSection() {
   const { t } = useLanguage();
@@ -112,10 +114,13 @@ export default function WelcomeSection() {
             {/* Diptych Photographic Composition */}
             <div className="grid grid-cols-1 sm:grid-cols-12 gap-6 items-end">
               <figure className="sm:col-span-7 border border-border bg-card">
-                <div className="aspect-[4/5] overflow-hidden bg-foreground">
-                  <img
-                    src="https://images.unsplash.com/photo-1589561454226-796a8aa89b05?auto=format&fit=crop&w=1200&q=85"
+                <div className="relative aspect-[4/5] overflow-hidden bg-foreground">
+                  <Image
+                    src={DEMO_IMAGES.ephesusCelsus}
                     alt="Second-century Roman facade of the Library of Celsus at Ephesus, Selçuk, Türkiye"
+                    width={960}
+                    height={1200}
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 58vw, 35vw"
                     className="w-full h-full object-cover"
                   />
                 </div>
@@ -126,10 +131,13 @@ export default function WelcomeSection() {
               </figure>
 
               <figure className="sm:col-span-5 border border-border bg-card">
-                <div className="aspect-[4/3] overflow-hidden bg-foreground">
-                  <img
-                    src="https://images.unsplash.com/photo-1570939274717-7eda259b50ed?auto=format&fit=crop&w=900&q=80"
-                    alt="Limestone rooftops of Mardin overlooking the Mesopotamian plain"
+                <div className="relative aspect-[4/3] overflow-hidden bg-foreground">
+                  <Image
+                    src={DEMO_IMAGES.cappadociaGoreme}
+                    alt="Volcanic tuff valleys and rock-cut sanctuaries of Göreme, Cappadocia"
+                    width={800}
+                    height={600}
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 42vw, 25vw"
                     className="w-full h-full object-cover"
                   />
                 </div>

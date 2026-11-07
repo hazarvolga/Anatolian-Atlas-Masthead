@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import TourCard from "@/components/TourCard";
@@ -9,6 +10,7 @@ import { useDesignSystem } from "@/contexts/DesignSystemContext";
 import { ErrorState } from "@/components/ui/error-state";
 import { formatPrice } from "@/config/site";
 import type { DemoTour } from "@/lib/data/demo-content";
+import { DEFAULT_DEMO_TOUR_IMAGE } from "@/lib/data/demo-images";
 
 export default function ToursSection({
   initialTours,
@@ -81,12 +83,12 @@ export default function ToursSection({
             {leadTour && (
               <article className="grid grid-cols-1 lg:grid-cols-12 bg-foreground text-background border-x border-b border-border">
                 <div className="lg:col-span-7 relative min-h-[360px] lg:min-h-[480px] overflow-hidden border-b lg:border-b-0 lg:border-r border-background/15">
-                  <img
-                    src={
-                      leadTour.image_url ||
-                      "https://images.unsplash.com/photo-1570939274717-7eda259b50ed?auto=format&fit=crop&w=1400&q=85"
-                    }
+                  <Image
+                    src={leadTour.image_url || DEFAULT_DEMO_TOUR_IMAGE}
                     alt={leadTour.name}
+                    width={1200}
+                    height={800}
+                    sizes="(max-width: 1024px) 100vw, 58vw"
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute top-6 left-6 bg-primary text-primary-foreground px-3 py-1.5 text-[10px] uppercase tracking-[0.18em] font-semibold">

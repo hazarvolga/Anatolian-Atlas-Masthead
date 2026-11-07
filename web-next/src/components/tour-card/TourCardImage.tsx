@@ -1,7 +1,9 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { DEFAULT_DEMO_HERO_IMAGE } from "@/lib/data/demo-images";
 
 interface TourCardImageProps {
   tour: {
@@ -25,12 +27,12 @@ export default function TourCardImage({ tour, isHovered }: TourCardImageProps) {
       href={`/tours/${tour.id}`}
       className="relative block overflow-hidden aspect-[4/3] bg-muted"
     >
-      <img
-        src={
-          tour.image_url ||
-          "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1000&q=80"
-        }
+      <Image
+        src={tour.image_url || DEFAULT_DEMO_HERO_IMAGE}
         alt={tour.name}
+        width={1000}
+        height={750}
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         className={cn(
           "w-full h-full object-cover transition-transform duration-500 ease-out",
           isHovered ? "scale-[1.03]" : "scale-100"
