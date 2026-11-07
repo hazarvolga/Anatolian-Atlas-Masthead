@@ -1121,5 +1121,51 @@ router.get('/email-subscriptions', async (req, res) => {
   }
 });
 
+const CONTACT_MESSAGE_STATUSES = ['new', 'read', 'replied', 'archived'];
+
+router.get('/contact-messages', async (req, res) => {
+  const { status } = req.query;
+
+  if (status && !CONTACT_MESSAGE_STATUSES.includes(status)) {
+    return res.status(400).json({ message: 'Invalid message status.' });
+  }
+
+  try {
+    const messages = await prisma.contactMessage.findMany({
+      where: status ? { status } : undefined,
+      orderBy: { created_at: 'desc' },
+      take: 500,
+    });
+    res.json(messages);
+  } catch (error) {
+    console.error('Failed to list contact messages:', error);
+    res.status(500).json({ message: 'Failed to retrieve contact messages.' });
+  }
+});
+
+router.patch('/contact-messages/:id', async (req, res) => {
+  const { status } = req.body ?? {};
+
+  if (!CONTACT_MESSAGE_STATUSES.includes(status)) {
+    return res.status(400).json({ message: 'Invalid message status.' });
+  }
+
+  try {
+    const existing = await prisma.contactMessage.findUnique({ where: { id: req.params.id } });
+    if (!existing) {
+      return res.status(404).json({ message: 'Message not found.' });
+    }
+
+    const updated = await prisma.contactMessage.update({
+      where: { id: req.params.id },
+      data: { status },
+    });
+    res.json(updated);
+  } catch (error) {
+    console.error('Failed to update contact message:', error);
+    res.status(500).json({ message: 'Failed to update contact message.' });
+  }
+});
+
 
 export default router;

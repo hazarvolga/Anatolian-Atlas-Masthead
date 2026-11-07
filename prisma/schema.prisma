@@ -295,6 +295,24 @@ model EmailLog {
   reservation    Reservation? @relation(fields: [reservation_id], references: [id], onDelete: SetNull)
 }
 
+model ContactMessage {
+  id         String   @id @default(uuid()) @db.Uuid
+  name       String
+  email      String
+  phone      String?
+  subject    String
+  message    String
+  status     String   @default("new") // new, read, replied, archived
+  source     String?
+  ip_address String?
+  user_agent String?
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([status])
+  @@index([created_at])
+}
+
 model EmailSubscription {
   id                     String   @id @default(uuid()) @db.Uuid
   email                  String

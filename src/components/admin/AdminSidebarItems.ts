@@ -1,4 +1,4 @@
-import { Home, Mail, Users, Settings, BarChart2, Map, Calendar, Star, FileText, Languages, CreditCard, Bot, Palette, Send, Shield, Activity } from 'lucide-react';
+import { Home, Mail, Users, Settings, BarChart2, Map, Calendar, Star, FileText, Languages, CreditCard, Bot, Palette, Send, Shield, Activity, Inbox } from 'lucide-react';
 
 export const ADMIN_SIDEBAR_SECTIONS = [
   {
@@ -22,6 +22,7 @@ export const ADMIN_SIDEBAR_SECTIONS = [
     label: "Reservations & Users",
     items: [
       { id: "reservations", label: "Reservations", icon: Calendar, path: "/admin?tab=reservations" },
+      { id: "messages", label: "Messages", icon: Inbox },
       { id: "users", label: "Users", icon: Users },
     ],
   },

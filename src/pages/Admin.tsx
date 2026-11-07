@@ -10,6 +10,7 @@ import AdminSidebar from "@/components/admin/AdminSidebar";
 import AdminStats from "@/components/admin/AdminStats";
 import AdminTours from "@/components/admin/AdminTours";
 import AdminReservations from "@/components/admin/AdminReservations";
+import AdminMessages from "@/components/admin/AdminMessages";
 import AdminUsers from "@/components/admin/AdminUsers";
 import AdminReviews from "@/components/admin/AdminReviews";
 import AdminPages from "@/components/admin/AdminPages";
@@ -41,7 +42,7 @@ export default function Admin() {
     
     if (templateId) {
       setActiveTab("email-template-detail");
-    } else if (tab && ["stats", "destinations", "tours", "calendar", "reservations", "users", "reviews", "pages", "navigation", "translations", "emails", "email-test", "email-services", "email-delivery", "email-monitoring", "stripe", "ai", "site-settings"].includes(tab)) {
+    } else if (tab && ["stats", "destinations", "tours", "calendar", "reservations", "messages", "users", "reviews", "pages", "navigation", "translations", "emails", "email-test", "email-services", "email-delivery", "email-monitoring", "stripe", "ai", "site-settings"].includes(tab)) {
       setActiveTab(tab);
     }
   }, [searchParams]);
@@ -74,6 +75,8 @@ export default function Admin() {
         return <AdminCalendar />;
       case "reservations":
         return <AdminReservations />;
+      case "messages":
+        return <AdminMessages />;
       case "users":
         return <AdminUsers />;
       case "reviews":
@@ -119,6 +122,8 @@ export default function Admin() {
         return "Calendar";
       case "reservations":
         return "Reservations";
+      case "messages":
+        return "Messages";
       case "users":
         return "Users";
       case "reviews":

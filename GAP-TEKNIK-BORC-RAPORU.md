@@ -13,7 +13,7 @@ Proje "Stable R5" olarak etiketlenmiş ve ana sayfa/tur/destinasyon listeleme DB
 
 | Metrik | Değer |
 |---|---|
-| Backend route handler | 58 |
+| Backend route handler | 61 |
 | Frontend'in çağırdığı farklı API yolu | 78 |
 | TypeScript hatası (`tsc --noEmit`) | **93** |
 | ESLint | **308 error / 23 warning** |
@@ -24,7 +24,7 @@ Proje "Stable R5" olarak etiketlenmiş ve ana sayfa/tur/destinasyon listeleme DB
 | CI workflow | **0** |
 | Production build | ✅ Geçiyor (tip kontrolü yapmıyor) |
 | Bundle | 1.462 kB JS (418 kB gzip), tek chunk |
-| Prisma modelleri | 18 · Migration dosyası: **3** (baseline + `add_page` + `add_email_subscription`) |
+| Prisma modelleri | 19 · Migration dosyası: **4** (baseline + `add_page` + `add_email_subscription` + `add_contact_message`) |
 | Frontend LOC / backend LOC | ~39.900 / ~1.900 |
 
 **En kritik 5 bulgu**
@@ -132,6 +132,17 @@ Doğrulama: `node --check` ✅; `npm run build` ✅. `backend/.env.example` test
 
 Doğrulama: `node --check` ✅; `npm run build` ✅; değişen frontend dosyalarında yeni tip/lint hatası yok. Test abonelikleri ve test kullanıcısı silindi (`EmailSubscription` **0** satır). Gerçek gönderim (SMTP) hâlâ yok; şablon CRUD'u ve `emails/send` bu adımın dışında.
 
+### İletişim formu — ✅ Tamamlandı (Sprint 1, yedinci adım)
+
+| # | Düzeltme | Dosya(lar) | Doğrulama |
+|---|---|---|---|
+| 45 | `ContactMessage` modeli: ad, e-posta, telefon, konu, mesaj, durum (`new/read/replied/archived`), kaynak, IP/user-agent | `prisma/schema.prisma`, `prisma/migrations/20261107120000_add_contact_message/` | `migrate deploy` ✅; `ContactMessage` tablosu + durum/tarih index'leri oluştu |
+| 46 | Public `POST /api/contact-messages`: ad 2–120, geçerli e-posta, konu 2–200, mesaj 10–5000 doğrulaması; IP/UA kaydı; yanıtta yalnızca `id/status/created_at` | `backend/routes/contactMessages.js`, `backend/server.js` | Geçerli → **201**; kısa mesaj → **400**; geçersiz e-posta → **400** |
+| 47 | Admin inbox: durum filtreli listeleme ve durum güncelleme; panelde **Messages** sekmesi, durum rozetleri ve aksiyon menüsü | `backend/routes/admin.js`, `src/components/admin/AdminMessages.tsx`, `src/hooks/useAdminContactMessages.ts`, `src/pages/Admin.tsx`, `src/components/admin/AdminSidebarItems.ts` | Tokensiz → **401**; geçersiz durum → **400**; yok olan kayıt → **404**; panelde 2 mesaj listelendi, "read" güncellemesi toast + DB ile doğrulandı |
+| 48 | Contact formu gerçek uca bağlandı; gönderim sırasında pasif buton + spinner, hata toast'ı, 3 sn başarı paneli | `src/pages/Contact.tsx` | Tarayıcıda mesaj kaydı oluştu (`source=contact-page`), başarı paneli göründü |
+
+Doğrulama: `node --check` ✅; `npm run build` ✅; değişen frontend dosyalarında yeni tip/lint hatası yok. Test mesajları silindi (`ContactMessage` **0** satır). Gerçek e-posta bildirimi SMTP gelince eklenecek.
+
 ---
 
 
@@ -142,7 +153,7 @@ Doğrulama: `node --check` ✅; `npm run build` ✅; değişen frontend dosyalar
 | PostgreSQL 15 (Docker) | ✅ Up | `localhost:5432` (`nextstopturkey`) |
 | Backend API (nodemon) | ✅ Up | http://localhost:3001 |
 | Vite dev server | ✅ Up | http://localhost:5173 |
-| DB şeması | ✅ `prisma migrate deploy` | 16 tablo + `_prisma_migrations` |
+| DB şeması | ✅ `prisma migrate deploy` | 19 tablo + `_prisma_migrations` |
 | Seed | ✅ 1 admin, 2 tur, 2 destinasyon | admin: `hazarvolga@gmail.com` |
 | Sağlık kontrolü | ✅ `{"status":"healthy","database":"connected"}` | `/health` |
 
@@ -274,7 +285,7 @@ Doğrulanan canlı sonuçlar:
 - `Gallery.tsx:9` hardcoded Unsplash listesi.
 - `AdminStats.tsx:21-24` trend yüzdeleri mock.
 - `EmailTemplateManager.tsx:28-29` "TourCo" mock site ayarları.
-- `Contact.tsx:32-38` form yalnızca `console.log`; `Footer.tsx:158` bülten formunun `onSubmit`'i yok; `UnsubscribePage.tsx:196-202` butonu `onClick`'siz.
+- ✅ **Düzeltildi:** Contact formu `POST /api/contact-messages`'a, footer bülten formu `POST /api/email-subscriptions`'a bağlandı (bkz. #44, #45–#48). `UnsubscribePage.tsx:196-202` butonu hâlâ `onClick`'siz.
 - `BookingSuccess.tsx:53-63` sahte misafir fallback'i (`email@example.com`).
 - `StockImageSelector.tsx:4-8` tur görseli olarak laptop/devre kartı öneriyor.
 
@@ -315,7 +326,7 @@ Doğrulanan canlı sonuçlar:
 15. `strict: true` + `typecheck` script'i + CI (lint, tsc, build); 93 hatayı kapat.
 16. Test başlangıcı: kritik akışlar için Vitest + Playwright smoke (login, admin, rezervasyon).
 17. `React.lazy` ile route bazlı code splitting; 1.46 MB bundle'ı parçala.
-18. MareSereno/Costa Bella kalıntılarını ve mock içerikleri temizle; Contact/Newsletter/Unsubscribe'ı gerçek uçlara bağla.
+18. MareSereno/Costa Bella kalıntılarını ve mock içerikleri temizle; Unsubscribe'ı gerçek uca bağla (Contact/Newsletter ✅).
 19. ✅ **Tamamlandı (Dockerfile kısmı):** tek CMD, `prisma generate`, kök bağlam; prod akışı `npm start`.
 
 ---

@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { MapPin, Phone, Mail, Clock, Send, Check } from "lucide-react";
+import { MapPin, Phone, Mail, Clock, Send, Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { toast } from "sonner";
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 
 export default function Contact() {
   const { t } = useLanguage();
@@ -18,6 +21,7 @@ export default function Contact() {
   });
   
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   
   useEffect(() => {
     // Scroll to top when component mounts
@@ -29,25 +33,41 @@ export default function Contact() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
   
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // In a real app, this would send the form data to a server
-    console.log("Form submitted:", formData);
-    
-    setIsSubmitted(true);
-    
-    // Reset form after 3 seconds
-    setTimeout(() => {
-      setIsSubmitted(false);
-      setFormData({
-        name: "",
-        email: "",
-        phone: "",
-        subject: "",
-        message: ""
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/contact-messages`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...formData, source: "contact-page" }),
       });
-    }, 3000);
+
+      if (!response.ok) {
+        const data = await response.json().catch(() => null);
+        throw new Error(data?.message || "Message could not be sent.");
+      }
+
+      setIsSubmitted(true);
+
+      // Reset form after 3 seconds
+      setTimeout(() => {
+        setIsSubmitted(false);
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          subject: "",
+          message: ""
+        });
+      }, 3000);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Message could not be sent. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   // Default FAQ data with fallback
@@ -253,8 +273,12 @@ export default function Contact() {
                         />
                       </div>
                       
-                      <Button type="submit" className="w-full btn-primary">
-                        <Send className="mr-2 h-4 w-4" />
+                      <Button type="submit" className="w-full btn-primary" disabled={isSubmitting}>
+                        {isSubmitting ? (
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        ) : (
+                          <Send className="mr-2 h-4 w-4" />
+                        )}
                         {t?.contact?.send || "Send Message"}
                       </Button>
                     </form>
