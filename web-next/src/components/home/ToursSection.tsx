@@ -1,79 +1,64 @@
 "use client";
 
-
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import TourCard from "@/components/TourCard";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { ArrowRight, Star } from "lucide-react";
 import { useTours } from "@/hooks/useTours";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function ToursSection() {
+  const { t } = useLanguage();
   const { data: tours, isLoading, error } = useTours();
-  
-  console.log('ToursSection - tours data:', tours, 'loading:', isLoading, 'error:', error);
-  
-  // Ensure tours is always an array - triple safety check
-  const safeTours = Array.isArray(tours) ? tours : [];
-  console.log('Safe tours in ToursSection:', safeTours.length);
+
+  const safeTours = Array.isArray(tours) ? tours.slice(0, 6) : [];
 
   return (
-    <section className="section bg-gradient-to-br from-accent-emerald/5 via-surface-elevated to-accent-coral/5 relative overflow-hidden">
-      {/* İsteğe bağlı soft arka plan efektleri eklenebilir */}
-      <div className="container relative z-10">
-        <div className="bg-gradient-to-b from-background to-surface-elevated rounded-2xl shadow-lg px-6 py-10 md:px-10 md:py-16">
-          <div className="text-center max-w-3xl mx-auto mb-16 animate-fade-in">
-            <div className="inline-flex items-center px-3 py-1 bg-accent-emerald/10 text-accent-emerald rounded-full text-sm font-medium mb-4">
-              <Star className="h-4 w-4 mr-2" />
-              Our Tours
-            </div>
-            <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-text-primary to-accent-emerald bg-clip-text text-transparent">
-              Discover All Our Tours
+    <section className="section bg-muted/35 border-b border-border">
+      <div className="container">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+          <div className="max-w-2xl space-y-3">
+            <span className="editorial-kicker block">
+              02 — SELECTED JOURNEYS
+            </span>
+            <h2 className="font-serif text-foreground">
+              {t.home.featuredTours}
             </h2>
-            <p className="text-text-secondary text-lg leading-relaxed">
-              Explore our complete collection of tours and create unforgettable memories
+            <p className="text-text-secondary text-base md:text-lg leading-relaxed">
+              {t.home.featuredToursSubtitle}
             </p>
           </div>
-          
-          {isLoading ? (
-            <div className="text-center py-12">
-              <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto mb-4"></div>
-              <p className="text-lg">Loading tours...</p>
-            </div>
-          ) : error ? (
-            <div className="text-center py-12">
-              <h3 className="text-xl font-semibold mb-4 text-red-600">Error loading tours</h3>
-              <p className="text-text-secondary mb-6">
-                There was a problem loading the tours. Please try refreshing the page.
-              </p>
-            </div>
-          ) : safeTours && safeTours.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {safeTours.map((tour, index) => (
-                <div key={tour.id} className="animate-fade-in hover-lift" style={{ animationDelay: `${(index + 1) * 100}ms` }}>
-                  <TourCard tour={tour} />
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-12">
-              <h3 className="text-xl font-semibold mb-4">No tours available yet</h3>
-              <p className="text-text-secondary mb-6">
-                Check back soon for exciting tours to explore!
-              </p>
-            </div>
-          )}
-          
-          <div className="text-center mt-12">
-            <Button asChild variant="accent" size="lg" className="group">
-              <Link href="/tours">
-                View All Tours 
-                <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-              </Link>
-            </Button>
-          </div>
+          <Button asChild variant="outline" className="btn-outline shrink-0">
+            <Link href="/tours" className="inline-flex items-center">
+              <span>{t.home.booking.viewTours}</span>
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Link>
+          </Button>
         </div>
+
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div
+                key={i}
+                className="h-[420px] rounded-lg bg-card animate-pulse border border-border"
+              />
+            ))}
+          </div>
+        ) : error ? (
+          <div className="p-8 rounded-lg border border-border bg-card text-center">
+            <p className="text-text-secondary">
+              Unable to load journeys at the moment.
+            </p>
+          </div>
+        ) : safeTours.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {safeTours.map((tour) => (
+              <TourCard key={tour.id} tour={tour} />
+            ))}
+          </div>
+        ) : null}
       </div>
     </section>
   );
 }
-

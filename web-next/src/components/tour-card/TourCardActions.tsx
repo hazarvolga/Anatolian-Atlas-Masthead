@@ -1,41 +1,53 @@
 "use client";
 
-
 import Link from "next/link";
-import { Calendar, Eye } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface TourCardActionsProps {
   tourId: string;
+  price?: number;
 }
 
-export default function TourCardActions({ tourId }: TourCardActionsProps) {
+export default function TourCardActions({
+  tourId,
+  price,
+}: TourCardActionsProps) {
+  const { t } = useLanguage();
+
   return (
-    <div className="flex gap-3 pt-2">
-      <Button 
-        asChild 
-        variant="outline" 
-        size="sm" 
-        className="flex-1 rounded-xl border-2 border-border/50 hover:border-primary/50 hover:bg-primary/5 hover:text-primary transition-all duration-300 font-medium"
-      >
-        <Link href={`/tours/${tourId}`}>
-          <Eye className="h-4 w-4 mr-2" />
-          View Details
-        </Link>
-      </Button>
-      <Button 
-        asChild 
-        size="sm" 
-        className="flex-1 bg-primary text-primary-foreground rounded-xl font-semibold shadow-lg hover:shadow-xl hover:shadow-primary/25 hover:bg-primary/90 hover:-translate-y-0.5 transition-all duration-300"
-      >
-        <Link 
-          href={`/book/${tourId}`}
-          onClick={() => console.log('Book Now clicked for tour:', tourId)}
+    <div className="pt-4 border-t border-border flex items-center justify-between gap-4">
+      <div>
+        <span className="block text-[11px] uppercase tracking-wider text-text-secondary">
+          {t.tours.from || "From"}
+        </span>
+        <div className="flex items-baseline gap-1">
+          <span className="font-serif text-2xl font-medium text-foreground tabular-nums">
+            €{price ?? 0}
+          </span>
+          <span className="text-xs text-text-secondary">/ person</span>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-2">
+        <Button
+          asChild
+          variant="outline"
+          size="sm"
+          className="h-9 px-3.5 text-xs font-medium"
         >
-          <Calendar className="h-4 w-4 mr-2" />
-          Book Now
-        </Link>
-      </Button>
+          <Link href={`/tours/${tourId}`}>
+            {t.tours.viewDetails || "Itinerary"}
+          </Link>
+        </Button>
+        <Button asChild size="sm" className="h-9 px-4 text-xs font-medium">
+          <Link href={`/book/${tourId}`} className="inline-flex items-center">
+            <span>{t.tours.bookNow || "Reserve"}</span>
+            <ArrowRight className="h-3.5 w-3.5 ml-1.5" />
+          </Link>
+        </Button>
+      </div>
     </div>
   );
 }

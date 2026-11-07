@@ -1,24 +1,25 @@
 "use client";
 
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function ToursHeader() {
+  const { t } = useLanguage();
+
   return (
-    <section className="relative py-20 bg-gradient-to-r from-sea-light to-white dark:from-sea-dark dark:to-background overflow-hidden">
-      <div className="container relative z-10">
-        <div className="max-w-3xl mx-auto text-center animate-fade-in">
-          <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
-            Discover Amazing Tours
+    <section className="py-12 md:py-16 bg-background border-b border-border">
+      <div className="container">
+        <div className="max-w-3xl space-y-3">
+          <span className="editorial-kicker block">
+            ANATOLIAN ATLAS — ROUTE CATALOG
+          </span>
+          <h1 className="font-serif text-foreground">
+            {t.tours.title || "Journeys & Itineraries"}
           </h1>
-          <p className="text-muted-foreground text-lg mb-6">
-            Experience unforgettable adventures with our carefully curated tours and activities
+          <p className="text-text-secondary text-lg leading-relaxed">
+            {t.tours.description ||
+              "Filter by region, duration, walking pace, and group size to find the right itinerary across Türkiye."}
           </p>
         </div>
-      </div>
-      
-      {/* Decorative elements */}
-      <div className="absolute bottom-0 right-0 w-1/2 h-1/2 opacity-10">
-        <div className="absolute bottom-0 right-0 w-64 h-64 rounded-full bg-primary/50 blur-3xl" />
-        <div className="absolute top-10 right-40 w-48 h-48 rounded-full bg-sea-light blur-3xl" />
       </div>
     </section>
   );

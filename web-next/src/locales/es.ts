@@ -1,255 +1,312 @@
-
 export const es = {
   nav: {
-    home: "Inicio",
-    tours: "Tours",
-    apartments: "Apartamentos",
-    amenities: "Servicios",
-    gallery: "Galería",
+    home: "Atlas",
+    destinations: "Regiones",
+    tours: "Rutas",
+    apartments: "Rutas",
+    amenities: "Notas de Campo",
+    gallery: "Archivo",
     contact: "Contacto",
-    bookNow: "Reservar Ahora",
+    bookNow: "Explorar Rutas",
     signIn: "Iniciar Sesión",
     profile: "Perfil",
     myBookings: "Mis Reservas",
-    admin: "Administrador",
-    signOut: "Cerrar Sesión"
+    admin: "Panel Editorial",
+    signOut: "Cerrar Sesión",
   },
   hero: {
-    subtitle: "DESCUBRE EL PARAÍSO",
-    title: "Te Esperan Aventuras Inolvidables",
-    description: "Experimenta tours impresionantes y alojamientos de lujo en los destinos más hermosos del mundo.",
-    bookStay: "Reserva tu Estancia",
-    exploreApartments: "Explorar Tours",
-    scrollDown: "Desplazar Hacia Abajo"
+    subtitle: "ATLAS DE ANATOLIA — VIAJES REGIONALES CURADOS",
+    title: "Türkiye, lugar por lugar.",
+    description:
+      "Recorridos dirigidos por arqueólogos, travesías costeras en goleta e itinerarios gastronómicos por Estambul, Capadocia, Jonia, Licia y la Alta Mesopotamia.",
+    bookStay: "Explorar Rutas",
+    exploreApartments: "Ver Regiones",
+    scrollDown: "Explorar el Atlas",
   },
   home: {
-    featuredTours: "Tours Destacados",
-    featuredToursSubtitle: "Descubre nuestros destinos más populares",
-    whyChooseUs: "Por Qué Elegirnos",
-    whyChooseUsSubtitle: "Experimenta la diferencia con nuestro servicio premium",
-    expertGuides: "Guías Expertos",
-    expertGuidesDesc: "Guías locales profesionales con años de experiencia",
-    luxuryAccommodation: "Alojamiento de Lujo",
-    luxuryAccommodationDesc: "Hospédate en hoteles y resorts premium cuidadosamente seleccionados",
-    personalizedService: "Servicio Personalizado",
-    personalizedServiceDesc: "Experiencias adaptadas para coincidir con tus preferencias",
-    safeTravels: "Viajes Seguros",
-    safeTravelsDesc: "Tu seguridad y comodidad son nuestras principales prioridades",
+    featuredTours: "Rutas Seleccionadas",
+    featuredToursSubtitle:
+      "Itinerarios en grupos reducidos diseñados en torno a la luz estacional, el acceso arqueológico y las cocinas regionales",
+    whyChooseUs: "Criterio Editorial",
+    whyChooseUsSubtitle:
+      "Cada ruta se investiga sobre el terreno con historiadores licenciados y anfitriones locales",
+    expertGuides: "Historiadores Especialistas",
+    expertGuidesDesc:
+      "Recorra yacimientos arqueológicos y barrios históricos con investigadores y guías oficiales",
+    luxuryAccommodation: "Arquitectura Patrimonial",
+    luxuryAccommodationDesc:
+      "Alójese en mansiones de piedra restauradas, casas cueva y residencias históricas del Bósforo",
+    personalizedService: "Ritmo de Observación",
+    personalizedServiceDesc:
+      "Entradas tempranas a los recintos y tardes tranquilas lejos de los circuitos masivos",
+    safeTravels: "Logística Integral",
+    safeTravelsDesc:
+      "Traslados privados, coordinación de vuelos domésticos y entradas a museos incluidas",
     amenities: {
-      title: "Nuestros Servicios",
-      subtitle: "Instalaciones premium para tu comodidad",
-      description: "Experimenta servicios de lujo diseñados para tu comodidad y disfrute",
-      pool: "Piscina",
-      poolDesc: "Relájate en nuestra hermosa piscina al aire libre",
-      spa: "Spa y Bienestar",
-      spaDesc: "Rejuvenece con nuestros tratamientos de spa de lujo",
-      restaurant: "Gastronomía Fina",
-      restaurantDesc: "Experimenta cocina de clase mundial",
-      fitness: "Centro de Fitness",
-      fitnessDesc: "Mantente activo con nuestro equipo moderno",
-      wifi: "WiFi Gratuito",
-      wifiDesc: "Internet de alta velocidad en toda la propiedad",
-      concierge: "Servicio de Conserjería",
-      conciergeDesc: "Asistencia 24/7 para todas tus necesidades",
+      title: "Estándares de Campo",
+      subtitle: "Lo que define cada itinerario de NextStopTurkey",
+      description:
+        "Ritmo pausado, contexto académico y relación directa con artesanos y cocinas locales",
+      pool: "Travesías por la Costa Licia",
+      poolDesc: "Navegación en goleta de madera entre calas y ciudades sumergidas",
+      spa: "Patrimonio Termal y Hammam",
+      spaDesc: "Baños otomanos históricos y manantiales minerales de Frigia",
+      restaurant: "Cocinas Regionales",
+      restaurantDesc: "Lokantas gremiales, almazaras de aceite de oliva y mesas de Anatolia",
+      fitness: "Senderos y Valles",
+      fitnessDesc: "Caminatas guiadas por los valles volcánicos de Capadocia y la Vía Licia",
+      wifi: "Documentación de Ruta",
+      wifiDesc: "Mapas impresos, lecturas recomendadas y receptores de audio",
+      concierge: "Mesa de Planificación en Galata",
+      conciergeDesc: "Asistencia directa desde Estambul antes y durante su viaje",
       features: {
         beachfront: {
-          title: "Ubicación Frente al Mar",
-          description: "Acceso directo a playas prístinas"
+          title: "Rutas Marítimas y Costeras",
+          description: "Acceso a calas licias y muelles históricos del Bósforo",
         },
         pools: {
-          title: "Múltiples Piscinas",
-          description: "Piscinas cubiertas y al aire libre"
+          title: "Grupos Reducidos (Máx. 8–12)",
+          description: "Visitas silenciosas a capillas rupestres y cámaras de museos",
         },
         restaurant: {
-          title: "Restaurante Gourmet",
-          description: "Experiencia gastronómica de clase mundial"
+          title: "Gastronomía de Origen",
+          description: "Menús de temporada basados en cosechas regionales",
         },
         wifi: {
-          title: "WiFi Gratuito de Alta Velocidad",
-          description: "Mantente conectado durante toda tu estancia"
+          title: "Acceso Arqueológico Programado",
+          description: "Visitas planificadas con la mejor luz de la mañana y la tarde",
         },
         bar: {
-          title: "Bar junto a la Piscina",
-          description: "Bebidas refrescantes junto a la piscina"
+          title: "Talleres Artesanales",
+          description: "Encuentros privados con maestros ceramistas y tejedores",
         },
         location: {
-          title: "Ubicación Privilegiada",
-          description: "Cerca de todas las principales atracciones"
-        }
-      }
+          title: "Seis Regiones Históricas",
+          description: "Desde los estrechos de Tracia hasta la meseta mesopotámica",
+        },
+      },
     },
     welcome: {
-      title: "Bienvenido al Paraíso",
-      subtitle: "Tu viaje comienza aquí",
-      description: "Descubre destinos impresionantes y crea recuerdos inolvidables",
-      description1: "Descubre destinos impresionantes y crea recuerdos inolvidables con nuestras experiencias cuidadosamente curadas.",
-      description2: "Desde alojamientos de lujo hasta tours guiados por expertos, proporcionamos todo lo que necesitas para la escapada perfecta.",
-      cta: "Comienza tu Aventura",
-      learnMore: "Saber Más"
+      title: "Profundidad geográfica frente al turismo de lista",
+      subtitle: "NOTAS DE CAMPO Y METODOLOGÍA",
+      description:
+        "Türkiye abarca siete climas distintos y milenios de civilizaciones superpuestas.",
+      description1:
+        "En lugar de recorrer autopistas apresuradamente entre monumentos, nuestros viajes se centran en una región a la vez, siguiendo antiguas rutas comerciales, senderos costeros y mercados de barrio a paso humano.",
+      description2:
+        "Cada itinerario combina yacimientos arqueológicos de primer orden con tradiciones artesanales vivas y conversaciones con especialistas locales.",
+      cta: "Explorar Todas las Rutas",
+      learnMore: "Leer Guía Regional",
     },
     booking: {
-      title: "Reserva tu Escapada Perfecta",
-      subtitle: "Elige entre nuestros tours y experiencias exclusivas",
-      description: "Experimenta reservas sin problemas con nuestros paquetes de tours integrales y servicio personalizado.",
-      quickBook: "Reserva Rápida",
-      viewTours: "Ver Todos los Tours",
+      title: "Planifique su Viaje por Türkiye",
+      subtitle: "Elija una salida en grupo reducido o solicite un itinerario privado",
+      description:
+        "Precios transparentes por persona en euros con disponibilidad en tiempo real.",
+      quickBook: "Reservar Salida",
+      viewTours: "Ver Todas las Rutas",
       benefits: [
-        "Guías locales expertos",
-        "Alojamientos de lujo",
-        "Soporte al cliente 24/7",
-        "Cancelación flexible"
-      ]
+        "Guías historiadores y arqueólogos licenciados",
+        "Máximo de 8 a 12 viajeros por salida",
+        "Entradas a museos y recintos incluidas",
+        "Condiciones flexibles de cambio y cancelación",
+      ],
     },
     cta: {
-      title: "¿Listo para tu Aventura?",
-      description: "Reserva hoy las vacaciones de tus sueños y crea recuerdos que durarán toda la vida.",
-      bookNow: "Reservar Ahora"
-    }
+      title: "Comience por la región que le inspire",
+      description:
+        "Explore nuestras salidas programadas por Estambul, Capadocia, el Egeo y la costa Licia, o consulte a nuestro equipo en Galata.",
+      bookNow: "Explorar Rutas",
+    },
   },
   tours: {
-    title: "Nuestros Tours",
-    subtitle: "Descubre Destinos Increíbles",
-    description: "Explora nuestra colección cuidadosamente curada de tours a los destinos más espectaculares del mundo.",
+    title: "Rutas e Itinerarios",
+    subtitle: "Salidas en grupos reducidos por las regiones históricas de Türkiye",
+    description:
+      "Filtre por región, duración, ritmo de caminata y tamaño del grupo.",
     duration: "Duración",
     days: "días",
     from: "Desde",
-    bookNow: "Reservar Ahora",
-    viewDetails: "Ver Detalles",
-    rating: "Calificación",
-    reviews: "reseñas"
+    bookNow: "Reservar",
+    viewDetails: "Itinerario",
+    rating: "Valoración",
+    reviews: "reseñas",
   },
   tourDetail: {
-    overview: "Resumen",
-    highlights: "Aspectos Destacados",
+    overview: "Resumen de la Ruta",
+    highlights: "Encuentros Clave",
     includes: "Qué Incluye",
     duration: "Duración",
-    groupSize: "Tamaño del Grupo",
-    people: "personas",
-    difficulty: "Dificultad",
-    rating: "Calificación",
-    reviews: "Reseñas",
-    writeReview: "Escribir una Reseña",
-    bookTour: "Reservar este Tour",
-    gallery: "Galería",
-    itinerary: "Itinerario"
+    groupSize: "Grupo",
+    people: "viajeros",
+    difficulty: "Ritmo",
+    rating: "Valoración",
+    reviews: "Notas de Viajeros",
+    writeReview: "Escribir Reseña",
+    bookTour: "Reservar esta Ruta",
+    gallery: "Archivo Visual",
+    itinerary: "Itinerario Día a Día",
   },
   reviews: {
-    title: "Reseñas de Clientes",
+    title: "Notas de Viajeros Verificados",
     writeReview: "Escribir una Reseña",
     editReview: "Editar Reseña",
     rating: "Calificación",
-    reviewTitle: "Título de la Reseña",
-    comment: "Tu Reseña",
+    reviewTitle: "Título",
+    comment: "Su Experiencia",
     submit: "Enviar Reseña",
     update: "Actualizar Reseña",
     cancel: "Cancelar",
-    noReviews: "Aún no hay reseñas",
-    beFirst: "¡Sé el primero en compartir tu experiencia!",
+    noReviews: "Aún no hay reseñas verificadas para este itinerario.",
+    beFirst: "Los viajeros que completan esta ruta pueden compartir su nota.",
     basedOn: "Basado en",
-    review: "reseña",
-    verified: "Reseña Verificada",
-    anonymous: "Usuario Anónimo"
+    review: "reseña verificada",
+    verified: "Viajero Verificado",
+    anonymous: "Viajero",
   },
   booking: {
-    title: "Reserva tu Tour",
-    subtitle: "Elige tu aventura perfecta",
-    selectTour: "Seleccionar Tour",
-    selectDate: "Seleccionar Fecha",
-    groupSize: "Tamaño del Grupo",
+    title: "Reserve su Ruta",
+    subtitle: "Seleccione su fecha de salida y datos de los viajeros",
+    selectTour: "Seleccionar Ruta",
+    selectDate: "Fecha de Salida",
+    groupSize: "Viajeros",
     adults: "Adultos",
     children: "Niños",
-    guestInfo: "Información del Huésped",
+    guestInfo: "Datos del Viajero Principal",
     fullName: "Nombre Completo",
     email: "Correo Electrónico",
     phone: "Teléfono",
     phoneNumber: "Número de Teléfono",
     subject: "Asunto",
-    specialRequests: "Solicitudes Especiales",
-    summary: "Resumen de la Reserva",
+    specialRequests: "Notas Dietéticas o de Movilidad",
+    summary: "Resumen de Reserva",
     total: "Total",
-    bookNow: "Reservar Ahora",
+    bookNow: "Confirmar Reserva",
     processing: "Procesando...",
-    bookYourTour: "Reserva tu Tour",
+    bookYourTour: "Reserve su Ruta",
     bookTour: "Reservar",
-    completeBookingSteps: "Completa tu reserva en unos simples pasos"
+    completeBookingSteps:
+      "Complete su selección de fecha y datos del viajero en unos sencillos pasos.",
   },
   myBookings: {
     title: "Mis Reservas",
     status: "Estado",
     date: "Fecha",
-    guests: "Huéspedes",
+    guests: "Viajeros",
     total: "Total",
     viewDetails: "Ver Detalles",
     writeReview: "Escribir Reseña",
     editReview: "Editar Reseña",
-    noBookings: "Aún no hay reservas",
-    startExploring: "¡Comienza a explorar nuestros tours!"
+    noBookings: "Aún no tiene reservas activas.",
+    startExploring: "Explore nuestras rutas regionales para planificar su viaje.",
   },
   contact: {
-    title: "Contáctanos",
-    subtitle: "Ponte en contacto con nosotros",
+    title: "Oficina de Planificación en Galata",
+    subtitle:
+      "Hable con nuestros especialistas en Estambul sobre salidas en grupo o rutas privadas",
     name: "Nombre",
     email: "Correo Electrónico",
     message: "Mensaje",
-    send: "Enviar Mensaje",
+    send: "Enviar Consulta",
     phone: "Teléfono",
-    address: "Dirección",
-    hours: "Horario Comercial",
-    getInTouch: "Ponte en Contacto",
-    sendMessage: "Envíanos un Mensaje",
+    address: "Oficina en Galata",
+    hours: "Horario de Atención",
+    getInTouch: "Contacto Directo",
+    sendMessage: "Enviar Consulta de Ruta",
     fullName: "Nombre Completo",
     phoneNumber: "Número de Teléfono",
-    subject: "Asunto",
-    howCanWeHelp: "¿Cómo podemos ayudarte?",
-    messageSent: "¡Mensaje enviado exitosamente!",
-    thankYou: "Gracias por contactarnos",
-    faq: "Preguntas Frecuentes",
-    faqSubtitle: "Encuentra respuestas a preguntas comunes",
-    questions: [],
-    receptionHours: "Horario de Recepción",
-    checkInTime: "Check-in: 3:00 PM",
-    checkOutTime: "Check-out: 11:00 AM"
+    subject: "Región o Ruta de Interés",
+    howCanWeHelp:
+      "Indíquenos sus fechas aproximadas, regiones de interés y número de viajeros...",
+    messageSent: "¡Consulta Enviada!",
+    thankYou:
+      "Gracias por contactarnos. Un especialista en Estambul responderá en un día hábil.",
+    faq: "Preguntas Frecuentes de Planificación",
+    faqSubtitle:
+      "Información esencial sobre grupos, entradas arqueológicas y temporadas",
+    questions: {
+      checkInOut: {
+        question: "¿De qué tamaño son los grupos?",
+        answer:
+          "Todas las salidas están limitadas a entre 8 y 12 viajeros para garantizar visitas tranquilas a capillas rupestres, museos y talleres históricos.",
+      },
+      parking: {
+        question: "¿Están incluidas las entradas a museos y yacimientos?",
+        answer:
+          "Sí. Todas las entradas programadas, incluidas las Casas en Terraza de Éfeso y la Iglesia Oscura de Göreme, están cubiertas.",
+      },
+      pets: {
+        question: "¿Cuál es la mejor época para viajar a Türkiye?",
+        answer:
+          "De abril a junio y de septiembre a noviembre ofrecen temperaturas ideales en Estambul, Capadocia, Jonia y el sureste de Anatolia.",
+      },
+      breakfast: {
+        question: "¿Se atienden requisitos dietéticos?",
+        answer:
+          "Por supuesto. La cocina regional turca cuenta con abundantes platos de verduras, legumbres y aceite de oliva. Coordinamos cada comida con antelación.",
+      },
+      transfers: {
+        question: "¿Organizan vuelos internos y traslados?",
+        answer:
+          "Los itinerarios de varios días incluyen todos los traslados terrestres regionales y asistencia con vuelos domésticos.",
+      },
+      amenities: {
+        question: "¿Se puede reservar cualquier ruta en privado?",
+        answer:
+          "Sí. Todos los itinerarios del Atlas pueden organizarse en fechas personalizadas para parejas, familias o grupos académicos.",
+      },
+    },
+    receptionHours: "Horario de Oficina",
+    checkInTime: "Lunes – Sábado: 09:00 – 19:00 TRT",
+    checkOutTime: "Asistencia al Viajero: 24/7 para rutas en curso",
   },
   amenitiesPage: {
-    title: "Nuestros Servicios",
-    subtitle: "Instalaciones de lujo para tu comodidad",
-    description: "Descubre nuestros servicios de clase mundial diseñados para hacer tu estancia inolvidable.",
-    categories: []
+    title: "Estándares de Campo",
+    subtitle: "Cómo diseñamos y guiamos rutas por Türkiye",
+    description:
+      "Contexto histórico, grupos reducidos y alojamientos con carácter.",
+    categories: [],
   },
   gallery: {
-    title: "Galería",
-    subtitle: "Explora nuestros hermosos destinos",
+    title: "Archivo Visual",
+    subtitle:
+      "Notas fotográficas de Estambul, Capadocia, Jonia, Licia y la Alta Mesopotamia",
     filters: {
-      all: "Todos",
-      tours: "Tours",
-      hotels: "Hoteles",
-      activities: "Actividades",
-      exterior: "Exterior",
-      rooms: "Habitaciones",
-      amenities: "Servicios"
-    }
+      all: "Todas las Regiones",
+      tours: "Rutas",
+      hotels: "Arquitectura",
+      activities: "Paisajes",
+      exterior: "Arquitectura y Sitios",
+      rooms: "Paisajes y Valles",
+      amenities: "Costa y Artesanía",
+    },
   },
   testimonials: {
-    title: "Lo Que Dicen Nuestros Huéspedes",
-    subtitle: "Experiencias reales de viajeros reales",
-    description: "Lee lo que nuestros clientes satisfechos tienen que decir sobre sus experiencias"
+    title: "Notas de Viajeros",
+    subtitle: "Experiencias verificadas en nuestras rutas",
+    description:
+      "Reflexiones de viajeros que recorrieron las regiones de Türkiye con nuestros historiadores",
   },
   footer: {
-    description: "Tu puerta de entrada a experiencias inolvidables y alojamientos de lujo en los destinos más hermosos del mundo.",
-    quickLinks: "Enlaces Rápidos",
-    contact: "Información de Contacto",
-    newsletter: "Boletín",
-    newsletterDesc: "Suscríbete para recibir actualizaciones sobre nuevos tours y ofertas especiales.",
-    yourEmail: "Tu correo electrónico",
+    description:
+      "Viajes arqueológicos, gastronómicos y costeros por las regiones históricas de Türkiye, diseñados desde Galata, Estambul.",
+    quickLinks: "Navegación del Atlas",
+    contact: "Oficina Galata",
+    newsletter: "Despachos Estacionales",
+    newsletterDesc:
+      "Reciba notas de campo, nuevos itinerarios regionales y fechas de salida de primavera y otoño.",
+    yourEmail: "Su correo electrónico",
     subscribe: "Suscribirse",
-    subscribeSuccess: "¡Gracias! Revisa tu correo para confirmar la suscripción.",
-    subscribeError: "No se pudo completar la suscripción. Inténtalo de nuevo.",
-    allRights: "Todos los derechos reservados."
+    subscribeSuccess:
+      "¡Gracias! Revise su correo para confirmar la suscripción.",
+    subscribeError:
+      "No se pudo completar la suscripción. Inténtelo de nuevo.",
+    allRights: "Todos los derechos reservados.",
   },
   notFound: {
     title: "Página No Encontrada",
-    description: "La página que buscas no existe.",
-    returnHome: "Volver al Inicio"
+    description: "La ruta o página que busca no existe o ha cambiado.",
+    returnHome: "Volver al Atlas",
   },
   common: {
     loading: "Cargando...",
@@ -269,6 +326,6 @@ export const es = {
     all: "Todos",
     none: "Ninguno",
     required: "Requerido",
-    optional: "Opcional"
-  }
+    optional: "Opcional",
+  },
 };

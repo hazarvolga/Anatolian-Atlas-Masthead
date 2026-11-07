@@ -32,7 +32,7 @@ services:
       DATABASE_URL: postgresql://postgres:postgres123@postgres:5432/nextstopturkey
       JWT_SECRET: your-super-secret-jwt-key-change-this-in-production
       PORT: 3001
-      FRONTEND_URL: http://localhost:5173
+      FRONTEND_URL: http://localhost:3100
     ports:
       - "3001:3001"
     depends_on:
@@ -46,23 +46,19 @@ services:
       - tours-network
     command: sh -c "npx prisma migrate deploy --schema ./prisma/schema.prisma && npm run dev"
 
-  # React Frontend (Vite)
+  # Next.js 16 App Router Frontend
   frontend:
-    build: 
+    build:
       context: .
       dockerfile: Dockerfile
     container_name: tours-frontend
     environment:
-      VITE_API_BASE_URL: http://localhost:3001
-      VITE_APP_NAME: NextStopTurkey
+      NEXT_PUBLIC_API_BASE_URL: http://localhost:3001
+      NEXT_PUBLIC_DATA_MODE: connected
     ports:
-      - "5173:5173"
-    volumes:
-      - .:/app
-      - /app/node_modules
+      - "3100:3100"
     networks:
       - tours-network
-    command: npm run dev
     depends_on:
       - backend
 

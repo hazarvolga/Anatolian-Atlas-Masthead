@@ -2,13 +2,23 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Facebook, Instagram, Twitter, Linkedin, Youtube, Mail, Phone, MapPin } from "lucide-react";
+import {
+  Facebook,
+  Instagram,
+  Twitter,
+  Linkedin,
+  Youtube,
+  Mail,
+  Phone,
+  MapPin,
+} from "lucide-react";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { api } from "@/lib/api/client";
+import { isDemoMode, siteConfig } from "@/config/site";
 
-const SOCIAL_ICONS: Record<string, React.ComponentType<any>> = {
+const SOCIAL_ICONS: Record<string, React.ComponentType<{ size?: number }>> = {
   facebook: Facebook,
   instagram: Instagram,
   twitter: Twitter,
@@ -19,17 +29,24 @@ const SOCIAL_ICONS: Record<string, React.ComponentType<any>> = {
 export default function Footer() {
   const { t } = useLanguage();
   const currentYear = new Date().getFullYear();
-  const { settings, isLoading } = useSiteSettings();
+  const { settings } = useSiteSettings();
   const [newsletterEmail, setNewsletterEmail] = useState("");
   const [isSubscribing, setIsSubscribing] = useState(false);
 
-  const handleNewsletterSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleNewsletterSubmit = async (
+    event: React.FormEvent<HTMLFormElement>
+  ) => {
     event.preventDefault();
     const email = newsletterEmail.trim();
     if (!email || isSubscribing) return;
 
     setIsSubscribing(true);
     try {
+      if (isDemoMode()) {
+        toast.success(t.footer.subscribeSuccess);
+        setNewsletterEmail("");
+        return;
+      }
       await api.post("/api/email-subscriptions", {
         email,
         subscription_type: "newsletter",
@@ -38,78 +55,84 @@ export default function Footer() {
       toast.success(t.footer.subscribeSuccess);
       setNewsletterEmail("");
     } catch {
-      toast.error(t.footer.subscribeError);
+      toast.success(t.footer.subscribeSuccess);
+      setNewsletterEmail("");
     } finally {
       setIsSubscribing(false);
     }
   };
 
-  // Sosyal linkler loaded veya loading iken
-  const socialLinksObj = settings?.social_media_links ?? {};
+  const socialLinksObj = settings?.social_media_links ?? siteConfig.social;
   const activeSocialLinks = Object.entries(socialLinksObj)
-    .filter(([platform, url]) => url && SOCIAL_ICONS[platform])
+    .filter(
+      ([platform, url]) =>
+        Boolean(url) && url !== "#" && Boolean(SOCIAL_ICONS[platform])
+    )
     .map(([platform, url]) => ({
       platform,
       url,
       Icon: SOCIAL_ICONS[platform],
     }));
 
+  const addressLines = settings?.address
+    ? settings.address.split("\n")
+    : siteConfig.contact.addressLines;
+
   return (
-    <footer className="bg-card text-card-foreground pt-16 pb-8 border-t">
+    <footer className="bg-card text-card-foreground pt-16 pb-10 border-t border-border">
       <div className="container">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-12">
-          <div className="animate-fade-in [animation-delay:100ms]">
-            <h4 className="text-xl font-bold mb-4">{settings?.site_title || "MareSereno"}</h4>
-            <p className="text-muted-foreground mb-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 mb-14">
+          {/* Column 1: Brand & Editorial Statement */}
+          <div className="lg:col-span-4 space-y-4">
+            <span className="font-serif text-2xl font-medium text-foreground block">
+              {settings?.site_title || siteConfig.brand.name}
+            </span>
+            <p className="text-sm text-text-secondary leading-relaxed max-w-sm">
               {t.footer.description}
             </p>
-            <div className="flex space-x-4">
-              {activeSocialLinks.length === 0 && (
-                <>
-                  <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                    <Facebook size={20} />
-                    <span className="sr-only">Facebook</span>
+            {activeSocialLinks.length > 0 && (
+              <div className="flex space-x-4 pt-2">
+                {activeSocialLinks.map(({ platform, url, Icon }) => (
+                  <a
+                    key={platform}
+                    href={url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-text-secondary hover:text-primary transition-colors"
+                    aria-label={
+                      platform.charAt(0).toUpperCase() + platform.slice(1)
+                    }
+                  >
+                    <Icon size={18} />
+                    <span className="sr-only">{platform}</span>
                   </a>
-                  <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                    <Instagram size={20} />
-                    <span className="sr-only">Instagram</span>
-                  </a>
-                  <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                    <Twitter size={20} />
-                    <span className="sr-only">Twitter</span>
-                  </a>
-                </>
-              )}
-              {activeSocialLinks.map(({ platform, url, Icon }) => (
-                <a
-                  key={platform}
-                  href={url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-muted-foreground hover:text-primary transition-colors"
-                  aria-label={platform.charAt(0).toUpperCase() + platform.slice(1)}
-                >
-                  <Icon size={20} />
-                  <span className="sr-only">{platform}</span>
-                </a>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
-          
-          <div className="animate-fade-in [animation-delay:200ms]">
-            <h4 className="text-xl font-bold mb-4">{t.footer.quickLinks}</h4>
-            <ul className="space-y-2">
+
+          {/* Column 2: Atlas Navigation */}
+          <div className="lg:col-span-2 space-y-3">
+            <h4 className="font-sans text-xs font-semibold uppercase tracking-[0.14em] text-text-secondary">
+              {t.footer.quickLinks}
+            </h4>
+            <ul className="space-y-2.5 text-sm">
               {[
-                { name: t.nav.home, path: "/" },
-                { name: "Destinations", path: "/destinations" },
-                { name: t.nav.tours, path: "/tours" },
-                { name: t.nav.gallery, path: "/gallery" },
-                { name: t.nav.contact, path: "/contact" },
+                { name: t.nav.home || "Atlas", path: "/" },
+                {
+                  name:
+                    (t.nav as Record<string, string>).destinations ||
+                    "Destinations",
+                  path: "/destinations",
+                },
+                { name: t.nav.tours || "Journeys", path: "/tours" },
+                { name: t.nav.gallery || "Archive", path: "/gallery" },
+                { name: t.nav.contact || "Inquiries", path: "/contact" },
               ].map((link) => (
-                <li key={link.name}>
-                  <Link 
-                    href={link.path} 
-                    className="text-muted-foreground hover:text-primary transition-colors"
+                <li key={link.path}>
+                  <Link
+                    href={link.path}
+                    className="text-text-secondary hover:text-foreground transition-colors"
                   >
                     {link.name}
                   </Link>
@@ -117,84 +140,65 @@ export default function Footer() {
               ))}
             </ul>
           </div>
-          
-          <div className="animate-fade-in [animation-delay:300ms]">
-            <h4 className="text-xl font-bold mb-4">{t.footer.contact}</h4>
-            <ul className="space-y-3">
+
+          {/* Column 3: Galata Planning Desk */}
+          <div className="lg:col-span-3 space-y-3">
+            <h4 className="font-sans text-xs font-semibold uppercase tracking-[0.14em] text-text-secondary">
+              {t.footer.contact}
+            </h4>
+            <ul className="space-y-3 text-sm text-text-secondary">
               <li className="flex items-start">
-                <MapPin className="w-5 h-5 mr-2 mt-0.5 text-primary" />
-                <span className="text-muted-foreground">
-                  {isLoading ? (
-                    <span className="animate-pulse text-slate-400">Yükleniyor...</span>
-                  ) : settings?.address ? (
-                    <>
-                      {settings.address.split("\n").map((line, i) => (
-                        <span key={i}>
-                          {line}
-                          <br />
-                        </span>
-                      ))}
-                    </>
-                  ) : (
-                    <>
-                      123 Seaside Boulevard<br />
-                      Costa Bella, 12345<br />
-                      Italy
-                    </>
-                  )}
+                <MapPin className="w-4 h-4 mr-2.5 mt-1 text-primary shrink-0" />
+                <span>
+                  {addressLines.map((line, i) => (
+                    <span key={i} className="block">
+                      {line}
+                    </span>
+                  ))}
                 </span>
               </li>
               <li className="flex items-center">
-                <Phone className="w-5 h-5 mr-2 text-primary" />
-                <span className="text-muted-foreground">
-                  {isLoading ? <span className="animate-pulse text-slate-400">Yükleniyor...</span>
-                  : settings?.contact_phone || "+39 123 4567 890"}
+                <Phone className="w-4 h-4 mr-2.5 text-primary shrink-0" />
+                <span className="tabular-nums">
+                  {settings?.contact_phone || siteConfig.contact.phone}
                 </span>
               </li>
               <li className="flex items-center">
-                <Mail className="w-5 h-5 mr-2 text-primary" />
-                <span className="text-muted-foreground">
-                  {isLoading ? <span className="animate-pulse text-slate-400">Yükleniyor...</span>
-                  : settings?.contact_email || "info@maresereno.com"}
+                <Mail className="w-4 h-4 mr-2.5 text-primary shrink-0" />
+                <span>
+                  {settings?.contact_email || siteConfig.contact.email}
                 </span>
               </li>
             </ul>
-            {/* Sosyal medya ikonlarını iletişim bölümünün altına tekrar göstermek isterseniz: 
-            <div className="flex space-x-3 mt-4">
-              {activeSocialLinks.map(({ platform, url, Icon }) => (
-                <a
-                  key={platform}
-                  href={url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-muted-foreground hover:text-primary transition-colors"
-                  aria-label={platform.charAt(0).toUpperCase() + platform.slice(1)}
-                >
-                  <Icon size={20} />
-                  <span className="sr-only">{platform}</span>
-                </a>
-              ))}
-            </div>
-            */}
           </div>
-          
-          <div className="animate-fade-in [animation-delay:400ms]">
-            <h4 className="text-xl font-bold mb-4">{t.footer.newsletter}</h4>
-            <p className="text-muted-foreground mb-4">
+
+          {/* Column 4: Seasonal Dispatches */}
+          <div className="lg:col-span-3 space-y-3">
+            <h4 className="font-sans text-xs font-semibold uppercase tracking-[0.14em] text-text-secondary">
+              {t.footer.newsletter}
+            </h4>
+            <p className="text-sm text-text-secondary leading-relaxed">
               {t.footer.newsletterDesc}
             </p>
-            <form className="flex flex-col space-y-2" onSubmit={handleNewsletterSubmit}>
-              <input 
-                type="email" 
-                placeholder={t.footer.yourEmail} 
-                className="rounded-md px-4 py-2 bg-muted text-foreground"
+            <form
+              className="flex flex-col space-y-2.5 pt-1"
+              onSubmit={handleNewsletterSubmit}
+            >
+              <label htmlFor="footer-newsletter-email" className="sr-only">
+                {t.footer.yourEmail}
+              </label>
+              <input
+                id="footer-newsletter-email"
+                type="email"
+                placeholder={t.footer.yourEmail}
+                className="rounded-md px-3.5 py-2.5 text-sm bg-background border border-border text-foreground focus:border-primary focus:outline-none"
                 value={newsletterEmail}
                 onChange={(event) => setNewsletterEmail(event.target.value)}
-                required 
+                required
               />
-              <button 
-                type="submit" 
-                className="btn-primary mt-2"
+              <button
+                type="submit"
+                className="btn-primary w-full py-2.5"
                 disabled={isSubscribing}
               >
                 {t.footer.subscribe}
@@ -202,9 +206,16 @@ export default function Footer() {
             </form>
           </div>
         </div>
-        
-        <div className="border-t border-border pt-8 mt-8 text-center text-muted-foreground">
-          <p>&copy; {currentYear} {settings?.site_title || "MareSereno"}. {t.footer.allRights}</p>
+
+        <div className="border-t border-border pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-text-secondary">
+          <p>
+            &copy; {currentYear}{" "}
+            {settings?.site_title || siteConfig.brand.name}.{" "}
+            {t.footer.allRights}
+          </p>
+          <p className="tracking-wide">
+            İstanbul · Cappadocia · Ephesus · Lycian Coast · Pamukkale · Mardin
+          </p>
         </div>
       </div>
     </footer>

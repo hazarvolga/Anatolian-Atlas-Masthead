@@ -1,120 +1,57 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { X } from "lucide-react";
+import { useEffect, useState, useCallback } from "react";
+import { X, MapPin, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { DEMO_GALLERY_ITEMS, type GalleryItem } from "@/lib/data/demo-content";
 
-// Sample gallery images
-const galleryImages = [
-  {
-    id: 1,
-    src: "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800&h=600&fit=crop",
-    alt: "Beachfront view",
-    category: "exterior"
-  },
-  {
-    id: 2,
-    src: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&h=600&fit=crop",
-    alt: "Luxury suite interior",
-    category: "rooms"
-  },
-  {
-    id: 3,
-    src: "https://images.unsplash.com/photo-1584132905271-512c958d674a?w=800&h=600&fit=crop",
-    alt: "Swimming pool",
-    category: "amenities"
-  },
-  {
-    id: 4,
-    src: "https://images.unsplash.com/photo-1512918728675-ed5a9ecdebfd?w=800&h=600&fit=crop",
-    alt: "Premium apartment",
-    category: "rooms"
-  },
-  {
-    id: 5,
-    src: "https://images.unsplash.com/photo-1445019980597-93fa8acb246c?w=800&h=600&fit=crop",
-    alt: "Beach sunset",
-    category: "exterior"
-  },
-  {
-    id: 6,
-    src: "https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=800&h=600&fit=crop",
-    alt: "Dining area",
-    category: "amenities"
-  },
-  {
-    id: 7,
-    src: "https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800&h=600&fit=crop",
-    alt: "Bathroom",
-    category: "rooms"
-  },
-  {
-    id: 8,
-    src: "https://images.unsplash.com/photo-1540518614846-7eded433c457?w=800&h=600&fit=crop",
-    alt: "Beach pathway",
-    category: "exterior"
-  },
-  {
-    id: 9,
-    src: "https://images.unsplash.com/photo-1564501049412-61c2a3083791?w=800&h=600&fit=crop",
-    alt: "Restaurant",
-    category: "amenities"
-  },
-  {
-    id: 10,
-    src: "https://images.unsplash.com/photo-1560185007-c5ca9d2c014d?w=800&h=600&fit=crop",
-    alt: "Bedroom",
-    category: "rooms"
-  },
-  {
-    id: 11,
-    src: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=800&h=600&fit=crop",
-    alt: "Beach umbrellas",
-    category: "exterior"
-  },
-  {
-    id: 12,
-    src: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=800&h=600&fit=crop",
-    alt: "Spa",
-    category: "amenities"
-  },
-];
+type FilterCategory =
+  | "all"
+  | "architecture"
+  | "landscapes"
+  | "coastline"
+  | "craft";
 
 export default function GalleryClient() {
   const { t } = useLanguage();
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
-  const [filteredImages, setFilteredImages] = useState(galleryImages);
-  const [activeFilter, setActiveFilter] = useState("all");
+  const [filteredImages, setFilteredImages] =
+    useState<GalleryItem[]>(DEMO_GALLERY_ITEMS);
+  const [activeFilter, setActiveFilter] = useState<FilterCategory>("all");
 
-  // Filter gallery images by category
-  const filterGallery = (category: string) => {
+  const filterGallery = (category: FilterCategory) => {
     setActiveFilter(category);
-
     if (category === "all") {
-      setFilteredImages(galleryImages);
+      setFilteredImages(DEMO_GALLERY_ITEMS);
     } else {
-      setFilteredImages(galleryImages.filter(img => img.category === category));
+      setFilteredImages(
+        DEMO_GALLERY_ITEMS.filter((img) => img.category === category)
+      );
     }
   };
 
-  // Handle lightbox navigation
-  const navigateGallery = (direction: "prev" | "next") => {
-    if (selectedImage === null) return;
+  const navigateGallery = useCallback(
+    (direction: "prev" | "next") => {
+      if (selectedImage === null || filteredImages.length === 0) return;
 
-    const currentIndex = filteredImages.findIndex(img => img.id === selectedImage);
-    let newIndex;
+      const currentIndex = filteredImages.findIndex(
+        (img) => img.id === selectedImage
+      );
+      const newIndex =
+        direction === "prev"
+          ? currentIndex > 0
+            ? currentIndex - 1
+            : filteredImages.length - 1
+          : currentIndex < filteredImages.length - 1
+            ? currentIndex + 1
+            : 0;
 
-    if (direction === "prev") {
-      newIndex = currentIndex > 0 ? currentIndex - 1 : filteredImages.length - 1;
-    } else {
-      newIndex = currentIndex < filteredImages.length - 1 ? currentIndex + 1 : 0;
-    }
+      setSelectedImage(filteredImages[newIndex].id);
+    },
+    [selectedImage, filteredImages]
+  );
 
-    setSelectedImage(filteredImages[newIndex].id);
-  };
-
-  // Handle keyboard navigation for lightbox
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (selectedImage === null) return;
@@ -130,118 +67,150 @@ export default function GalleryClient() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [selectedImage, filteredImages]);
+  }, [selectedImage, navigateGallery]);
+
+  const filterOptions: { key: FilterCategory; label: string }[] = [
+    { key: "all", label: t.gallery.filters.all || "All Regions" },
+    {
+      key: "architecture",
+      label: t.gallery.filters.exterior || "Architecture & Sites",
+    },
+    {
+      key: "landscapes",
+      label: t.gallery.filters.rooms || "Landscapes & Valleys",
+    },
+    { key: "coastline", label: "Coastline & Straits" },
+    { key: "craft", label: "Material Craft" },
+  ];
+
+  const activeLightboxItem = filteredImages.find(
+    (img) => img.id === selectedImage
+  );
 
   return (
-    <div className="pt-32 pb-16">
-      {/* Galeri header ve grid */}
-      <section className="relative py-20 bg-gradient-to-r from-sea-light to-white dark:from-sea-dark dark:to-background overflow-hidden">
-        <div className="container relative z-10">
-          <div className="max-w-3xl mx-auto text-center animate-fade-in">
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
-              {t.gallery.title}
-            </h1>
-            <p className="text-muted-foreground text-lg mb-6">
+    <div className="pt-28 pb-20">
+      {/* Header */}
+      <section className="py-12 md:py-16 bg-background border-b border-border">
+        <div className="container">
+          <div className="max-w-3xl space-y-3">
+            <span className="editorial-kicker block">
+              ANATOLIAN ATLAS — PHOTOGRAPHIC FIELD NOTES
+            </span>
+            <h1 className="font-serif text-foreground">{t.gallery.title}</h1>
+            <p className="text-text-secondary text-lg leading-relaxed">
               {t.gallery.subtitle}
             </p>
           </div>
         </div>
-
-        {/* Decorative elements */}
-        <div className="absolute top-0 right-0 w-1/3 h-full opacity-10">
-          <div className="absolute top-10 right-10 w-64 h-64 rounded-full bg-primary/50 blur-3xl" />
-          <div className="absolute bottom-10 right-40 w-48 h-48 rounded-full bg-sea-light blur-3xl" />
-        </div>
       </section>
 
-      {/* Gallery Filters */}
-      <section className="py-8">
+      {/* Filters & Archive Grid */}
+      <section className="py-12">
         <div className="container">
-          <div className="flex flex-wrap justify-center gap-2 mb-8 animate-fade-in">
-            {["all", "exterior", "rooms", "amenities"].map((category) => (
+          <div className="flex flex-wrap gap-2 mb-10">
+            {filterOptions.map((option) => (
               <button
-                key={category}
-                onClick={() => filterGallery(category)}
+                key={option.key}
+                type="button"
+                onClick={() => filterGallery(option.key)}
                 className={cn(
-                  "px-6 py-2 rounded-full transition-all",
-                  activeFilter === category
-                    ? "bg-primary text-white shadow-lg"
-                    : "bg-card hover:bg-muted"
+                  "px-4 py-2 rounded-md text-xs font-semibold uppercase tracking-wider transition-colors border",
+                  activeFilter === option.key
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-card text-text-secondary border-border hover:text-foreground hover:border-foreground/30"
                 )}
               >
-                {category === "all"
-                  ? t.gallery.filters.all
-                  : category === "exterior"
-                    ? t.gallery.filters.exterior
-                    : category === "rooms"
-                      ? t.gallery.filters.rooms
-                      : t.gallery.filters.amenities}
+                {option.label}
               </button>
             ))}
           </div>
 
-          {/* Gallery Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredImages.map((image, index) => (
-              <div
+              <figure
                 key={image.id}
-                className="relative overflow-hidden rounded-xl aspect-[4/3] cursor-pointer group animate-fade-in"
-                style={{ animationDelay: `${index * 50}ms` }}
+                className="group bg-card rounded-lg border border-border overflow-hidden cursor-pointer transition-shadow hover:shadow-md"
                 onClick={() => setSelectedImage(image.id)}
               >
-                <img
-                  src={image.src}
-                  alt={image.alt}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                  <p className="text-white">{image.alt}</p>
+                <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+                  <img
+                    src={image.src}
+                    alt={image.alt}
+                    className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+                  />
+                  <span className="absolute top-3 left-3 px-2 py-0.5 rounded bg-background/95 text-foreground font-mono text-[11px] font-medium border border-border/80 tabular-nums">
+                    {String(index + 1).padStart(2, "0")}
+                  </span>
                 </div>
-              </div>
+                <figcaption className="p-4 space-y-1">
+                  <div className="flex items-center justify-between text-xs text-primary font-medium">
+                    <span className="inline-flex items-center gap-1">
+                      <MapPin className="h-3.5 w-3.5" />
+                      {image.location}
+                    </span>
+                    <span className="text-text-secondary">{image.region}</span>
+                  </div>
+                  <p className="text-xs text-text-secondary line-clamp-2">
+                    {image.alt}
+                  </p>
+                </figcaption>
+              </figure>
             ))}
           </div>
         </div>
       </section>
 
       {/* Lightbox */}
-      {selectedImage !== null && (
-        <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 animate-fade-in">
+      {activeLightboxItem && (
+        <div
+          className="fixed inset-0 z-50 bg-atlas-ink/95 flex items-center justify-center p-4"
+          role="dialog"
+          aria-modal="true"
+          aria-label={activeLightboxItem.alt}
+        >
           <button
-            className="absolute top-4 right-4 text-white p-2 rounded-full hover:bg-white/10 transition-colors"
+            type="button"
+            className="absolute top-6 right-6 text-atlas-paper p-2 rounded-md hover:bg-white/10 transition-colors"
             onClick={() => setSelectedImage(null)}
+            aria-label="Close lightbox"
           >
             <X className="h-6 w-6" />
-            <span className="sr-only">Close</span>
           </button>
 
           <button
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-white p-4 rounded-full hover:bg-white/10 transition-colors"
+            type="button"
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-atlas-paper p-3 rounded-md hover:bg-white/10 transition-colors"
             onClick={() => navigateGallery("prev")}
+            aria-label="Previous photograph"
           >
-            <span className="sr-only">Previous</span>
-            <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
+            <ChevronLeft className="h-8 w-8" />
           </button>
 
-          <div className="max-w-5xl max-h-[80vh] overflow-hidden">
-            {filteredImages.find(img => img.id === selectedImage) && (
+          <figure className="max-w-4xl w-full space-y-3">
+            <div className="max-h-[75vh] overflow-hidden rounded-md flex items-center justify-center">
               <img
-                src={filteredImages.find(img => img.id === selectedImage)?.src}
-                alt={filteredImages.find(img => img.id === selectedImage)?.alt}
-                className="max-w-full max-h-[80vh] object-contain"
+                src={activeLightboxItem.src}
+                alt={activeLightboxItem.alt}
+                className="max-w-full max-h-[75vh] object-contain"
               />
-            )}
-          </div>
+            </div>
+            <figcaption className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-atlas-paper/90 px-1">
+              <span className="font-medium">
+                {activeLightboxItem.location} — {activeLightboxItem.region}
+              </span>
+              <span className="text-atlas-paper/75">
+                {activeLightboxItem.alt}
+              </span>
+            </figcaption>
+          </figure>
 
           <button
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-white p-4 rounded-full hover:bg-white/10 transition-colors"
+            type="button"
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-atlas-paper p-3 rounded-md hover:bg-white/10 transition-colors"
             onClick={() => navigateGallery("next")}
+            aria-label="Next photograph"
           >
-            <span className="sr-only">Next</span>
-            <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
+            <ChevronRight className="h-8 w-8" />
           </button>
         </div>
       )}

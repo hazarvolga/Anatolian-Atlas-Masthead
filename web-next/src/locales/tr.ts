@@ -1,255 +1,311 @@
-
 export const tr = {
   nav: {
-    home: "Ana Sayfa",
-    tours: "Turlar",
-    apartments: "Apartmanlar",
-    amenities: "Olanaklar",
-    gallery: "Galeri",
+    home: "Atlas",
+    destinations: "Bölgeler",
+    tours: "Rotalar",
+    apartments: "Rotalar",
+    amenities: "Saha Notları",
+    gallery: "Arşiv",
     contact: "İletişim",
-    bookNow: "Şimdi Rezervasyon Yap",
+    bookNow: "Rotaları Keşfet",
     signIn: "Giriş Yap",
     profile: "Profil",
     myBookings: "Rezervasyonlarım",
-    admin: "Yönetici",
-    signOut: "Çıkış Yap"
+    admin: "Yönetim Masası",
+    signOut: "Çıkış Yap",
   },
   hero: {
-    subtitle: "CENNETİ KEŞFEDİN",
-    title: "Unutulmaz Maceralar Sizi Bekliyor",
-    description: "Dünyanın en güzel destinasyonlarında nefes kesen turlar ve lüks konaklama deneyimi yaşayın.",
-    bookStay: "Konaklamanızı Rezerve Edin",
-    exploreApartments: "Turları Keşfedin",
-    scrollDown: "Aşağı Kaydırın"
+    subtitle: "ANADOLU ATLASI — KÜRATÖRLÜ BÖLGESEL ROTALAR",
+    title: "Adım adım Türkiye.",
+    description:
+      "İstanbul, Kapadokya, İyonya, Likya ve Yukarı Mezopotamya'da arkeolog ve tarihçiler eşliğinde yürüyüşler, kıyı geçişleri ve yerel mutfak rotaları.",
+    bookStay: "Rotaları İncele",
+    exploreApartments: "Bölgeleri Keşfet",
+    scrollDown: "Atlası İncele",
   },
   home: {
-    featuredTours: "Öne Çıkan Turlar",
-    featuredToursSubtitle: "En popüler destinasyonlarımızı keşfedin",
-    whyChooseUs: "Neden Bizi Seçmelisiniz",
-    whyChooseUsSubtitle: "Premium hizmetimizle farkı deneyimleyin",
-    expertGuides: "Uzman Rehberler",
-    expertGuidesDesc: "Yıllarca deneyime sahip profesyonel yerel rehberler",
-    luxuryAccommodation: "Lüks Konaklama",
-    luxuryAccommodationDesc: "Özenle seçilmiş premium otel ve tatil köylerinde kalın",
-    personalizedService: "Kişiselleştirilmiş Hizmet",
-    personalizedServiceDesc: "Tercihlerinize göre özel olarak tasarlanmış deneyimler",
-    safeTravels: "Güvenli Seyahatler",
-    safeTravelsDesc: "Güvenliğiniz ve konforunuz bizim önceliğimizdir",
+    featuredTours: "Seçili Rotalar",
+    featuredToursSubtitle:
+      "Mevsim ışığı, arkeolojik erişim ve yerel mutfak kültürü etrafında kurgulanan küçük grup yolculukları",
+    whyChooseUs: "Editöryal Yaklaşımımız",
+    whyChooseUsSubtitle:
+      "Her rota, lisanslı tarihçiler ve yerel ev sahipleriyle sahada çalışılarak hazırlanır",
+    expertGuides: "Uzman Tarihçi & Arkeologlar",
+    expertGuidesDesc:
+      "Ören yerlerini ve tarihi mahalleleri alanında uzman araştırmacı rehberlerle adımlayın",
+    luxuryAccommodation: "Mimari Miras Konaklamaları",
+    luxuryAccommodationDesc:
+      "Restore edilmiş taş konaklar, kaya odalar ve Boğaz kıyısındaki tarihi yapılarda konaklayın",
+    personalizedService: "Sindirilerek Gezilen Rotalar",
+    personalizedServiceDesc:
+      "Kalabalık tur otobüslerinden uzak, sabah erken saatli ören yeri girişleri ve dingin öğleden sonraları",
+    safeTravels: "Kusursuz Lojistik",
+    safeTravelsDesc:
+      "Özel şehirlerarası transferler, iç hat uçuş koordinasyonu ve Müzekart / müze giriş planlaması",
     amenities: {
-      title: "Olanaklarımız",
-      subtitle: "Konforunuz için premium tesisler",
-      description: "Konforunuz ve keyfiniz için tasarlanmış lüks olanakları deneyimleyin",
-      pool: "Yüzme Havuzu",
-      poolDesc: "Güzel açık havuzumuzda rahatlayın",
-      spa: "Spa & Sağlık",
-      spaDesc: "Lüks spa tedavilerimizle yenilenin",
-      restaurant: "Gurme Yemek",
-      restaurantDesc: "Dünya standartlarında mutfak deneyimi",
-      fitness: "Fitness Merkezi",
-      fitnessDesc: "Modern ekipmanlarımızla aktif kalın",
-      wifi: "Ücretsiz WiFi",
-      wifiDesc: "Tesis genelinde yüksek hızlı internet",
-      concierge: "Concierge Hizmeti",
-      conciergeDesc: "Tüm ihtiyaçlarınız için 7/24 yardım",
+      title: "Saha Standartlarımız",
+      subtitle: "NextStopTurkey rotalarını tanımlayan ilkeler",
+      description:
+        "Doğru zamanlama, uzman anlatımı ve yerel zanaatkârlarla kurulan doğrudan bağlar",
+      pool: "Likya Kıyı Geçişleri",
+      poolDesc: "Kekova ve Kaş koylarında geleneksel ahşap gulet seyirleri",
+      spa: "Termal & Hamam Kültürü",
+      spaDesc: "Tarihi Osmanlı hamamları ve Hierapolis termal kaynakları",
+      restaurant: "Yerel Mutfak Belleği",
+      restaurantDesc: "Esnaf lokantaları, zeytinyağı işlikleri ve taş fırın sofraları",
+      fitness: "Vadi & Patika Yürüyüşleri",
+      fitnessDesc: "Kapadokya tüf vadileri ve Likya Yolu'nda rehberli yürüyüşler",
+      wifi: "Saha Rehberi & Donanım",
+      wifiDesc: "Basılı rota haritaları ve kulaklıklı sessiz anlatım sistemi",
+      concierge: "Galata Planlama Masası",
+      conciergeDesc: "İlk başvurudan dönüşünüze kadar İstanbul ekibimizden doğrudan destek",
       features: {
         beachfront: {
-          title: "Sahil Kenarı Konumu",
-          description: "Tertemiz plajlara doğrudan erişim"
+          title: "Kıyı & Deniz Rotaları",
+          description: "Karayoluyla ulaşılamayan Likya koyları ve Boğaz iskeleleri",
         },
         pools: {
-          title: "Çoklu Havuzlar",
-          description: "Kapalı ve açık yüzme havuzları"
+          title: "Küçük Gruplar (Maks. 8–12 Kişi)",
+          description: "Kaya kiliseleri ve müze salonlarında dingin inceleme imkânı",
         },
         restaurant: {
-          title: "Gurme Restoran",
-          description: "Dünya standartlarında yemek deneyimi"
+          title: "Coğrafi İşaretli Sofralar",
+          description: "Mevsim hasadına dayanan özgün bölge mutfakları",
         },
         wifi: {
-          title: "Ücretsiz Yüksek Hızlı WiFi",
-          description: "Konaklamanız boyunca bağlantıda kalın"
+          title: "Doğru Saatli Müze Girişi",
+          description: "Sabah ışığı ve sakin saatler için planlanmış ziyaretler",
         },
         bar: {
-          title: "Havuz Başı Bar",
-          description: "Havuz başında serinletici içecekler"
+          title: "Zanaat Atölyeleri",
+          description: "Çömlek, dokuma ve taş ustalarının atölyelerine özel ziyaretler",
         },
         location: {
-          title: "Ayrıcalıklı Konum",
-          description: "Tüm ana cazibe merkezlerine yakın"
-        }
-      }
+          title: "Altı Özgün Coğrafi Bölge",
+          description: "Boğaziçi'nden Mezopotamya eşiğine uzanan kültür katmanları",
+        },
+      },
     },
     welcome: {
-      title: "Cennete Hoş Geldiniz",
-      subtitle: "Yolculuğunuz burada başlıyor",
-      description: "Nefes kesen destinasyonları keşfedin ve unutulmaz anılar yaratın",
-      description1: "Özenle hazırlanmış deneyimlerimizle nefes kesen destinasyonları keşfedin ve unutulmaz anılar yaratın.",
-      description2: "Lüks konaklamadan uzman rehberli turlara kadar, mükemmel kaçamak için ihtiyacınız olan her şeyi sunuyoruz.",
-      cta: "Maceranızı Başlatın",
-      learnMore: "Daha Fazla Öğrenin"
+      title: "Hızlı liste turizmi değil, coğrafi derinlik",
+      subtitle: "SAHA NOTLARI & METODOLOJİ",
+      description:
+        "Türkiye yedi farklı iklim kuşağını ve binlerce yıllık uygarlık katmanlarını aynı coğrafyada buluşturur.",
+      description1:
+        "Otoyollarda anıttan anıta koşmak yerine her seferinde tek bir bölgeye odaklanıyor; antik ticaret yollarını, kıyı patikalarını ve tarihi çarşıları yürüyüş ritminde keşfediyoruz.",
+      description2:
+        "Her program, birinci derece arkeolojik alanları yaşayan zanaat gelenekleri, bağcılık mirası ve yerel uzman sohbetleriyle bir araya getirir.",
+      cta: "Tüm Rotaları İncele",
+      learnMore: "Bölge Rehberini Oku",
     },
     booking: {
-      title: "Mükemmel Kaçamağınızı Rezerve Edin",
-      subtitle: "Özel turlarımız ve deneyimlerimiz arasından seçim yapın",
-      description: "Kapsamlı tur paketlerimiz ve kişiselleştirilmiş hizmetimizle sorunsuz rezervasyon deneyimi yaşayın.",
+      title: "Türkiye Yolculuğunuzu Planlayın",
+      subtitle: "Planlı küçük grup hareketlerinden birini seçin veya özel rota talep edin",
+      description:
+        "Gerçek zamanlı kontenjan ve anında onay ile şeffaf kişi başı fiyatlandırma.",
       quickBook: "Hızlı Rezervasyon",
-      viewTours: "Tüm Turları Görüntüle",
+      viewTours: "Tüm Rotaları Gör",
       benefits: [
-        "Uzman yerel rehberler",
-        "Lüks konaklamalar",
-        "7/24 müşteri desteği",
-        "Esnek iptal seçenekleri"
-      ]
+        "Lisanslı tarihçi ve arkeolog rehberler",
+        "Her grupta maksimum 8–12 gezgin",
+        "Tüm müze ve ören yeri girişleri dahil",
+        "Esnek iptal ve tarih değişikliği koşulları",
+      ],
     },
     cta: {
-      title: "Maceranız İçin Hazır mısınız?",
-      description: "Hayalinizdeki tatili bugün rezerve edin ve yaşam boyu sürecek anılar yaratın.",
-      bookNow: "Şimdi Rezervasyon Yap"
-    }
+      title: "Sizi çağıran coğrafyayla başlayın",
+      description:
+        "İstanbul, Kapadokya, Ege, Likya ve Güneydoğu Anadolu rotalarımızı inceleyin veya Galata planlama masamızla iletişime geçin.",
+      bookNow: "Rotaları Keşfet",
+    },
   },
   tours: {
-    title: "Turlarımız",
-    subtitle: "Muhteşem Destinasyonları Keşfedin",
-    description: "Dünyanın en muhteşem destinasyonlarına özenle hazırlanmış tur koleksiyonumuzu keşfedin.",
+    title: "Rotalar & Programlar",
+    subtitle: "Türkiye'nin tarihi bölgelerinde küçük grup kültür rotaları",
+    description:
+      "Bölge, süre, yürüyüş temposu ve grup büyüklüğüne göre filtreleyerek size uygun rotayı seçin.",
     duration: "Süre",
     days: "gün",
-    from: "Başlangıç",
-    bookNow: "Şimdi Rezervasyon Yap",
-    viewDetails: "Detayları Görüntüle",
+    from: "Kişi başı",
+    bookNow: "Rezerve Et",
+    viewDetails: "Programı Gör",
     rating: "Değerlendirme",
-    reviews: "yorum"
+    reviews: "yorum",
   },
   tourDetail: {
-    overview: "Genel Bakış",
-    highlights: "Öne Çıkanlar",
-    includes: "Dahil Olanlar",
+    overview: "Rota Özeti",
+    highlights: "Öne Çıkan Duraklar",
+    includes: "Programa Dahil Olanlar",
     duration: "Süre",
-    groupSize: "Grup Büyüklüğü",
+    groupSize: "Grup Kontenjanı",
     people: "kişi",
-    difficulty: "Zorluk",
+    difficulty: "Tempo",
     rating: "Değerlendirme",
-    reviews: "Yorumlar",
-    writeReview: "Yorum Yazın",
-    bookTour: "Bu Turu Rezerve Et",
-    gallery: "Galeri",
-    itinerary: "Güzergah"
+    reviews: "Gezgin Notları",
+    writeReview: "Değerlendirme Yaz",
+    bookTour: "Bu Rotayı Rezerve Et",
+    gallery: "Görsel Arşiv",
+    itinerary: "Gün Gün Program",
   },
   reviews: {
-    title: "Müşteri Yorumları",
-    writeReview: "Yorum Yazın",
+    title: "Doğrulanmış Gezgin Notları",
+    writeReview: "Yorum Yaz",
     editReview: "Yorumu Düzenle",
-    rating: "Değerlendirme",
-    reviewTitle: "Yorum Başlığı",
-    comment: "Yorumunuz",
-    submit: "Yorumu Gönder",
-    update: "Yorumu Güncelle",
+    rating: "Puan",
+    reviewTitle: "Başlık",
+    comment: "Deneyiminiz",
+    submit: "Gönder",
+    update: "Güncelle",
     cancel: "İptal",
-    noReviews: "Henüz yorum yok",
-    beFirst: "Deneyiminizi paylaşan ilk kişi olun!",
-    basedOn: "Temel alınan",
-    review: "yorum",
-    verified: "Doğrulanmış Yorum",
-    anonymous: "Anonim Kullanıcı"
+    noReviews: "Bu rota için henüz doğrulanmış gezgin notu bulunmuyor.",
+    beFirst: "Rotayı tamamlayan gezginler doğrulanmış yorum bırakabilir.",
+    basedOn: "Toplam",
+    review: "doğrulanmış yorum",
+    verified: "Doğrulanmış Gezgin",
+    anonymous: "Gezgin",
   },
   booking: {
-    title: "Turunuzu Rezerve Edin",
-    subtitle: "Mükemmel maceranızı seçin",
-    selectTour: "Tur Seçin",
-    selectDate: "Tarih Seçin",
-    groupSize: "Grup Büyüklüğü",
-    adults: "Yetişkinler",
-    children: "Çocuklar",
-    guestInfo: "Misafir Bilgileri",
+    title: "Rotanızı Rezerve Edin",
+    subtitle: "Hareket tarihini ve katılımcı bilgilerini seçin",
+    selectTour: "Rota Seçin",
+    selectDate: "Hareket Tarihi",
+    groupSize: "Katılımcı Sayısı",
+    adults: "Yetişkin",
+    children: "Çocuk",
+    guestInfo: "İletişim & Katılımcı Bilgileri",
     fullName: "Ad Soyad",
-    email: "E-posta",
+    email: "E-posta Adresi",
     phone: "Telefon",
     phoneNumber: "Telefon Numarası",
     subject: "Konu",
-    specialRequests: "Özel İstekler",
+    specialRequests: "Beslenme veya Yürüyüş Notları",
     summary: "Rezervasyon Özeti",
     total: "Toplam",
-    bookNow: "Şimdi Rezervasyon Yap",
+    bookNow: "Rezervasyonu Tamamla",
     processing: "İşleniyor...",
-    bookYourTour: "Turunuzu Rezerve Edin",
-    bookTour: "Rezerve Et",
-    completeBookingSteps: "Rezervasyonunuzu birkaç basit adımda tamamlayın"
+    bookYourTour: "Rotanızı Rezerve Edin",
+    bookTour: "Rezervasyon:",
+    completeBookingSteps:
+      "Tarih ve katılımcı bilgilerinizi birkaç adımda tamamlayın.",
   },
   myBookings: {
     title: "Rezervasyonlarım",
     status: "Durum",
     date: "Tarih",
-    guests: "Misafirler",
+    guests: "Katılımcılar",
     total: "Toplam",
-    viewDetails: "Detayları Görüntüle",
+    viewDetails: "Detayları Gör",
     writeReview: "Yorum Yaz",
     editReview: "Yorumu Düzenle",
-    noBookings: "Henüz rezervasyon yok",
-    startExploring: "Turlarımızı keşfetmeye başlayın!"
+    noBookings: "Henüz aktif bir rezervasyonunuz bulunmuyor.",
+    startExploring: "Yeni yolculuğunuzu planlamak için rotalarımızı inceleyin.",
   },
   contact: {
-    title: "İletişime Geçin",
-    subtitle: "Bizimle iletişime geçin",
-    name: "Ad",
+    title: "Galata Planlama Masası",
+    subtitle:
+      "Planlı grup hareketleri veya özel rota tasarımları için İstanbul ekibimizle iletişime geçin",
+    name: "Ad Soyad",
     email: "E-posta",
-    message: "Mesaj",
-    send: "Mesaj Gönder",
+    message: "Mesajınız",
+    send: "Talebi Gönder",
     phone: "Telefon",
-    address: "Adres",
+    address: "Galata Ofisi",
     hours: "Çalışma Saatleri",
-    getInTouch: "İletişime Geçin",
-    sendMessage: "Bize Mesaj Gönderin",
+    getInTouch: "Doğrudan İletişim",
+    sendMessage: "Rota Talebi Gönderin",
     fullName: "Ad Soyad",
     phoneNumber: "Telefon Numarası",
-    subject: "Konu",
-    howCanWeHelp: "Size nasıl yardımcı olabiliriz?",
-    messageSent: "Mesaj başarıyla gönderildi!",
-    thankYou: "Bizimle iletişime geçtiğiniz için teşekkürler",
-    faq: "Sık Sorulan Sorular",
-    faqSubtitle: "Yaygın soruların cevaplarını bulun",
-    questions: [],
-    receptionHours: "Resepsiyon Saatleri",
-    checkInTime: "Giriş: 15:00",
-    checkOutTime: "Çıkış: 11:00"
+    subject: "İlgilendiğiniz Bölge veya Rota",
+    howCanWeHelp:
+      "Planladığınız seyahat tarihlerini, ilgilendiğiniz bölgeleri ve kişi sayısını paylaşabilirsiniz...",
+    messageSent: "Talebiniz Alındı",
+    thankYou:
+      "Teşekkür ederiz. İstanbul rota planlama ekibimiz bir iş günü içinde size dönüş yapacaktır.",
+    faq: "Sıkça Sorulan Sorular",
+    faqSubtitle:
+      "Grup büyüklükleri, müze girişleri ve mevsimsel planlama hakkında temel bilgiler",
+    questions: {
+      checkInOut: {
+        question: "Turlarınızda grup kontenjanı kaç kişidir?",
+        answer:
+          "Planlı rotalarımızın tamamı 8 ile 12 katılımcıyla sınırlandırılır; böylece kaya kiliseleri, müze salonları ve tarihi atölyelerde kalabalık oluşturmadan derinlikli inceleme yapılır.",
+      },
+      parking: {
+        question: "Müze ve ören yeri biletleri fiyata dahil mi?",
+        answer:
+          "Evet. Programda belirtilen tüm müzeler, Efes Yamaç Evler ve Göreme Karanlık Kilise gibi özel koruma alanları ile lisanslı uzman rehberlik dahildir.",
+      },
+      pets: {
+        question: "Türkiye rotaları için en uygun mevsim hangisidir?",
+        answer:
+          "Nisan–Haziran ve Eylül–Kasım ayları İstanbul, Kapadokya, İyonya ve Güneydoğu Anadolu yürüyüşleri için en ideal ışık ve hava koşullarını sunar. Likya kıyıları Mayıs–Ekim arası uygundur.",
+      },
+      breakfast: {
+        question: "Özel beslenme tercihlerine uyum sağlanıyor mu?",
+        answer:
+          "Evet. Anadolu mutfağı zeytinyağlılar, bakliyatlar ve sebze yemekleri açısından son derece zengindir. Rezervasyon sırasında belirttiğiniz tüm hassasiyetler duraklarımızla önceden paylaşılır.",
+      },
+      transfers: {
+        question: "İç hat uçuşları ve havalimanı transferleri sağlanıyor mu?",
+        answer:
+          "Çok günlü turlarımızda bölge içi tüm özel araç transferleri dahildir. Ayrıca İstanbul, Kayseri, Nevşehir, İzmir, Dalaman ve Mardin uçuşlarınız için koordinasyon desteği sağlıyoruz.",
+      },
+      amenities: {
+        question: "Rotalar özel grup veya aile için kapatılabilir mi?",
+        answer:
+          "Evet. Atlastaki tüm rotalar, istediğiniz tarihlerde size özel rehber ve araçla özel (private) olarak gerçekleştirilebilir.",
+      },
+    },
+    receptionHours: "Ofis Saatleri",
+    checkInTime: "Pazartesi – Cumartesi: 09:00 – 19:00",
+    checkOutTime: "Misafir Destek Hattı: Aktif turlar için 7/24",
   },
   amenitiesPage: {
-    title: "Olanaklarımız",
-    subtitle: "Konforunuz için lüks tesisler",
-    description: "Konaklamanızı unutulmaz kılmak için tasarlanmış dünya standartlarındaki olanaklarımızı keşfedin.",
-    categories: []
+    title: "Saha Standartları",
+    subtitle: "Türkiye genelinde rotalarımızı nasıl tasarlıyor ve yönetiyoruz",
+    description:
+      "Uzman rehberlik, küçük gruplar ve yerel mimari konaklamalar.",
+    categories: [],
   },
   gallery: {
-    title: "Galeri",
-    subtitle: "Güzel destinasyonlarımızı keşfedin",
+    title: "Görsel Arşiv",
+    subtitle:
+      "İstanbul, Kapadokya, İyonya, Likya ve Yukarı Mezopotamya'dan fotoğrafik saha kayıtları",
     filters: {
-      all: "Tümü",
-      tours: "Turlar",
-      hotels: "Oteller",
-      activities: "Aktiviteler",
-      exterior: "Dış Mekan",
-      rooms: "Odalar",
-      amenities: "Olanaklar"
-    }
+      all: "Tüm Bölgeler",
+      tours: "Rotalar",
+      hotels: "Mimari",
+      activities: "Coğrafya",
+      exterior: "Mimari & Ören Yerleri",
+      rooms: "Vadiler & Coğrafya",
+      amenities: "Kıyılar & Zanaat",
+    },
   },
   testimonials: {
-    title: "Misafirlerimiz Ne Diyor",
-    subtitle: "Gerçek gezginlerden gerçek deneyimler",
-    description: "Memnun müşterilerimizin deneyimleri hakkında söylediklerini okuyun"
+    title: "Gezgin Saha Notları",
+    subtitle: "Tamamlanan rotalardan doğrulanmış izlenimler",
+    description:
+      "Tarihçi ve rehberlerimizle Türkiye'nin bölgelerini keşfeden gezginlerin notları",
   },
   footer: {
-    description: "Dünyanın en güzel destinasyonlarında unutulmaz deneyimler ve lüks konaklamalara açılan kapınız.",
-    quickLinks: "Hızlı Bağlantılar",
-    contact: "İletişim Bilgileri",
-    newsletter: "Bülten",
-    newsletterDesc: "Yeni turlar ve özel teklifler hakkında güncellemeler almak için abone olun.",
+    description:
+      "Türkiye'nin tarihi coğrafyalarında arkeoloji, gastronomi ve kıyı rotaları — Galata, İstanbul'dan küratörlükle hazırlanmaktadır.",
+    quickLinks: "Atlas Dizin",
+    contact: "Galata Ofisi",
+    newsletter: "Mevsimlik Saha Notları",
+    newsletterDesc:
+      "Yeni bölge rotaları, ilkbahar/sonbahar hareket tarihleri ve saha yazıları için bültenimize katılın.",
     yourEmail: "E-posta adresiniz",
     subscribe: "Abone Ol",
-    subscribeSuccess: "Teşekkürler! Aboneliğinizi onaylamak için e-postanızı kontrol edin.",
-    subscribeError: "Abonelik başarısız oldu. Lütfen tekrar deneyin.",
-    allRights: "Tüm hakları saklıdır."
+    subscribeSuccess:
+      "Teşekkürler! Aboneliğinizi onaylamak için e-posta kutunuzu kontrol edin.",
+    subscribeError: "Abonelik işlemi tamamlanamadı. Lütfen tekrar deneyin.",
+    allRights: "Tüm hakları saklıdır.",
   },
   notFound: {
     title: "Sayfa Bulunamadı",
-    description: "Aradığınız sayfa mevcut değil.",
-    returnHome: "Ana Sayfaya Dön"
+    description: "Aradığınız rota veya sayfa taşınmış ya da mevcut değil.",
+    returnHome: "Atlasa Dön",
   },
   common: {
     loading: "Yükleniyor...",
@@ -269,6 +325,6 @@ export const tr = {
     all: "Tümü",
     none: "Hiçbiri",
     required: "Zorunlu",
-    optional: "İsteğe Bağlı"
-  }
+    optional: "İsteğe Bağlı",
+  },
 };

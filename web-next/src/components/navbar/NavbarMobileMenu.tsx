@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Calendar, Settings, User, LogOut, Compass, Sparkles } from "lucide-react";
+import { Calendar, Settings, User, LogOut, Compass, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -9,23 +9,30 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useIsAdmin } from "@/hooks/useUserRole";
 import ThemeToggle from "@/components/ThemeToggle";
 import LanguageSelector from "@/components/LanguageSelector";
+import { siteConfig } from "@/config/site";
 
 interface NavbarMobileMenuProps {
   mobileMenuOpen: boolean;
   setMobileMenuOpen: (open: boolean) => void;
 }
 
-export default function NavbarMobileMenu({ mobileMenuOpen, setMobileMenuOpen }: NavbarMobileMenuProps) {
+export default function NavbarMobileMenu({
+  mobileMenuOpen,
+  setMobileMenuOpen,
+}: NavbarMobileMenuProps) {
   const { t } = useLanguage();
   const { user, signOut } = useAuth();
   const isAdmin = useIsAdmin();
-  
+
   const navLinks = [
-    { name: t.nav.home, path: "/", icon: null },
-    { name: "Destinations", path: "/destinations", icon: Compass },
-    { name: t.nav.tours, path: "/tours", icon: null },
-    { name: t.nav.gallery, path: "/gallery", icon: null },
-    { name: t.nav.contact, path: "/contact", icon: null }
+    { name: t.nav.home || "Atlas", path: "/" },
+    {
+      name: (t.nav as Record<string, string>).destinations || "Destinations",
+      path: "/destinations",
+    },
+    { name: t.nav.tours || "Journeys", path: "/tours" },
+    { name: t.nav.gallery || "Archive", path: "/gallery" },
+    { name: t.nav.contact || "Inquiries", path: "/contact" },
   ];
 
   const handleSignOut = async () => {
@@ -34,119 +41,126 @@ export default function NavbarMobileMenu({ mobileMenuOpen, setMobileMenuOpen }: 
   };
 
   return (
-    <div className={cn(
-      "fixed inset-0 z-40 lg:hidden transition-all duration-500 ease-out",
-      mobileMenuOpen ? "opacity-100 visible" : "opacity-0 invisible"
-    )}>
-      <div 
-        className={cn(
-          "absolute inset-0 bg-black/40 backdrop-blur-sm transition-all duration-500",
-          mobileMenuOpen ? "opacity-100" : "opacity-0"
-        )} 
-        onClick={() => setMobileMenuOpen(false)} 
+    <div
+      className={cn(
+        "fixed inset-0 z-50 lg:hidden transition-opacity duration-200",
+        mobileMenuOpen
+          ? "opacity-100 pointer-events-auto"
+          : "opacity-0 pointer-events-none"
+      )}
+      aria-hidden={!mobileMenuOpen}
+    >
+      <div
+        className="absolute inset-0 bg-foreground/40 backdrop-blur-xs"
+        onClick={() => setMobileMenuOpen(false)}
       />
-      <div className={cn(
-        "absolute inset-y-0 right-0 w-96 max-w-[90vw] bg-background/95 backdrop-blur-xl border-l border-border/20 p-6 transition-all duration-500 ease-out shadow-2xl",
-        mobileMenuOpen ? "translate-x-0" : "translate-x-full"
-      )}>
+      <div
+        className={cn(
+          "absolute inset-y-0 right-0 w-80 max-w-[88vw] bg-background border-l border-border p-6 transition-transform duration-200 shadow-xl",
+          mobileMenuOpen ? "translate-x-0" : "translate-x-full"
+        )}
+      >
         <div className="flex flex-col h-full">
           {/* Mobile Header */}
-          <div className="flex justify-between items-center mb-6 pb-4 border-b border-border/20">
-            <div className="flex items-center space-x-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-accent-vibrant to-accent-coral rounded-xl flex items-center justify-center shadow-lg">
-                <Compass className="h-6 w-6 text-white" />
+          <div className="flex justify-between items-center mb-6 pb-4 border-b border-border">
+            <div className="flex items-center space-x-3">
+              <div className="w-8 h-8 bg-foreground text-background rounded-md flex items-center justify-center">
+                <Compass className="h-4 w-4" />
               </div>
               <div>
-                <h2 className="font-bold text-xl bg-gradient-to-r from-accent-vibrant to-accent-coral bg-clip-text text-transparent">
-                  Mare Sereno
-                </h2>
-                <p className="text-xs text-text-tertiary">Premium Travel</p>
+                <span className="font-serif font-medium text-lg text-foreground block leading-none">
+                  {siteConfig.brand.name}
+                </span>
+                <span className="text-[11px] uppercase tracking-wider text-text-secondary">
+                  {siteConfig.brand.tagline}
+                </span>
               </div>
             </div>
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(false)}
+              className="p-2 rounded-md text-text-secondary hover:text-foreground hover:bg-muted"
+              aria-label="Close navigation menu"
+            >
+              <X className="h-5 w-5" />
+            </button>
           </div>
 
-          {/* Mobile Top Bar Controls */}
-          <div className="flex items-center justify-between mb-6 p-4 bg-surface-elevated/50 rounded-xl border border-border/30">
-            <div className="flex items-center space-x-4">
-              <LanguageSelector />
-              <div className="w-px h-6 bg-border/30" />
-              <ThemeToggle />
-            </div>
+          {/* Language & Theme */}
+          <div className="flex items-center justify-between mb-6 p-3 bg-card rounded-md border border-border">
+            <LanguageSelector />
+            <ThemeToggle />
           </div>
-          
-          {/* Mobile Navigation */}
-          <nav className="flex-1 space-y-2">
-            {navLinks.map(link => (
-              <Link 
-                key={link.name}
-                href={link.path} 
-                className="flex items-center space-x-4 px-4 py-4 rounded-xl hover:bg-surface-elevated hover:text-accent-vibrant transition-all duration-300 group"
+
+          {/* Mobile Navigation Links */}
+          <nav className="flex-1 space-y-1" aria-label="Mobile navigation">
+            {navLinks.map((link) => (
+              <Link
+                key={link.path}
+                href={link.path}
+                className="flex items-center justify-between px-3 py-3 rounded-md text-foreground hover:bg-muted font-medium transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                {link.icon && <link.icon className="h-5 w-5 group-hover:text-accent-vibrant transition-colors" />}
-                <span className="font-medium">{link.name}</span>
-                <div className="ml-auto w-2 h-2 bg-accent-vibrant/20 rounded-full group-hover:bg-accent-vibrant transition-colors" />
+                <span>{link.name}</span>
               </Link>
             ))}
-            
+
             {user && (
               <>
-                <div className="w-full h-px bg-border/20 my-4" />
-                <Link 
-                  href="/my-reservations" 
-                  className="flex items-center space-x-4 px-4 py-4 rounded-xl hover:bg-surface-elevated hover:text-accent-vibrant transition-all duration-300 group"
+                <div className="w-full h-px bg-border my-3" />
+                <Link
+                  href="/my-reservations"
+                  className="flex items-center space-x-3 px-3 py-3 rounded-md text-foreground hover:bg-muted font-medium"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  <Calendar className="h-5 w-5 group-hover:text-accent-vibrant transition-colors" />
-                  <span className="font-medium">My Bookings</span>
+                  <Calendar className="h-4 w-4 text-primary" />
+                  <span>{t.nav.myBookings || "My Reservations"}</span>
                 </Link>
                 {isAdmin && (
-                  <Link 
-                    href="/admin" 
-                    className="flex items-center space-x-4 px-4 py-4 rounded-xl hover:bg-surface-elevated hover:text-accent-emerald transition-all duration-300 group"
+                  <Link
+                    href="/admin"
+                    className="flex items-center space-x-3 px-3 py-3 rounded-md text-foreground hover:bg-muted font-medium"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <Settings className="h-5 w-5 group-hover:text-accent-emerald transition-colors" />
-                    <span className="font-medium">Admin Panel</span>
+                    <Settings className="h-4 w-4 text-primary" />
+                    <span>{t.nav.admin || "Editorial Desk"}</span>
                   </Link>
                 )}
               </>
             )}
           </nav>
-          
+
           {/* Mobile Footer */}
-          <div className="pt-6 border-t border-border/20 space-y-4">
+          <div className="pt-5 border-t border-border space-y-3">
             {user ? (
               <>
-                <div className="flex items-center space-x-4 p-4 bg-surface-elevated rounded-xl border border-border/30">
-                  <div className="w-3 h-3 bg-accent-emerald rounded-full animate-pulse" />
-                  <User className="h-5 w-5 text-accent-vibrant" />
-                  <div className="flex-1">
-                    <span className="text-sm font-medium block truncate">{user.email}</span>
-                    <span className="text-xs text-text-tertiary">Online</span>
-                  </div>
+                <div className="flex items-center space-x-3 p-3 bg-card rounded-md border border-border">
+                  <User className="h-4 w-4 text-primary shrink-0" />
+                  <span className="text-xs font-medium truncate">
+                    {user.email}
+                  </span>
                 </div>
-                <Button 
-                  onClick={handleSignOut} 
-                  variant="outline" 
-                  className="w-full rounded-xl hover:bg-destructive/10 hover:text-destructive hover:border-destructive/50 h-12"
+                <Button
+                  onClick={handleSignOut}
+                  variant="outline"
+                  className="w-full h-10"
                 >
-                  <LogOut className="h-4 w-4 mr-3" />
-                  Sign Out
+                  <LogOut className="h-4 w-4 mr-2" />
+                  {t.nav.signOut || "Sign Out"}
                 </Button>
               </>
             ) : (
-              <div className="space-y-3">
-                <Button asChild variant="outline" className="w-full rounded-xl h-12 hover:bg-accent-vibrant/10 hover:text-accent-vibrant hover:border-accent-vibrant/50">
+              <div className="space-y-2.5">
+                <Button asChild variant="outline" className="w-full h-10">
                   <Link href="/auth" onClick={() => setMobileMenuOpen(false)}>
-                    <User className="h-4 w-4 mr-3" />
-                    Login
+                    <User className="h-4 w-4 mr-2" />
+                    {t.nav.signIn || "Sign In"}
                   </Link>
                 </Button>
-                <Button asChild className="w-full btn-primary h-12 shadow-lg">
-                  <Link href="/booking" onClick={() => setMobileMenuOpen(false)}>
-                    <Calendar className="h-4 w-4 mr-3" />
-                    {t.nav.bookNow}
+                <Button asChild className="w-full btn-primary h-10">
+                  <Link href="/tours" onClick={() => setMobileMenuOpen(false)}>
+                    <Calendar className="h-4 w-4 mr-2" />
+                    {t.nav.bookNow || "Explore Tours"}
                   </Link>
                 </Button>
               </div>

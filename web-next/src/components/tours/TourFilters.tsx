@@ -1,7 +1,12 @@
 "use client";
 
-
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Button } from "@/components/ui/button";
 
@@ -39,23 +44,26 @@ export default function TourFilters({
   destinations,
   filteredCount,
   totalCount,
-  onResetFilters
+  onResetFilters,
 }: TourFiltersProps) {
   return (
-    <section className="py-8 border-b">
+    <section className="py-8 border-b border-border bg-card">
       <div className="container">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 animate-fade-in">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
           {/* Destination Filter */}
           <div>
-            <label className="block text-sm font-medium mb-2">
-              Destinasyon
+            <label className="block text-xs font-semibold uppercase tracking-wider text-text-secondary mb-2">
+              Region / Destination
             </label>
-            <Select value={destinationFilter} onValueChange={setDestinationFilter}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Tüm destinasyonlar" />
+            <Select
+              value={destinationFilter}
+              onValueChange={setDestinationFilter}
+            >
+              <SelectTrigger className="w-full bg-background">
+                <SelectValue placeholder="All Regions" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Tüm destinasyonlar</SelectItem>
+                <SelectItem value="all">All Regions</SelectItem>
                 {destinations.map((destination) => (
                   <SelectItem key={destination.id} value={destination.id}>
                     {destination.name}
@@ -67,64 +75,70 @@ export default function TourFilters({
 
           {/* Group Size Filter */}
           <div>
-            <label className="block text-sm font-medium mb-2">
-              Group Size
+            <label className="block text-xs font-semibold uppercase tracking-wider text-text-secondary mb-2">
+              Group Capacity
             </label>
             <Select value={groupSizeFilter} onValueChange={setGroupSizeFilter}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Any size" />
+              <SelectTrigger className="w-full bg-background">
+                <SelectValue placeholder="Any group size" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Any size</SelectItem>
-                <SelectItem value="8">Small (8+)</SelectItem>
-                <SelectItem value="12">Medium (12+)</SelectItem>
-                <SelectItem value="15">Large (15+)</SelectItem>
+                <SelectItem value="all">Any group size</SelectItem>
+                <SelectItem value="8">Up to 8+ travelers</SelectItem>
+                <SelectItem value="10">Up to 10+ travelers</SelectItem>
+                <SelectItem value="12">Up to 12+ travelers</SelectItem>
               </SelectContent>
             </Select>
           </div>
-          
+
           {/* Difficulty Filter */}
           <div>
-            <label className="block text-sm font-medium mb-2">
-              Difficulty
+            <label className="block text-xs font-semibold uppercase tracking-wider text-text-secondary mb-2">
+              Walking Pace
             </label>
-            <Select value={difficultyFilter} onValueChange={setDifficultyFilter}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder="Any difficulty" />
+            <Select
+              value={difficultyFilter}
+              onValueChange={setDifficultyFilter}
+            >
+              <SelectTrigger className="w-full bg-background">
+                <SelectValue placeholder="Any pace" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Any difficulty</SelectItem>
-                <SelectItem value="easy">Easy</SelectItem>
-                <SelectItem value="moderate">Moderate</SelectItem>
-                <SelectItem value="challenging">Challenging</SelectItem>
+                <SelectItem value="all">Any pace</SelectItem>
+                <SelectItem value="easy">Easy — Urban & Cultural</SelectItem>
+                <SelectItem value="moderate">
+                  Moderate — Valley & Coastal
+                </SelectItem>
+                <SelectItem value="challenging">
+                  Challenging — Ridge Trails
+                </SelectItem>
               </SelectContent>
             </Select>
           </div>
-          
+
           {/* Price Range Filter */}
           <div>
-            <label className="block text-sm font-medium mb-2">
-              Price Range: €{priceRange[0]} - €{priceRange[1]}
+            <label className="block text-xs font-semibold uppercase tracking-wider text-text-secondary mb-2 tabular-nums">
+              Price Range: €{priceRange[0]} – €{priceRange[1]}
             </label>
             <Slider
               min={0}
               max={maxPrice}
-              step={50}
+              step={25}
               value={priceRange}
               onValueChange={setPriceRange}
               className="my-4"
             />
           </div>
         </div>
-        
-        <div className="flex justify-between items-center mt-6 animate-fade-in [animation-delay:200ms]">
-          <p className="text-muted-foreground">
-            Showing {filteredCount} of {totalCount} tours
+
+        <div className="flex justify-between items-center mt-6 pt-4 border-t border-border/60 text-sm">
+          <p className="text-text-secondary tabular-nums">
+            Showing <strong className="text-foreground">{filteredCount}</strong>{" "}
+            of <strong className="text-foreground">{totalCount}</strong>{" "}
+            journeys
           </p>
-          <Button 
-            variant="outline" 
-            onClick={onResetFilters}
-          >
+          <Button variant="outline" size="sm" onClick={onResetFilters}>
             Reset Filters
           </Button>
         </div>

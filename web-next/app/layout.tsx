@@ -17,11 +17,11 @@ const sourceSans = Source_Sans_3({
 
 export const metadata: Metadata = {
   title: {
-    default: "NextStopTurkey",
+    default: "NextStopTurkey — Anatolian Atlas & Regional Journeys",
     template: "%s | NextStopTurkey",
   },
   description:
-    "Experience breathtaking tours and luxury accommodations in the most beautiful destinations around the world.",
+    "Small-group archaeological, culinary, and coastal journeys across İstanbul, Cappadocia, Ephesus, the Lycian Coast, Pamukkale, and Southeastern Anatolia.",
 };
 
 export default function RootLayout({

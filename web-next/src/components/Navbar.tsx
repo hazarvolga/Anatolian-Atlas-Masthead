@@ -1,6 +1,5 @@
 "use client";
 
-
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import TopBar from "./navbar/TopBar";
@@ -11,26 +10,22 @@ export default function Navbar() {
 
   useEffect(() => {
     const handleScroll = () => {
-      const isScrolled = window.scrollY > 20;
-      if (isScrolled !== scrolled) {
-        setScrolled(isScrolled);
-      }
+      setScrolled(window.scrollY > 12);
     };
-    window.addEventListener("scroll", handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [scrolled]);
-  
+  }, []);
+
   return (
-    <header className={cn(
-      "fixed top-0 left-0 right-0 z-50 transition-all duration-700 ease-out",
-      scrolled 
-        ? "glass-navbar shadow-2xl shadow-accent-vibrant/5 border-b border-border/10" 
-        : "bg-transparent"
-    )}>
-      {/* Top Bar - Language, Theme, User Actions */}
+    <header
+      className={cn(
+        "fixed top-0 left-0 right-0 z-50 transition-colors duration-200 border-b",
+        scrolled
+          ? "bg-background/95 backdrop-blur-md border-border shadow-sm"
+          : "bg-background/90 backdrop-blur-sm border-border/70"
+      )}
+    >
       <TopBar />
-      
-      {/* Main Navigation - Logo, Menu */}
       <MainNavigation />
     </header>
   );

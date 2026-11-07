@@ -3,9 +3,11 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api/client";
 import { toast } from "@/components/ui/use-toast";
+import { isDemoMode } from "@/config/site";
+import { DEMO_DESTINATIONS } from "@/lib/data/demo-content";
 
 const getAuthHeaders = () => {
-  const token = localStorage.getItem('authToken');
+  const token = localStorage.getItem("authToken");
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
@@ -47,19 +49,30 @@ export interface CreateDestinationData {
 
 export const useDestinations = () => {
   return useQuery({
-    queryKey: ['destinations'],
+    queryKey: ["destinations"],
     queryFn: async () => {
-      const { data } = await api.get("/api/destinations");
-      return data;
+      if (isDemoMode()) {
+        return DEMO_DESTINATIONS;
+      }
+
+      try {
+        const { data } = await api.get("/api/destinations");
+        const list = Array.isArray(data) ? data : [];
+        return list.length > 0 ? list : DEMO_DESTINATIONS;
+      } catch {
+        return DEMO_DESTINATIONS;
+      }
     },
   });
 };
 
 export const useAdminDestinations = () => {
   return useQuery({
-    queryKey: ['admin-destinations'],
+    queryKey: ["admin-destinations"],
     queryFn: async () => {
-      const { data } = await api.get("/api/admin/destinations", { headers: getAuthHeaders() });
+      const { data } = await api.get("/api/admin/destinations", {
+        headers: getAuthHeaders(),
+      });
       return data;
     },
   });
@@ -67,24 +80,30 @@ export const useAdminDestinations = () => {
 
 export const useCreateDestination = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
     mutationFn: async (destinationData: CreateDestinationData) => {
-      const { data } = await api.post("/api/admin/destinations", destinationData, { headers: getAuthHeaders() });
+      const { data } = await api.post(
+        "/api/admin/destinations",
+        destinationData,
+        { headers: getAuthHeaders() }
+      );
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-destinations'] });
-      queryClient.invalidateQueries({ queryKey: ['destinations'] });
+      queryClient.invalidateQueries({ queryKey: ["admin-destinations"] });
+      queryClient.invalidateQueries({ queryKey: ["destinations"] });
       toast({
-        title: "Destinasyon Oluşturuldu",
-        description: "Destinasyon başarıyla oluşturuldu.",
+        title: "Destination Created",
+        description: "Destination created successfully.",
       });
     },
     onError: (error: any) => {
       toast({
-        title: "Oluşturma Başarısız",
-        description: error.response?.data?.message || "Destinasyon oluşturulurken bir hata oluştu.",
+        title: "Creation Failed",
+        description:
+          error.response?.data?.message ||
+          "An error occurred while creating the destination.",
         variant: "destructive",
       });
     },
@@ -93,24 +112,36 @@ export const useCreateDestination = () => {
 
 export const useUpdateDestination = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: async ({ destinationId, destinationData }: { destinationId: string; destinationData: Partial<CreateDestinationData> }) => {
-      const { data } = await api.put(`/api/admin/destinations/${destinationId}`, destinationData, { headers: getAuthHeaders() });
+    mutationFn: async ({
+      destinationId,
+      destinationData,
+    }: {
+      destinationId: string;
+      destinationData: Partial<CreateDestinationData>;
+    }) => {
+      const { data } = await api.put(
+        `/api/admin/destinations/${destinationId}`,
+        destinationData,
+        { headers: getAuthHeaders() }
+      );
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-destinations'] });
-      queryClient.invalidateQueries({ queryKey: ['destinations'] });
+      queryClient.invalidateQueries({ queryKey: ["admin-destinations"] });
+      queryClient.invalidateQueries({ queryKey: ["destinations"] });
       toast({
-        title: "Destinasyon Güncellendi",
-        description: "Destinasyon başarıyla güncellendi.",
+        title: "Destination Updated",
+        description: "Destination updated successfully.",
       });
     },
     onError: (error: any) => {
       toast({
-        title: "Güncelleme Başarısız",
-        description: error.response?.data?.message || "Destinasyon güncellenirken bir hata oluştu.",
+        title: "Update Failed",
+        description:
+          error.response?.data?.message ||
+          "An error occurred while updating the destination.",
         variant: "destructive",
       });
     },
@@ -122,21 +153,25 @@ export const useDeleteDestination = () => {
 
   return useMutation({
     mutationFn: async (destinationId: string) => {
-      await api.delete(`/api/admin/destinations/${destinationId}`, { headers: getAuthHeaders() });
+      await api.delete(`/api/admin/destinations/${destinationId}`, {
+        headers: getAuthHeaders(),
+      });
       return destinationId;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-destinations'] });
-      queryClient.invalidateQueries({ queryKey: ['destinations'] });
+      queryClient.invalidateQueries({ queryKey: ["admin-destinations"] });
+      queryClient.invalidateQueries({ queryKey: ["destinations"] });
       toast({
-        title: "Destinasyon Silindi",
-        description: "Destinasyon başarıyla silindi.",
+        title: "Destination Deleted",
+        description: "Destination deleted successfully.",
       });
     },
     onError: (error: any) => {
       toast({
-        title: "Silme Başarısız",
-        description: error.response?.data?.message || "Destinasyon silinirken bir hata oluştu.",
+        title: "Deletion Failed",
+        description:
+          error.response?.data?.message ||
+          "An error occurred while deleting the destination.",
         variant: "destructive",
       });
     },

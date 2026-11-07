@@ -63,7 +63,7 @@ export default function AccommodationStepSimple({
   useEffect(() => {
     // Her oda tipini ayrı oda olarak düşünelim, çoklu oda seçimi olduğunda
     // her biri için ayrı oda objesi oluşturalım
-    let updatedRooms: Room[] = [];
+    const updatedRooms: Room[] = [];
     
     roomOptions.forEach(opt => {
       const qty = qtys[opt.key] || 0;
