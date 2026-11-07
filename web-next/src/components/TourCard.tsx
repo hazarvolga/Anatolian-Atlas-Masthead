@@ -149,7 +149,7 @@ export default function TourCard({ tour, indexNumber }: TourCardProps) {
           </Link>
           <Link
             href={`/book/${tour.id}`}
-            className="px-4 py-2.5 bg-primary text-primary-foreground hover:bg-[#8B3726] text-[11px] uppercase tracking-[0.14em] font-semibold inline-flex items-center gap-1.5 transition-colors"
+            className="px-4 py-2.5 bg-primary text-primary-foreground hover:bg-primary-hover rounded-control text-[11px] uppercase tracking-[0.14em] font-semibold inline-flex items-center gap-1.5 transition-colors"
           >
             <span>{t.nav?.bookNow || "Reserve"}</span>
             <ArrowUpRight className="h-3.5 w-3.5" />

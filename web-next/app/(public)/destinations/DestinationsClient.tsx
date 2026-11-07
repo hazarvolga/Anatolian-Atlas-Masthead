@@ -151,7 +151,7 @@ export default function DestinationsClient() {
                         >
                           <span
                             className={`block text-[10px] uppercase tracking-[0.16em] font-semibold ${
-                              isDarkAccent ? "text-[#D89A8B]" : "text-primary"
+                              isDarkAccent ? "text-primary-subtle" : "text-primary"
                             }`}
                           >
                             SCHEDULED EXPEDITIONS IN THIS REGION
@@ -189,7 +189,7 @@ export default function DestinationsClient() {
                         href={`/tours?destination=${dest.id}`}
                         className={`text-xs uppercase tracking-[0.15em] font-semibold underline underline-offset-4 ${
                           isDarkAccent
-                            ? "text-[#D89A8B] hover:text-background"
+                            ? "text-primary-subtle hover:text-background"
                             : "text-primary hover:text-foreground"
                         }`}
                       >

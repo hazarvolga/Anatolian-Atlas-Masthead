@@ -215,7 +215,7 @@ export default function GalleryClient() {
               />
             </div>
             <figcaption className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-background/90 px-1 uppercase tracking-[0.14em]">
-              <span className="font-semibold text-[#D89A8B]">
+              <span className="font-semibold text-primary-subtle">
                 {activeLightboxItem.location} — {activeLightboxItem.region}
               </span>
               <span className="text-background/75 normal-case tracking-normal">

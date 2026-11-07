@@ -133,7 +133,7 @@ export default function ContactClient() {
             <div className="lg:col-span-5 bg-foreground text-background p-8 sm:p-10 lg:p-12 flex flex-col justify-between space-y-10">
               <div className="space-y-8">
                 <div className="border-b border-background/15 pb-4">
-                  <span className="text-[10px] uppercase tracking-[0.18em] text-[#D89A8B] font-semibold block">
+                  <span className="text-[10px] uppercase tracking-[0.18em] text-primary-subtle font-semibold block">
                     DISPATCH HEADQUARTERS
                   </span>
                   <h2 className="font-serif text-3xl text-background mt-1">
@@ -143,7 +143,7 @@ export default function ContactClient() {
 
                 <dl className="divide-y divide-background/15 text-xs tabular-nums">
                   <div className="py-4 space-y-1">
-                    <dt className="text-[10px] uppercase tracking-[0.16em] text-[#D89A8B] font-semibold">
+                    <dt className="text-[10px] uppercase tracking-[0.16em] text-primary-subtle font-semibold">
                       01 / CHANCERY & PLANNING ADDRESS
                     </dt>
                     <dd className="text-sm text-background leading-relaxed">
@@ -156,7 +156,7 @@ export default function ContactClient() {
                   </div>
 
                   <div className="py-4 space-y-1">
-                    <dt className="text-[10px] uppercase tracking-[0.16em] text-[#D89A8B] font-semibold">
+                    <dt className="text-[10px] uppercase tracking-[0.16em] text-primary-subtle font-semibold">
                       02 / TELEPHONE & FIELD WHATSAPP
                     </dt>
                     <dd className="text-sm text-background">
@@ -168,7 +168,7 @@ export default function ContactClient() {
                   </div>
 
                   <div className="py-4 space-y-1">
-                    <dt className="text-[10px] uppercase tracking-[0.16em] text-[#D89A8B] font-semibold">
+                    <dt className="text-[10px] uppercase tracking-[0.16em] text-primary-subtle font-semibold">
                       03 / ELECTRONIC CORRESPONDENCE
                     </dt>
                     <dd className="text-sm text-background">
@@ -180,7 +180,7 @@ export default function ContactClient() {
                   </div>
 
                   <div className="py-4 space-y-1">
-                    <dt className="text-[10px] uppercase tracking-[0.16em] text-[#D89A8B] font-semibold">
+                    <dt className="text-[10px] uppercase tracking-[0.16em] text-primary-subtle font-semibold">
                       04 / CONSULTATION HOURS
                     </dt>
                     <dd className="text-xs text-background/80 leading-relaxed">

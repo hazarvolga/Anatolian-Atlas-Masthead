@@ -184,7 +184,7 @@ export default function HeroSection() {
                 alt="Morning ferry crossing the Bosphorus Strait toward Ortaköy in İstanbul, Türkiye"
                 className="w-full h-full object-cover opacity-92 contrast-[1.03]"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#172D2B] via-transparent to-transparent opacity-80" />
+              <div className="absolute inset-0 bg-gradient-to-t from-foreground/90 via-transparent to-transparent opacity-80" />
               <div className="absolute bottom-6 left-6 right-6 text-background">
                 <span className="inline-block px-2.5 py-1 bg-primary text-primary-foreground text-[10px] uppercase tracking-[0.16em] font-semibold mb-3">
                   LEAD REGION — İSTANBUL
@@ -216,7 +216,7 @@ export default function HeroSection() {
               <div className="text-right">
                 <Link
                   href="/destinations/dest-istanbul"
-                  className="inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.14em] text-[#D89A8B] hover:text-background font-semibold mt-2"
+                  className="inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.14em] text-primary-subtle hover:text-background font-semibold mt-2"
                 >
                   <span>Read Dossier</span>
                   <ArrowUpRight className="h-3.5 w-3.5" />

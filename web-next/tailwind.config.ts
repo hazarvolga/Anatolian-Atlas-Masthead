@@ -2,7 +2,7 @@ import type { Config } from "tailwindcss";
 import tailwindcssAnimate from "tailwindcss-animate";
 
 export default {
-  darkMode: ["class"],
+  darkMode: ["class", '[data-mode="dark"]'],
   content: ["./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
   prefix: "",
   theme: {
@@ -10,12 +10,39 @@ export default {
       center: true,
       padding: "2rem",
       screens: {
-        "2xl": "1360px",
+        "2xl": "1420px",
       },
     },
     extend: {
+      screens: {
+        xs: "360px",
+        "3xl": "1920px",
+      },
       colors: {
+        /* Layer 2 Semantic Hex Direct Tokens */
+        canvas: "var(--color-bg-canvas)",
+        surface: {
+          DEFAULT: "var(--color-bg-surface)",
+          elevated: "var(--color-bg-elevated)",
+          muted: "var(--color-bg-muted)",
+          glass: "var(--color-bg-glass)",
+        },
+        ink: {
+          DEFAULT: "var(--color-text-primary)",
+          secondary: "var(--color-text-secondary)",
+          muted: "var(--color-text-muted)",
+          disabled: "var(--color-text-disabled)",
+          inverse: "var(--color-text-inverse)",
+        },
+        hairline: {
+          DEFAULT: "var(--color-border-hairline)",
+          strong: "var(--color-border-strong)",
+          focus: "var(--color-border-focus)",
+        },
+
+        /* Layer 2 Tailwind HSL Bridges (Supports /opacity modifiers) */
         border: "hsl(var(--border))",
+        "border-strong": "hsl(var(--border-strong))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
@@ -30,6 +57,8 @@ export default {
         },
         primary: {
           DEFAULT: "hsl(var(--primary))",
+          hover: "hsl(var(--primary-hover))",
+          subtle: "hsl(var(--primary-subtle))",
           foreground: "hsl(var(--primary-foreground))",
         },
         secondary: {
@@ -38,6 +67,8 @@ export default {
         },
         accent: {
           DEFAULT: "hsl(var(--accent))",
+          hover: "hsl(var(--primary-hover))",
+          subtle: "hsl(var(--primary-subtle))",
           foreground: "hsl(var(--accent-foreground))",
           vibrant: "hsl(var(--primary))",
           coral: "hsl(var(--primary))",
@@ -77,10 +108,30 @@ export default {
         "text-tertiary": "hsl(var(--text-tertiary))",
         "text-disabled": "hsl(var(--text-disabled))",
       },
+      fontSize: {
+        "fluid-xs": "var(--font-size-xs)",
+        "fluid-sm": "var(--font-size-sm)",
+        "fluid-base": "var(--font-size-base)",
+        "fluid-lg": "var(--font-size-lg)",
+        "fluid-xl": "var(--font-size-xl)",
+        "fluid-2xl": "var(--font-size-2xl)",
+        "fluid-3xl": "var(--font-size-3xl)",
+        "fluid-4xl": "var(--font-size-4xl)",
+        "fluid-display": "var(--font-size-display)",
+      },
+      spacing: {
+        "section-y": "var(--space-section-y)",
+        "card-pad": "var(--space-card-padding)",
+        "grid-gap": "var(--space-grid-gap)",
+        "nav-h": "var(--nav-height)",
+      },
       borderRadius: {
-        lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        lg: "var(--radius-card)",
+        md: "var(--radius-control)",
+        sm: "calc(var(--radius-control) * 0.5)",
+        card: "var(--radius-card)",
+        control: "var(--radius-control)",
+        badge: "var(--radius-badge)",
       },
       boxShadow: {
         sm: "var(--shadow-sm)",
@@ -104,6 +155,26 @@ export default {
           "Times New Roman",
           "serif",
         ],
+        mono: [
+          "var(--font-mono)",
+          "ui-monospace",
+          "SFMono-Regular",
+          "Menlo",
+          "monospace",
+        ],
+      },
+      transitionDuration: {
+        xs: "var(--motion-duration-xs)",
+        sm: "var(--motion-duration-sm)",
+        md: "var(--motion-duration-md)",
+        lg: "var(--motion-duration-lg)",
+        xl: "var(--motion-duration-xl)",
+      },
+      transitionTimingFunction: {
+        standard: "var(--motion-ease-standard)",
+        emphasized: "var(--motion-ease-emphasized)",
+        editorial: "var(--motion-ease-editorial)",
+        exit: "var(--motion-ease-exit)",
       },
       keyframes: {
         "accordion-down": {

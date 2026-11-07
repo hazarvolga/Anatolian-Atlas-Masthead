@@ -100,7 +100,7 @@ export default function ToursSection() {
                     {Array.isArray(leadTour.highlights) &&
                       leadTour.highlights.length > 0 && (
                         <div className="pt-3 space-y-2">
-                          <span className="block text-[10px] uppercase tracking-[0.16em] text-[#D89A8B] font-semibold">
+                          <span className="block text-[10px] uppercase tracking-[0.16em] text-primary-subtle font-semibold">
                             KEY FIELD STOPS
                           </span>
                           <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-background/85">
@@ -111,7 +111,7 @@ export default function ToursSection() {
                                   key={idx}
                                   className="flex items-baseline gap-2"
                                 >
-                                  <span className="text-[#D89A8B] font-mono text-[10px]">
+                                  <span className="text-primary-subtle font-mono text-[10px]">
                                     0{idx + 1}
                                   </span>
                                   <span>{stop}</span>

@@ -14,7 +14,7 @@ export default function CTASection() {
         <div className="grid grid-cols-1 lg:grid-cols-12 border-x border-background/15">
           {/* Left 8 Columns: High-Contrast Editorial Commission Statement */}
           <div className="lg:col-span-8 p-8 sm:p-12 lg:p-16 border-b lg:border-b-0 lg:border-r border-background/15 space-y-6">
-            <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#D89A8B] block tabular-nums">
+            <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary-subtle block tabular-nums">
               05 — DISPATCH & BESPOKE ROUTE COMMISSIONING
             </span>
             <h2 className="font-serif text-background text-3xl sm:text-5xl lg:text-6xl leading-[1.02]">
@@ -41,7 +41,7 @@ export default function CTASection() {
           {/* Right 4 Columns: Planning Desk Specifications */}
           <div className="lg:col-span-4 p-8 sm:p-12 flex flex-col justify-between bg-background/[0.03] space-y-8">
             <div className="space-y-4">
-              <span className="text-[10px] uppercase tracking-[0.18em] text-[#D89A8B] font-semibold block">
+              <span className="text-[10px] uppercase tracking-[0.18em] text-primary-subtle font-semibold block">
                 GALATA PLANNING DESK
               </span>
               <p className="font-serif text-2xl text-background leading-snug">

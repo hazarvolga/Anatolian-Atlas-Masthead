@@ -3,66 +3,69 @@
     @apply px-4 sm:px-6 lg:px-10 mx-auto max-w-[1420px];
   }
 
-  /* Anatolian Atlas Monograph Button System — Crisp Swiss Geometry */
+  /* Layer 3 Component Classes — Driven by Semantic & Component Tokens */
   .btn-primary {
     @apply inline-flex items-center justify-center bg-primary text-primary-foreground
-           rounded-none px-7 py-4 font-medium text-xs uppercase tracking-[0.14em]
-           transition-colors duration-200 hover:bg-[#8B3726]
+           rounded-control px-7 py-4 font-medium text-xs uppercase tracking-[0.14em]
+           transition-colors duration-sm ease-standard hover:bg-primary-hover
            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2;
   }
 
   .btn-secondary {
     @apply inline-flex items-center justify-center bg-foreground text-background
-           rounded-none px-7 py-4 font-medium text-xs uppercase tracking-[0.14em]
-           transition-colors duration-200 hover:bg-primary hover:text-primary-foreground
+           rounded-control px-7 py-4 font-medium text-xs uppercase tracking-[0.14em]
+           transition-colors duration-sm ease-standard hover:bg-primary hover:text-primary-foreground
            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
   }
 
   .btn-outline {
     @apply inline-flex items-center justify-center border border-foreground/30 text-foreground bg-transparent
-           rounded-none px-7 py-4 font-medium text-xs uppercase tracking-[0.14em]
-           transition-colors duration-200 hover:border-foreground hover:bg-foreground hover:text-background
+           rounded-control px-7 py-4 font-medium text-xs uppercase tracking-[0.14em]
+           transition-colors duration-sm ease-standard hover:border-foreground hover:bg-foreground hover:text-background
            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2;
   }
 
   .btn-ghost {
     @apply inline-flex items-center justify-center text-foreground bg-transparent hover:bg-muted
-           rounded-none px-4 py-2.5 font-medium text-xs uppercase tracking-[0.12em] transition-colors duration-200;
+           rounded-control px-4 py-2.5 font-medium text-xs uppercase tracking-[0.12em]
+           transition-colors duration-sm ease-standard;
   }
 
-  /* Editorial Surfaces — Hairline Rules instead of Box Shadows */
+  /* Editorial Surfaces */
   .card-elevated {
-    @apply bg-card border border-border rounded-none
-           transition-colors duration-200 hover:border-foreground/40;
+    @apply bg-card border border-border rounded-card
+           transition-colors duration-sm ease-standard hover:border-foreground/40;
   }
 
   .card-container {
-    @apply bg-card border border-border rounded-none;
+    @apply bg-card border border-border rounded-card;
   }
 
   .glass-card {
-    @apply bg-card border border-border rounded-none;
+    @apply bg-card border border-border rounded-card;
   }
 
   .glass-navbar {
     @apply bg-background/95 backdrop-blur-md border-b border-border;
   }
 
-  /* Section Spacing */
+  /* Density-Aware Section Spacing */
   .section {
-    @apply py-20 md:py-28 lg:py-32;
+    padding-top: var(--space-section-y);
+    padding-bottom: var(--space-section-y);
   }
 
   .section-sm {
-    @apply py-14 md:py-20 lg:py-24;
+    padding-top: calc(var(--space-section-y) * 0.72);
+    padding-bottom: calc(var(--space-section-y) * 0.72);
   }
 
   /* Form Elements */
   .form-input {
-    @apply w-full px-4 py-3.5 rounded-none border border-border bg-card
+    @apply w-full px-4 py-3.5 rounded-control border border-border bg-card
            focus:border-foreground focus:outline-none
-           transition-colors duration-200 placeholder:text-text-tertiary
-           text-foreground text-sm;
+           transition-colors duration-sm ease-standard placeholder:text-text-tertiary
+           text-foreground text-sm min-h-[2.875rem];
   }
 
   .form-label {
@@ -75,7 +78,8 @@
   }
 
   .editorial-meta {
-    @apply text-[11px] uppercase tracking-[0.13em] text-text-secondary tabular-nums;
+    font-family: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
+    @apply text-[11px] uppercase tracking-[0.12em] text-text-secondary tabular-nums;
   }
 
   /* Admin Styles */
@@ -88,12 +92,12 @@
   }
 
   .admin-card {
-    @apply bg-surface-elevated border border-border rounded-none;
+    @apply bg-surface-elevated border border-border rounded-card;
   }
 
   /* Data Table */
   .data-table {
-    @apply bg-surface-elevated rounded-none border border-border overflow-hidden;
+    @apply bg-surface-elevated rounded-card border border-border overflow-hidden;
   }
 
   .data-table-header {
@@ -101,7 +105,7 @@
   }
 
   .data-table-row {
-    @apply border-b border-border/60 hover:bg-surface-container/50 transition-colors duration-150;
+    @apply border-b border-border/60 hover:bg-surface-container/50 transition-colors duration-xs;
   }
 
   .data-table-cell {
@@ -110,12 +114,12 @@
 
   /* Filter Styles */
   .filter-container {
-    @apply bg-card rounded-none p-6 border border-border;
+    @apply bg-card rounded-card p-6 border border-border;
   }
 
   .filter-item {
-    @apply p-3 rounded-none border border-border hover:border-primary/50
-           transition-colors duration-150 cursor-pointer;
+    @apply p-3 rounded-control border border-border hover:border-primary/50
+           transition-colors duration-xs cursor-pointer;
   }
 
   .filter-item.active {
@@ -125,7 +129,7 @@
   /* Navigation Styles */
   .nav-link {
     @apply px-3 py-2 text-xs uppercase tracking-[0.14em] font-medium text-text-secondary
-           hover:text-foreground transition-colors duration-150;
+           hover:text-foreground transition-colors duration-xs;
   }
 
   .nav-link.active {

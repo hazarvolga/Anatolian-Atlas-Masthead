@@ -97,7 +97,7 @@ export default function DestinationsSection() {
                     <div className="flex items-baseline gap-4">
                       <span
                         className={`text-xs font-semibold uppercase tracking-[0.16em] tabular-nums ${
-                          isSelected ? "text-[#D89A8B]" : "text-primary"
+                          isSelected ? "text-primary-subtle" : "text-primary"
                         }`}
                       >
                         {indexLabel}
@@ -172,8 +172,8 @@ export default function DestinationsSection() {
                       alt={`${activeDestination.name} landscape in Türkiye`}
                       className="w-full h-full object-cover transition-all duration-500"
                     />
-                    <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-[#172D2B]/90 via-[#172D2B]/35 to-transparent p-6 sm:p-8">
-                      <span className="text-[10px] uppercase tracking-[0.18em] text-[#D89A8B] font-semibold block mb-1">
+                    <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-foreground/90 via-foreground/35 to-transparent p-6 sm:p-8">
+                      <span className="text-[10px] uppercase tracking-[0.18em] text-primary-subtle font-semibold block mb-1">
                         GEOGRAPHIC ARCHIVE
                       </span>
                       <h3 className="font-serif text-2xl sm:text-4xl text-background leading-tight">

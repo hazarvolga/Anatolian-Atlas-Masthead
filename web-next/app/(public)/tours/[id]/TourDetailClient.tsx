@@ -386,7 +386,7 @@ export default function TourDetailClient({ id }: { id: string }) {
             {/* Right 4 Columns: Sticky Reservation Dossier */}
             <aside className="lg:col-span-4 lg:sticky lg:top-28 border border-border bg-card">
               <div className="p-6 sm:p-8 bg-foreground text-background space-y-2">
-                <span className="text-[10px] uppercase tracking-[0.18em] text-[#D89A8B] font-semibold block">
+                <span className="text-[10px] uppercase tracking-[0.18em] text-primary-subtle font-semibold block">
                   RESERVATION LEDGER
                 </span>
                 <div className="flex items-baseline justify-between">

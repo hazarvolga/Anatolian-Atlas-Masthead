@@ -46,7 +46,7 @@ export default function StepNavigation({
                   isCompleted
                     ? "bg-primary border-primary text-primary-foreground"
                     : isActive
-                      ? "border-[#D89A8B] text-[#D89A8B]"
+                      ? "border-primary-subtle text-primary-subtle"
                       : "border-border text-text-secondary"
                 }`}
               >

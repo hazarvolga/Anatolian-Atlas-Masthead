@@ -157,7 +157,7 @@ export default function BookingSuccessClient() {
             {/* Dark Ink Header */}
             <div className="p-8 sm:p-10 bg-foreground text-background flex flex-col sm:flex-row sm:items-center justify-between gap-6">
               <div className="space-y-2">
-                <span className="text-[10px] uppercase tracking-[0.18em] text-[#D89A8B] font-semibold block">
+                <span className="text-[10px] uppercase tracking-[0.18em] text-primary-subtle font-semibold block">
                   DISPATCH CONFIRMATION · GALATA BUREAU
                 </span>
                 <h1 className="font-serif text-3xl sm:text-4xl text-background">
