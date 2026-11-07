@@ -7,7 +7,7 @@ import { Navigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ArrowLeft, Save, Eye, Globe } from "lucide-react";
-import { usePage, useUpdatePage } from "@/hooks/usePages";
+import { useAdminPage, useUpdatePage } from "@/hooks/usePages";
 import { toast } from "sonner";
 import PageEditorSidebar from "@/components/admin/page-editor/PageEditorSidebar";
 import PagePreview from "@/components/admin/page-editor/PagePreview";
@@ -18,7 +18,7 @@ export default function AdminPageEditor() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const isAdmin = useIsAdmin();
-  const { data: page, isLoading } = usePage(id || "");
+  const { data: page, isLoading } = useAdminPage(id || "");
   const updatePage = useUpdatePage();
   
   const [pageData, setPageData] = useState<any>(null);

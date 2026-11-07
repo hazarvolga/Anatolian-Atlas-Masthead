@@ -251,6 +251,24 @@ model SiteSettings {
   updated_at DateTime @updatedAt
 }
 
+// CMS PAGES
+model Page {
+  id               String   @id @default(uuid()) @db.Uuid
+  title            String
+  slug             String   @unique
+  content          Json     @default("[]")
+  meta_title       String?
+  meta_description String?
+  meta_keywords    String[] @default([])
+  status           String   @default("draft")
+  template_type    String   @default("default")
+  is_homepage      Boolean  @default(false)
+  created_at       DateTime @default(now())
+  updated_at       DateTime @updatedAt
+
+  @@index([status])
+}
+
 // EMAIL AND LOGGING MODELS
 model EmailTemplate {
   id         String     @id @default(uuid()) @db.Uuid

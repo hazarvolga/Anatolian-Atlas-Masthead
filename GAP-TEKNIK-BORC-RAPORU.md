@@ -24,7 +24,7 @@ Proje "Stable R5" olarak etiketlenmiş ve ana sayfa/tur/destinasyon listeleme DB
 | CI workflow | **0** |
 | Production build | ✅ Geçiyor (tip kontrolü yapmıyor) |
 | Bundle | 1.462 kB JS (418 kB gzip), tek chunk |
-| Prisma modelleri | 16 · Migration dosyası: **1** (baseline) |
+| Prisma modelleri | 17 · Migration dosyası: **2** (baseline + `add_page`) |
 | Frontend LOC / backend LOC | ~39.900 / ~1.900 |
 
 **En kritik 5 bulgu**
@@ -91,6 +91,19 @@ Compose backend servisi artık açılışta `prisma migrate deploy` çalıştır
 | 25 | Kullanıcının yorumları ucu eklendi; yorum sahipliği kontrolü `tourId` alanıyla uyumlu | `backend/routes/reviews.js`, `src/pages/MyBookings.tsx`, `src/pages/MyReservations.tsx` | `GET /api/reviews/user` → **200**; tokensiz → **401**; sayfa konsolu temiz |
 
 Doğrulama: `npm run build` ✅; değişen dosyalarda ESLint temiz. Rezervasyon kaydı test sonrası DB'den silindi (tablo **0** satır).
+
+### Sayfa (CMS) modülü — ✅ Tamamlandı (Sprint 1, dördüncü adım)
+
+| # | Düzeltme | Dosya(lar) | Doğrulama |
+|---|---|---|---|
+| 26 | `Page` modeli eklendi (slug, içerik/sections JSON, SEO alanları, durum, şablon) | `prisma/schema.prisma`, `prisma/migrations/20261107062458_add_page/` | `prisma migrate status` → **up to date**; `Page` tablosu oluştu |
+| 27 | Public `GET /api/pages/:slug` yalnızca **yayınlanmış** sayfayı döndürüyor; slug veya UUID ile erişim, yoksa **404** | `backend/routes/pages.js`, `backend/server.js` | Yayınlanmış → **200** + `sections`; taslak → **404** |
+| 28 | Admin sayfa CRUD uçları: liste, tek kayıt, oluştur, güncelle, sil; başlık/slug/içerik/durum doğrulaması ve slug çakışmasında **409** | `backend/routes/admin.js` | `POST` → **201**; tekrar slug → **409**; geçersiz slug → **400**; `DELETE` → **204**; tokensiz → **401** |
+| 29 | Hook'lar admin isteklerine Bearer token ekliyor; editör taslakları `GET /api/admin/pages/:id` ile okuyor | `src/hooks/usePages.ts`, `src/pages/AdminPageEditor.tsx` | Admin Pages sekmesi 404 üretmiyor; **Edit page** ile taslak/yayınlanmış sayfa yükleniyor |
+| 30 | Public sayfa Navbar/Footer ve `SEOHead` ile tam sayfa olarak render ediliyor | `src/components/DynamicPage.tsx` | Sekme başlığı sayfa başlığına dönüyor; `meta description` enjekte ediliyor |
+| 31 | Uçtan uca doğrulama: panelden sayfa oluştur → içerik bloğu ekle → yayınla → public sayfada görüntüle | — | `Test Sayfasi` panelden **published**; `/test-sayfasi` → **"Hoş Geldiniz"** bloğu; konsol temiz |
+
+Doğrulama: `npm run build` ✅; `node --check` ✅; değişen dosyalarda yeni tip/lint hatası yok. Test sayfası sonrasında silindi (tablo **0** satır).
 
 ---
 
@@ -162,7 +175,7 @@ Doğrulanan canlı sonuçlar:
 - **Düzeltme:** public `GET /api/site-settings` ekle; admin yazma uçları ayrı kalsın.
 
 ### P0-7 · Eksik sayfa/dinamik içerik uçları
-- `usePages.ts:30` → `/api/pages/:slug` ve `:13` → `/api/admin/pages` yok.
+- `usePages.ts:30` → `/api/pages/:slug` ve `:13` → `/api/admin/pages` yok. **(Sprint 1'de eklendi — bkz. #26–#31.)**
 - `DynamicPage` catch-all route (`src/App.tsx:84`) her bilinmeyen yolda bu 404'ü tetikliyor; loglarda `/api/pages/booking` tekrar tekrar isteniyor.
 - `useNavigation.ts`, `useTranslations.ts`, `useAdminCalendar.ts` de karşılıksız uçlara bağlı.
 

@@ -15,6 +15,7 @@ import categoriesRoutes from './routes/categories.js';
 import adminRoutes from './routes/admin.js';
 import usersRoutes from './routes/users.js';
 import reviewsRoutes from './routes/reviews.js'; // Import new reviews routes
+import pagesRoutes from './routes/pages.js';
 
 // Database connection
 const prisma = new PrismaClient();
@@ -94,6 +95,7 @@ app.use('/api/categories', categoriesRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/reviews', reviewsRoutes); // Use new reviews routes
+app.use('/api/pages', pagesRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

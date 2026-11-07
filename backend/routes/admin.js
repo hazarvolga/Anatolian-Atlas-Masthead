@@ -831,6 +831,149 @@ router.delete('/reviews/:id', async (req, res) => {
 });
 
 
+// --- PAGE MANAGEMENT --- //
+
+const PAGE_STATUSES = ['draft', 'published', 'archived'];
+const PAGE_SLUG_PATTERN = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
+const buildPageData = (body) => {
+  const data = {};
+
+  if (body.title !== undefined) data.title = String(body.title).trim();
+  if (body.slug !== undefined) data.slug = String(body.slug).trim().replace(/^\/+|\/+$/g, '');
+  if (body.content !== undefined) data.content = body.content;
+  if (body.meta_title !== undefined) data.meta_title = body.meta_title ? String(body.meta_title) : null;
+  if (body.meta_description !== undefined) data.meta_description = body.meta_description ? String(body.meta_description) : null;
+  if (body.meta_keywords !== undefined) data.meta_keywords = body.meta_keywords;
+  if (body.status !== undefined) data.status = String(body.status);
+  if (body.template_type !== undefined) data.template_type = String(body.template_type);
+  if (body.is_homepage !== undefined) data.is_homepage = body.is_homepage;
+
+  return data;
+};
+
+const validatePageData = (data, { partial = false } = {}) => {
+  if (!partial || data.title !== undefined) {
+    if (!data.title) return 'Title is required.';
+  }
+  if (!partial || data.slug !== undefined) {
+    if (!data.slug) return 'Slug is required.';
+    if (!PAGE_SLUG_PATTERN.test(data.slug)) {
+      return 'Slug may only contain lowercase letters, numbers, and single hyphens.';
+    }
+  }
+  if (data.content !== undefined && (data.content === null || typeof data.content !== 'object')) {
+    return 'Content must be a JSON array or object.';
+  }
+  if (data.meta_keywords !== undefined && (!Array.isArray(data.meta_keywords) || data.meta_keywords.some(k => typeof k !== 'string'))) {
+    return 'meta_keywords must be an array of strings.';
+  }
+  if (data.status !== undefined && !PAGE_STATUSES.includes(data.status)) {
+    return `Status must be one of: ${PAGE_STATUSES.join(', ')}.`;
+  }
+  if (data.is_homepage !== undefined && typeof data.is_homepage !== 'boolean') {
+    return 'is_homepage must be a boolean.';
+  }
+  if (data.template_type !== undefined && !data.template_type) {
+    return 'template_type cannot be empty.';
+  }
+  return null;
+};
+
+router.get('/pages', async (req, res) => {
+  try {
+    const pages = await prisma.page.findMany({ orderBy: { created_at: 'desc' } });
+    res.json(pages);
+  } catch (error) {
+    console.error('Failed to fetch pages:', error);
+    res.status(500).json({ message: 'Failed to fetch pages' });
+  }
+});
+
+router.get('/pages/:id', async (req, res) => {
+  try {
+    const page = await prisma.page.findUnique({ where: { id: req.params.id } });
+    if (!page) {
+      return res.status(404).json({ message: 'Page not found.' });
+    }
+    res.json(page);
+  } catch (error) {
+    console.error('Failed to fetch page:', error);
+    res.status(500).json({ message: 'Failed to fetch page' });
+  }
+});
+
+router.post('/pages', async (req, res) => {
+  const data = buildPageData(req.body);
+  const validationError = validatePageData(data);
+  if (validationError) {
+    return res.status(400).json({ message: validationError });
+  }
+
+  try {
+    const existing = await prisma.page.findUnique({ where: { slug: data.slug } });
+    if (existing) {
+      return res.status(409).json({ message: 'A page with this slug already exists.' });
+    }
+
+    const page = await prisma.page.create({ data });
+    res.status(201).json(page);
+  } catch (error) {
+    if (error.code === 'P2002') {
+      return res.status(409).json({ message: 'A page with this slug already exists.' });
+    }
+    console.error('Failed to create page:', error);
+    res.status(500).json({ message: 'Failed to create page' });
+  }
+});
+
+router.put('/pages/:id', async (req, res) => {
+  const data = buildPageData(req.body);
+  const validationError = validatePageData(data, { partial: true });
+  if (validationError) {
+    return res.status(400).json({ message: validationError });
+  }
+  if (Object.keys(data).length === 0) {
+    return res.status(400).json({ message: 'No updatable fields provided.' });
+  }
+
+  try {
+    const page = await prisma.page.findUnique({ where: { id: req.params.id } });
+    if (!page) {
+      return res.status(404).json({ message: 'Page not found.' });
+    }
+
+    if (data.slug && data.slug !== page.slug) {
+      const existing = await prisma.page.findUnique({ where: { slug: data.slug } });
+      if (existing) {
+        return res.status(409).json({ message: 'A page with this slug already exists.' });
+      }
+    }
+
+    const updatedPage = await prisma.page.update({ where: { id: page.id }, data });
+    res.json(updatedPage);
+  } catch (error) {
+    if (error.code === 'P2002') {
+      return res.status(409).json({ message: 'A page with this slug already exists.' });
+    }
+    console.error('Failed to update page:', error);
+    res.status(500).json({ message: 'Failed to update page' });
+  }
+});
+
+router.delete('/pages/:id', async (req, res) => {
+  try {
+    await prisma.page.delete({ where: { id: req.params.id } });
+    res.status(204).send();
+  } catch (error) {
+    if (error.code === 'P2025') {
+      return res.status(404).json({ message: 'Page not found.' });
+    }
+    console.error('Failed to delete page:', error);
+    res.status(500).json({ message: 'Failed to delete page' });
+  }
+});
+
 // --- USER MANAGEMENT --- //
 router.get('/users', adminMiddleware, async (req, res) => {
   try {

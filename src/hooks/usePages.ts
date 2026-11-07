@@ -5,12 +5,18 @@ import { toast } from "sonner";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
 
+const getAuthHeader = () => ({
+  Authorization: `Bearer ${localStorage.getItem('authToken')}`
+});
+
 export const usePages = () => {
   return useQuery({
     queryKey: ['pages'],
     queryFn: async () => {
       try {
-        const response = await axios.get(`${API_BASE_URL}/api/admin/pages`);
+        const response = await axios.get(`${API_BASE_URL}/api/admin/pages`, {
+          headers: getAuthHeader()
+        });
         return response.data;
       } catch (err: any) {
         console.error('Error fetching pages:', err.response?.data || err.message);
@@ -45,6 +51,35 @@ export const usePage = (slug: string) => {
       }
     },
     enabled: !!slug,
+    retry: false,
+  });
+};
+
+// Admin editor loads pages by id, including drafts.
+export const useAdminPage = (id: string) => {
+  return useQuery({
+    queryKey: ['page', 'admin', id],
+    queryFn: async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/api/admin/pages/${id}`, {
+          headers: getAuthHeader()
+        });
+        const data = response.data;
+
+        if (data && Array.isArray(data.content)) {
+          data.sections = data.content;
+        } else if (data && !data.sections) {
+          data.sections = [];
+        }
+
+        return data;
+      } catch (err) {
+        const error = err as { response?: { data?: { message?: string } }; message?: string };
+        console.error('Error fetching admin page:', error.response?.data || error.message);
+        throw new Error(error.response?.data?.message || 'Failed to fetch page');
+      }
+    },
+    enabled: !!id,
     retry: false,
   });
 };

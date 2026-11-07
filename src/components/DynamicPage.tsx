@@ -5,6 +5,9 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Layout } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import SEOHead from "@/components/SEOHead";
 
 interface PageSection {
   id: string;
@@ -134,22 +137,31 @@ export default function DynamicPage() {
     : pageWithSections.sections || [];
 
   return (
-    <div className="min-h-screen">
-      <title>{page.meta_title || page.title}</title>
-      
-      {sections.length > 0 ? (
-        sections.map((section: PageSection) => (
-          <SectionRenderer key={section.id} section={section} />
-        ))
-      ) : (
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="text-center">
-            <Layout className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <h1 className="text-4xl font-bold mb-4">{page.title}</h1>
-            <p className="text-muted-foreground">This page has no content yet.</p>
+    <div className="min-h-screen flex flex-col">
+      <SEOHead
+        title={page.meta_title || page.title}
+        description={page.meta_description || undefined}
+        keywords={Array.isArray(page.meta_keywords) ? page.meta_keywords.join(', ') : undefined}
+      />
+      <Navbar />
+
+      <main className="flex-1">
+        {sections.length > 0 ? (
+          sections.map((section: PageSection) => (
+            <SectionRenderer key={section.id} section={section} />
+          ))
+        ) : (
+          <div className="min-h-[60vh] flex items-center justify-center">
+            <div className="text-center">
+              <Layout className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <h1 className="text-4xl font-bold mb-4">{page.title}</h1>
+              <p className="text-muted-foreground">This page has no content yet.</p>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </main>
+
+      <Footer />
     </div>
   );
 }
