@@ -5,6 +5,7 @@ import { z } from "zod";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
 import { DesignSystemProvider } from "@/contexts/DesignSystemContext";
+import { SmoothScrollProvider } from "@/lib/motion/SmoothScrollProvider";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -31,7 +32,9 @@ export function Providers({ children }: { children: React.ReactNode }) {
           <LanguageProvider>
             <AuthProvider>
               <TooltipProvider>
-                {children}
+                <SmoothScrollProvider>
+                  {children}
+                </SmoothScrollProvider>
                 <Toaster />
                 <Sonner />
               </TooltipProvider>

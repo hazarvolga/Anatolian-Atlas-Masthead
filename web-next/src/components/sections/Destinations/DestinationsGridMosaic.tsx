@@ -1,8 +1,11 @@
 "use client";
 
+import { useRef } from "react";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { CoordTag } from "@/components/ui/coord-tag";
+import { TiltRegionCard } from "@/components/motion";
+import { useRevealOnScroll } from "@/lib/motion/hooks";
 import { useLanguage } from "@/contexts/LanguageContext";
 import type { Destination } from "@/hooks/useDestinations";
 import { DEMO_DESTINATIONS } from "@/lib/data/demo-content";
@@ -15,13 +18,18 @@ export default function DestinationsGridMosaic({
   initialDestinations?: Destination[];
 }) {
   const { t } = useLanguage();
+  const sectionRef = useRef<HTMLElement | null>(null);
+  useRevealOnScroll(sectionRef, { selector: "[data-mosaic-card]" });
   const regions =
     Array.isArray(initialDestinations) && initialDestinations.length > 0
       ? initialDestinations.slice(0, 6)
       : DEMO_DESTINATIONS.slice(0, 6);
 
   return (
-    <section className="section bg-background border-b border-border">
+    <section
+      ref={sectionRef}
+      className="section bg-background border-b border-border"
+    >
       <div className="container space-y-12">
         {/* Editorial Header */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 pb-10 border-b border-border items-end">
@@ -59,12 +67,13 @@ export default function DestinationsGridMosaic({
               (row % 2 === 1 && !isLeftInRow);
 
             return (
-              <article
+              <div
                 key={dest.id}
-                className={`${
-                  isWide ? "lg:col-span-7" : "lg:col-span-5"
-                } group bg-card border border-border rounded-card overflow-hidden flex flex-col justify-between hover:border-foreground transition-colors`}
+                data-mosaic-card
+                className={isWide ? "lg:col-span-7" : "lg:col-span-5"}
               >
+                <TiltRegionCard className="h-full">
+                  <article className="h-full group bg-card border border-border rounded-card overflow-hidden flex flex-col justify-between hover:border-foreground transition-colors">
                 <Link
                   href={`/destinations/${dest.id}`}
                   className="relative aspect-[16/10] overflow-hidden bg-foreground border-b border-border block"
@@ -115,7 +124,9 @@ export default function DestinationsGridMosaic({
                     </Link>
                   </div>
                 </div>
-              </article>
+                  </article>
+                </TiltRegionCard>
+              </div>
             );
           })}
         </div>

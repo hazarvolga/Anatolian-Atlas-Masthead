@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowUpRight } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useDestinations, type Destination } from "@/hooks/useDestinations";
+import { SplitTextHeading, MagneticCTA } from "@/components/motion";
+import { useParallaxImage } from "@/lib/motion/hooks";
 
 export default function HeroSection({
   initialDestinations,
@@ -14,6 +16,8 @@ export default function HeroSection({
 } = {}) {
   const { t } = useLanguage();
   const router = useRouter();
+  const heroImageRef = useRef<HTMLImageElement | null>(null);
+  useParallaxImage(heroImageRef, 6);
   const { data: fetchedDestinations } = useDestinations();
   const destinations =
     Array.isArray(fetchedDestinations) && fetchedDestinations.length > 0
@@ -74,9 +78,11 @@ export default function HeroSection({
                 </span>
               </div>
 
-              <h1 className="font-serif text-foreground tracking-[-0.035em] leading-[0.95]">
-                {t.hero.title}
-              </h1>
+              <SplitTextHeading
+                as="h1"
+                text={t.hero.title}
+                className="font-serif text-foreground tracking-[-0.035em] leading-[0.95]"
+              />
 
               <div className="grid grid-cols-1 md:grid-cols-12 gap-6 pt-2">
                 <div className="md:col-span-4 border-l-2 border-primary pl-4">
@@ -96,10 +102,12 @@ export default function HeroSection({
 
               {/* Editorial Actions */}
               <div className="flex flex-wrap items-center gap-4 pt-2">
-                <Link href="/tours" className="btn-primary">
-                  <span>{t.hero.bookStay}</span>
-                  <ArrowUpRight className="h-4 w-4 ml-2" />
-                </Link>
+                <MagneticCTA>
+                  <Link href="/tours" className="btn-primary">
+                    <span>{t.hero.bookStay}</span>
+                    <ArrowUpRight className="h-4 w-4 ml-2" />
+                  </Link>
+                </MagneticCTA>
                 <Link href="/destinations" className="btn-outline">
                   <span>{t.hero.exploreApartments}</span>
                 </Link>
@@ -188,6 +196,7 @@ export default function HeroSection({
             {/* Tall Editorial Monograph Photograph */}
             <div className="relative aspect-[4/5] w-full overflow-hidden bg-black">
               <img
+                ref={heroImageRef}
                 src="https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1400&q=85"
                 alt="Morning ferry crossing the Bosphorus Strait toward Ortaköy in İstanbul, Türkiye"
                 className="w-full h-full object-cover opacity-95 contrast-[1.03]"

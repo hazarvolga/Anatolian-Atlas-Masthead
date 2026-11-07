@@ -1,4 +1,4 @@
-import type { Destination } from "@/hooks/useDestinations";
+import type { Destination } from "../../hooks/useDestinations.ts";
 
 export interface DemoTour {
   id: string;

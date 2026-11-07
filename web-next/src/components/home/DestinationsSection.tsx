@@ -175,7 +175,7 @@ export default function DestinationsSection({
                   </div>
 
                   {/* Large Unrounded Monograph Plate */}
-                  <div className="relative aspect-[16/10] overflow-hidden bg-foreground border-b border-border">
+                  <div className="relative aspect-[16/10] overflow-hidden bg-black border-b border-border">
                     <img
                       src={
                         activeDestination.image_url || DEFAULT_FALLBACK_IMAGE
@@ -183,11 +183,11 @@ export default function DestinationsSection({
                       alt={`${activeDestination.name} landscape in Türkiye`}
                       className="w-full h-full object-cover transition-all duration-500"
                     />
-                    <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-foreground/90 via-foreground/35 to-transparent p-6 sm:p-8">
-                      <span className="text-[10px] uppercase tracking-[0.18em] text-primary-subtle font-semibold block mb-1">
+                    <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent p-6 sm:p-8">
+                      <span className="text-[10px] uppercase tracking-[0.18em] text-white/80 font-semibold block mb-1">
                         GEOGRAPHIC ARCHIVE
                       </span>
-                      <h3 className="font-serif text-2xl sm:text-4xl text-background leading-tight">
+                      <h3 className="font-serif text-2xl sm:text-4xl text-white leading-tight">
                         {activeDestination.name}
                       </h3>
                     </div>

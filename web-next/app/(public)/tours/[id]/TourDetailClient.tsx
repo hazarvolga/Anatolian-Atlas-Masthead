@@ -1,9 +1,12 @@
 "use client";
 
+import { useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, ArrowUpRight, Check, Minus } from "lucide-react";
 import { useTour } from "@/hooks/useTours";
 import { formatPrice, siteConfig } from "@/config/site";
+import { SplitTextHeading, MagneticCTA } from "@/components/motion";
+import { useScrollActiveStep } from "@/lib/motion/hooks";
 
 interface ItineraryItem {
   day: number;
@@ -109,6 +112,16 @@ export default function TourDetailClient({
   const rawTour = fetchedTour || initialTour;
   const isLoading = !rawTour && queryLoading;
   const tour = normaliseTour(rawTour);
+  const itineraryContainerRef = useRef<HTMLDivElement | null>(null);
+  const [activeDayIndex, setActiveDayIndex] = useState(0);
+
+  // Vertical scroll-active itinerary tracker (NO horizontal pin on tour detail)
+  useScrollActiveStep(
+    itineraryContainerRef,
+    "[data-itinerary-step]",
+    setActiveDayIndex,
+    tour?.id
+  );
 
   if (isLoading) {
     return (
@@ -183,9 +196,11 @@ export default function TourDetailClient({
                 <span className="editorial-kicker block">
                   FIELD ITINERARY — {tour.location}
                 </span>
-                <h1 className="font-serif text-foreground text-4xl sm:text-5xl lg:text-6xl leading-[0.98]">
-                  {tour.name}
-                </h1>
+                <SplitTextHeading
+                  as="h1"
+                  text={tour.name}
+                  className="font-serif text-foreground text-4xl sm:text-5xl lg:text-6xl leading-[0.98]"
+                />
                 <p className="text-base sm:text-lg text-text-secondary leading-relaxed max-w-[62ch]">
                   {tour.description}
                 </p>
@@ -267,40 +282,103 @@ export default function TourDetailClient({
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
             {/* Left 8 Columns: Route Sequence, Highlights & Inclusions */}
             <div className="lg:col-span-8 space-y-16">
-              {/* 01 / Chronological Route Sequence */}
-              <div className="space-y-6">
+              {/* 01 / Chronological Route Sequence (Vertical Scroll-Active Timeline) */}
+              <div ref={itineraryContainerRef} className="space-y-6">
                 <div className="border-b border-border pb-4 flex items-baseline justify-between">
                   <span className="editorial-kicker">
-                    01 — CHRONOLOGICAL ROUTE SEQUENCE
+                    01 — CHRONOLOGICAL ROUTE SEQUENCE (VERTICAL LEDGER)
                   </span>
                   <span className="editorial-meta">
-                    {tour.itinerary.length} STAGES
+                    STAGE 0{activeDayIndex + 1} OF 0{tour.itinerary.length} ACTIVE
                   </span>
                 </div>
 
-                <div className="border border-border divide-y divide-border bg-card">
-                  {tour.itinerary.map((item: ItineraryItem, idx: number) => (
-                    <div
-                      key={idx}
-                      className="p-6 sm:p-8 grid grid-cols-1 sm:grid-cols-12 gap-4 sm:gap-6"
-                    >
-                      <div className="sm:col-span-3">
-                        <span className="inline-block px-2.5 py-1 bg-foreground text-background text-[11px] uppercase tracking-[0.16em] font-semibold tabular-nums">
-                          {tour.tour_type === "one_day"
-                            ? `STAGE 0${item.day || idx + 1}`
-                            : `DAY 0${item.day || idx + 1}`}
-                        </span>
-                      </div>
-                      <div className="sm:col-span-9 space-y-2">
-                        <h3 className="font-serif text-2xl text-foreground">
-                          {item.title}
-                        </h3>
-                        <p className="text-sm sm:text-base text-text-secondary leading-relaxed">
-                          {item.description}
-                        </p>
-                      </div>
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+                  {/* Sticky Vertical Stage Navigator */}
+                  <div className="md:col-span-3 md:sticky md:top-28 border border-border bg-card divide-y divide-border rounded-card overflow-hidden">
+                    <div className="px-4 py-2.5 bg-surface-container text-[10px] font-mono uppercase tracking-[0.15em] text-text-secondary">
+                      STAGE INDEX
                     </div>
-                  ))}
+                    {tour.itinerary.map((item: ItineraryItem, idx: number) => {
+                      const isCurrent = idx === activeDayIndex;
+                      const label =
+                        tour.tour_type === "one_day"
+                          ? `STAGE 0${item.day || idx + 1}`
+                          : `DAY 0${item.day || idx + 1}`;
+                      return (
+                        <button
+                          key={`nav-${idx}`}
+                          type="button"
+                          onClick={() => {
+                            setActiveDayIndex(idx);
+                            const el =
+                              itineraryContainerRef.current?.querySelectorAll(
+                                "[data-itinerary-step]"
+                              )[idx];
+                            el?.scrollIntoView({
+                              behavior: "smooth",
+                              block: "center",
+                            });
+                          }}
+                          className={`w-full text-left px-4 py-3 transition-colors flex items-center justify-between text-xs font-mono ${
+                            isCurrent
+                              ? "bg-foreground text-background font-semibold"
+                              : "bg-card text-text-secondary hover:text-foreground"
+                          }`}
+                        >
+                          <span>{label}</span>
+                          <span
+                            className={`w-1.5 h-1.5 rounded-full ${
+                              isCurrent ? "bg-primary" : "bg-border"
+                            }`}
+                          />
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  {/* Vertical Scroll-Active Stage Cards */}
+                  <div className="md:col-span-9 border border-border divide-y divide-border bg-card rounded-card overflow-hidden">
+                    {tour.itinerary.map((item: ItineraryItem, idx: number) => {
+                      const isCurrent = idx === activeDayIndex;
+                      return (
+                        <div
+                          key={idx}
+                          data-itinerary-step
+                          className={`p-6 sm:p-8 transition-colors border-l-4 ${
+                            isCurrent
+                              ? "border-l-primary bg-surface-container/40"
+                              : "border-l-transparent bg-card"
+                          }`}
+                        >
+                          <div className="flex items-center justify-between gap-4 mb-3">
+                            <span
+                              className={`inline-block px-2.5 py-1 text-[11px] uppercase tracking-[0.16em] font-semibold tabular-nums rounded-badge ${
+                                isCurrent
+                                  ? "bg-primary text-primary-foreground"
+                                  : "bg-foreground text-background"
+                              }`}
+                            >
+                              {tour.tour_type === "one_day"
+                                ? `STAGE 0${item.day || idx + 1}`
+                                : `DAY 0${item.day || idx + 1}`}
+                            </span>
+                            {isCurrent && (
+                              <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-primary">
+                                ACTIVE FIELD STAGE
+                              </span>
+                            )}
+                          </div>
+                          <h3 className="font-serif text-2xl text-foreground mb-2">
+                            {item.title}
+                          </h3>
+                          <p className="text-sm sm:text-base text-text-secondary leading-relaxed">
+                            {item.description}
+                          </p>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
 
@@ -444,13 +522,15 @@ export default function TourDetailClient({
                 </dl>
 
                 <div className="space-y-3">
-                  <Link
-                    href={`/book/${tour.id}`}
-                    className="btn-primary w-full py-4 text-center"
-                  >
-                    <span>Proceed to Reservation</span>
-                    <ArrowUpRight className="h-4 w-4 ml-2" />
-                  </Link>
+                  <MagneticCTA className="w-full block">
+                    <Link
+                      href={`/book/${tour.id}`}
+                      className="btn-primary w-full py-4 text-center"
+                    >
+                      <span>Proceed to Reservation</span>
+                      <ArrowUpRight className="h-4 w-4 ml-2" />
+                    </Link>
+                  </MagneticCTA>
                   <Link
                     href="/contact"
                     className="btn-outline w-full py-3.5 text-center"

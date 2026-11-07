@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { CoordTag } from "@/components/ui/coord-tag";
+import { SplitTextHeading, MagneticCTA } from "@/components/motion";
 import type { Destination } from "@/hooks/useDestinations";
 import type { DemoTour } from "@/lib/data/demo-content";
 import { DEMO_DESTINATIONS, DEMO_TOURS } from "@/lib/data/demo-content";
@@ -75,9 +76,11 @@ export default function HeroSplitCinema({
                 />
               </div>
 
-              <h1 className="font-serif text-fluid-3xl lg:text-fluid-4xl text-foreground leading-[0.98] tracking-[-0.03em]">
-                {activeRegion?.name || t.hero.title}
-              </h1>
+              <SplitTextHeading
+                as="h1"
+                text={activeRegion?.name || t.hero.title}
+                className="font-serif text-fluid-3xl lg:text-fluid-4xl text-foreground leading-[0.98] tracking-[-0.03em]"
+              />
 
               {/* Answer-First Regional Summary */}
               <p className="text-sm sm:text-base text-text-secondary leading-relaxed border-l-2 border-primary pl-4">
@@ -135,13 +138,15 @@ export default function HeroSplitCinema({
 
               {/* Actions */}
               <div className="flex flex-wrap items-center gap-3 pt-2">
-                <Link
-                  href={`/destinations/${activeRegion?.id || "dest-istanbul"}`}
-                  className="btn-primary flex-1"
-                >
-                  <span>Open Region Dossier</span>
-                  <ArrowUpRight className="h-4 w-4 ml-1.5" />
-                </Link>
+                <MagneticCTA className="flex-1">
+                  <Link
+                    href={`/destinations/${activeRegion?.id || "dest-istanbul"}`}
+                    className="btn-primary w-full"
+                  >
+                    <span>Open Region Dossier</span>
+                    <ArrowUpRight className="h-4 w-4 ml-1.5" />
+                  </Link>
+                </MagneticCTA>
                 <Link href="/tours" className="btn-outline">
                   All Routes
                 </Link>

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { siteConfig } from "@/config/site";
+import { SplitTextHeading, MagneticCTA } from "@/components/motion";
 
 export default function CTASection() {
   const { t } = useLanguage();
@@ -17,18 +18,22 @@ export default function CTASection() {
             <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary-subtle block tabular-nums">
               05 — DISPATCH & BESPOKE ROUTE COMMISSIONING
             </span>
-            <h2 className="font-serif text-background text-3xl sm:text-5xl lg:text-6xl leading-[1.02]">
-              {t?.home?.cta?.title || "Begin with a region that calls to you"}
-            </h2>
+            <SplitTextHeading
+              as="h2"
+              text={t?.home?.cta?.title || "Begin with a region that calls to you"}
+              className="font-serif text-background text-3xl sm:text-5xl lg:text-6xl leading-[1.02]"
+            />
             <p className="text-base sm:text-lg text-background/75 leading-relaxed max-w-2xl">
               {t?.home?.cta?.description ||
                 "Join a scheduled small-group departure or commission a private itinerary tailored by our route historians in Galata, İstanbul."}
             </p>
             <div className="pt-4 flex flex-wrap items-center gap-4">
-              <Link href="/tours" className="btn-primary">
-                <span>{t?.home?.cta?.bookNow || "Browse All Itineraries"}</span>
-                <ArrowUpRight className="ml-2 h-4 w-4" />
-              </Link>
+              <MagneticCTA>
+                <Link href="/tours" className="btn-primary">
+                  <span>{t?.home?.cta?.bookNow || "Browse All Itineraries"}</span>
+                  <ArrowUpRight className="ml-2 h-4 w-4" />
+                </Link>
+              </MagneticCTA>
               <Link
                 href="/contact"
                 className="inline-flex items-center justify-center border border-background/35 text-background px-7 py-4 text-xs uppercase tracking-[0.14em] font-medium hover:bg-background hover:text-foreground transition-colors"

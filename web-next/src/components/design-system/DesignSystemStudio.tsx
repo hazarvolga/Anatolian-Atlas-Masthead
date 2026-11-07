@@ -25,6 +25,13 @@ import { CoordTag } from "@/components/ui/coord-tag";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ErrorState } from "@/components/ui/error-state";
 import {
+  CountUpStat,
+  MagneticCTA,
+  SplitTextHeading,
+  SpotlightTourCard,
+  TiltRegionCard,
+} from "@/components/motion";
+import {
   Check,
   Copy,
   Loader2,
@@ -610,12 +617,76 @@ export default {
           </div>
         </section>
 
-        {/* 04. Exportable theme.config.ts */}
+        {/* 04. Clean-Room GSAP Micro-Components & Motion Architecture */}
+        <section className="space-y-8">
+          <div className="border-b border-border pb-5">
+            <span className="editorial-kicker block mb-2">
+              04 / Motion System & Clean-Room GSAP Primitives
+            </span>
+            <h2 className="font-serif text-fluid-2xl">
+              Lenis + GSAP ScrollTrigger + 5 First-Party Micro-Components
+            </h2>
+          </div>
+
+          <div className="grid lg:grid-cols-3 gap-6">
+            <SpotlightTourCard className="border border-border bg-card rounded-card p-6 space-y-4">
+              <span className="editorial-meta block">
+                01–03 / SplitText · CountUp · MagneticCTA
+              </span>
+              <SplitTextHeading
+                as="h3"
+                text="Stratigraphy at walking pace."
+                className="font-serif text-2xl text-foreground"
+              />
+              <div className="py-3 border-y border-border flex items-baseline justify-between">
+                <span className="text-xs text-text-secondary">
+                  Verified Field Routes:
+                </span>
+                <span className="font-serif text-3xl text-primary">
+                  <CountUpStat value={6} prefix="0" />
+                </span>
+              </div>
+              <MagneticCTA>
+                <Button variant="default" size="sm">
+                  Magnetic Primary CTA
+                </Button>
+              </MagneticCTA>
+            </SpotlightTourCard>
+
+            <SpotlightTourCard className="border border-border bg-card rounded-card p-6 space-y-3">
+              <span className="editorial-meta block">
+                04 / SpotlightTourCard (Hover Cursor Radial)
+              </span>
+              <h3 className="font-serif text-2xl text-foreground">
+                Warm Paper Radial Illumination
+              </h3>
+              <p className="text-xs text-text-secondary leading-relaxed">
+                Move your pointer across this card to inspect the zero-canvas GSAP quickTo radial spotlight mapped to <code>--spot-x</code> and <code>--spot-y</code>.
+              </p>
+            </SpotlightTourCard>
+
+            <TiltRegionCard className="h-full">
+              <div className="h-full border border-border bg-card rounded-card p-6 space-y-3">
+                <span className="editorial-meta block">
+                  05 / TiltRegionCard (Max ±3.2° Perspective)
+                </span>
+                <h3 className="font-serif text-2xl text-foreground">
+                  Cartographic Plate Tilt
+                </h3>
+                <p className="text-xs text-text-secondary leading-relaxed">
+                  Subtle 3D perspective rotation capped at ±3.2 degrees on fine pointers; automatically disabled on touch screens and reduced-motion.
+                </p>
+              </div>
+            </TiltRegionCard>
+          </div>
+        </section>
+
+        {/* 05. Exportable theme.config.ts */}
         <section className="space-y-4">
           <div className="flex items-center justify-between">
             <div>
               <span className="editorial-kicker block mb-1">
-                04 / Single Source Configuration
+                05 / Single Source Configuration
               </span>
               <h2 className="font-serif text-fluid-xl">
                 Export <code>theme.config.ts</code>

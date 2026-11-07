@@ -56,7 +56,24 @@ export const siteConfig = {
 } as const;
 
 export function isDemoMode(): boolean {
-  return siteConfig.dataMode === "demo";
+  return (
+    process.env.NEXT_PUBLIC_DATA_MODE === "demo" ||
+    siteConfig.dataMode === "demo"
+  );
+}
+
+/**
+ * Resolves the Express backend URL for server-side (SSR/ISR) requests.
+ * Prioritizes API_INTERNAL_URL so internal container/loopback traffic never
+ * traverses public ingress.
+ */
+export function getInternalApiBaseUrl(): string {
+  const raw =
+    process.env.API_INTERNAL_URL ||
+    process.env.NEXT_PUBLIC_API_BASE_URL ||
+    process.env.NEXT_PUBLIC_API_URL ||
+    "http://127.0.0.1:3001";
+  return raw.replace(/\/api\/?$/, "").replace(/\/$/, "");
 }
 
 export function formatPrice(amount: number): string {

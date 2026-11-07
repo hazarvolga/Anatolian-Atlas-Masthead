@@ -1,14 +1,20 @@
 "use client";
 
+import { useRef } from "react";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { CountUpStat, SplitTextHeading, MagneticCTA } from "@/components/motion";
+import { useRevealOnScroll } from "@/lib/motion/hooks";
 
 export default function WelcomeSection() {
   const { t } = useLanguage();
+  const sectionRef = useRef<HTMLElement | null>(null);
+  useRevealOnScroll(sectionRef, { selector: "[data-welcome-reveal]" });
 
   return (
     <section
+      ref={sectionRef}
       id="welcome"
       className="section bg-card border-b border-border"
     >
@@ -27,16 +33,49 @@ export default function WelcomeSection() {
         <div className="grid grid-cols-1 lg:grid-cols-12 border-x border-b border-border bg-background">
           {/* Left 5 Columns: Pull-Quote & Tabular Field Parameters */}
           <div className="lg:col-span-5 p-8 sm:p-10 lg:p-12 border-b lg:border-b-0 lg:border-r border-border flex flex-col justify-between space-y-10">
-            <div className="space-y-6">
+            <div className="space-y-6" data-welcome-reveal>
               <span className="text-[11px] uppercase tracking-[0.16em] text-primary font-semibold block">
                 {t.home.welcome.subtitle}
               </span>
-              <h2 className="font-serif text-foreground leading-[1.03]">
-                {t.home.welcome.title}
-              </h2>
+              <SplitTextHeading
+                as="h2"
+                text={t.home.welcome.title}
+                className="font-serif text-foreground leading-[1.03]"
+              />
               <blockquote className="border-l-2 border-primary pl-5 py-1 font-serif italic text-xl sm:text-2xl text-foreground/90 leading-snug">
                 &ldquo;To cross Anatolia properly is to read its stratigraphy at walking pace—limestone porticos at dawn, volcanic valleys at dusk, and long tables where recipes outlast empires.&rdquo;
               </blockquote>
+            </div>
+
+            {/* Verifiable Field Metrics with CountUpStat */}
+            <div
+              data-welcome-reveal
+              className="grid grid-cols-3 border border-border divide-x divide-border bg-card text-center"
+            >
+              <div className="p-3.5">
+                <span className="font-serif text-2xl sm:text-3xl text-foreground block">
+                  <CountUpStat value={6} prefix="0" />
+                </span>
+                <span className="text-[10px] font-mono uppercase tracking-[0.14em] text-text-secondary">
+                  REGIONS
+                </span>
+              </div>
+              <div className="p-3.5">
+                <span className="font-serif text-2xl sm:text-3xl text-foreground block">
+                  <CountUpStat value={12} />
+                </span>
+                <span className="text-[10px] font-mono uppercase tracking-[0.14em] text-text-secondary">
+                  MAX GUESTS
+                </span>
+              </div>
+              <div className="p-3.5">
+                <span className="font-serif text-2xl sm:text-3xl text-foreground block">
+                  <CountUpStat value={8} prefix="0" suffix=":00" />
+                </span>
+                <span className="text-[10px] font-mono uppercase tracking-[0.14em] text-text-secondary">
+                  DAWN ENTRY
+                </span>
+              </div>
             </div>
 
             {/* Tabular Program Specifications */}
@@ -118,10 +157,12 @@ export default function WelcomeSection() {
                 <Link href="/destinations" className="btn-outline py-3 px-5">
                   {t.home.welcome.learnMore}
                 </Link>
-                <Link href="/tours" className="btn-primary py-3 px-5">
-                  <span>{t.home.welcome.cta}</span>
-                  <ArrowUpRight className="ml-2 h-3.5 w-3.5" />
-                </Link>
+                <MagneticCTA>
+                  <Link href="/tours" className="btn-primary py-3 px-5">
+                    <span>{t.home.welcome.cta}</span>
+                    <ArrowUpRight className="ml-2 h-3.5 w-3.5" />
+                  </Link>
+                </MagneticCTA>
               </div>
             </div>
           </div>

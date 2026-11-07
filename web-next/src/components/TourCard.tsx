@@ -5,6 +5,7 @@ import { ArrowUpRight } from "lucide-react";
 import { formatPrice } from "@/config/site";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useDesignSystem } from "@/contexts/DesignSystemContext";
+import { SpotlightTourCard } from "@/components/motion";
 import type { TourCardVariant } from "@/config/theme.config";
 
 const DEFAULT_TOUR_IMAGE =
@@ -121,6 +122,7 @@ export default function TourCard({
   // Variant 2: Asymmetric Horizontal Landscape Row
   if (activeVariant === "landscape-row") {
     return (
+      <SpotlightTourCard className="rounded-card overflow-hidden">
       <article className="group grid grid-cols-1 lg:grid-cols-12 bg-card border border-border rounded-card overflow-hidden hover:border-foreground transition-colors">
         <Link
           href={`/tours/${tour.id}`}
@@ -218,12 +220,14 @@ export default function TourCard({
           </div>
         </div>
       </article>
+      </SpotlightTourCard>
     );
   }
 
   // Variant 1 (Default): Portrait 4:5 Editorial Plate
   return (
-    <article className="group flex flex-col justify-between bg-card border border-border rounded-card overflow-hidden transition-colors duration-200 hover:border-foreground">
+    <SpotlightTourCard className="h-full rounded-card overflow-hidden">
+    <article className="group h-full flex flex-col justify-between bg-card border border-border rounded-card overflow-hidden transition-colors duration-200 hover:border-foreground">
       <div>
         {/* Top Hairline Specification Strip */}
         <div className="px-5 py-3 border-b border-border flex items-center justify-between text-[11px] uppercase tracking-[0.15em] text-text-secondary tabular-nums bg-background/60">
@@ -333,5 +337,6 @@ export default function TourCard({
         </div>
       </div>
     </article>
+    </SpotlightTourCard>
   );
 }
