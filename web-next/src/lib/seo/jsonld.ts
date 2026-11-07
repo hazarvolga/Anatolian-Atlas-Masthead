@@ -22,7 +22,14 @@ function parseCoordsPair(coords?: string): {
 
 export function buildTravelAgencyJsonLd(locale: SupportedLocale = "en") {
   const baseUrl = siteConfig.seo.siteUrl.replace(/\/$/, "");
-  return {
+  const officeGeo = parseCoordsPair(siteConfig.contact.coordinates);
+  const sameAs = [
+    siteConfig.social.instagram,
+    siteConfig.social.youtube,
+    siteConfig.social.linkedin,
+  ].filter(Boolean);
+
+  const schema: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "TravelAgency",
     "@id": `${baseUrl}/#organization`,
@@ -30,47 +37,46 @@ export function buildTravelAgencyJsonLd(locale: SupportedLocale = "en") {
     alternateName: siteConfig.brand.tagline,
     description: siteConfig.brand.description,
     url: buildAbsoluteLocalizedUrl("/", locale),
-    foundingDate: String(siteConfig.brand.foundedYear),
-    identifier: {
+    currenciesAccepted: siteConfig.currency.code,
+  };
+
+  if (siteConfig.brand.tursabLicenseNo) {
+    schema.identifier = {
       "@type": "PropertyValue",
       name: "TÜRSAB Travel Agency License",
       value: siteConfig.brand.tursabLicenseNo,
-    },
-    telephone: siteConfig.contact.phone,
-    email: siteConfig.contact.email,
-    priceRange: "€€€",
-    currenciesAccepted: siteConfig.currency.code,
-    address: {
+    };
+  }
+
+  if (siteConfig.contact.phone) {
+    schema.telephone = siteConfig.contact.phone;
+  }
+
+  if (siteConfig.contact.email) {
+    schema.email = siteConfig.contact.email;
+  }
+
+  if (siteConfig.contact.addressLines.length > 0) {
+    schema.address = {
       "@type": "PostalAddress",
-      streetAddress: siteConfig.contact.addressLines[0],
-      addressLocality: "Beyoğlu, İstanbul",
-      postalCode: "34421",
+      streetAddress: siteConfig.contact.addressLines.join(", "),
       addressCountry: "TR",
-    },
-    geo: {
+    };
+  }
+
+  if (officeGeo) {
+    schema.geo = {
       "@type": "GeoCoordinates",
-      latitude: 41.0256,
-      longitude: 28.9742,
-    },
-    openingHoursSpecification: {
-      "@type": "OpeningHoursSpecification",
-      dayOfWeek: [
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-      ],
-      opens: "09:00",
-      closes: "19:00",
-    },
-    sameAs: [
-      siteConfig.social.instagram,
-      siteConfig.social.youtube,
-      siteConfig.social.linkedin,
-    ],
-  };
+      latitude: officeGeo.latitude,
+      longitude: officeGeo.longitude,
+    };
+  }
+
+  if (sameAs.length > 0) {
+    schema.sameAs = sameAs;
+  }
+
+  return schema;
 }
 
 export function buildBreadcrumbJsonLd(
@@ -140,7 +146,6 @@ export function buildTouristTripJsonLd(
       priceCurrency: siteConfig.currency.code,
       price: String(tour.price_adult || tour.price || 0),
       availability: "https://schema.org/InStock",
-      validFrom: "2026-01-01",
       seller: {
         "@type": "TravelAgency",
         name: siteConfig.brand.name,
@@ -162,22 +167,20 @@ export function buildTourFaqJsonLd(tour: DemoTour) {
         durationDays === 1 ? "day" : "days"
       } departing from ${
         tour.departure_location || tour.city || "Türkiye"
-      }, capped at a maximum of ${maxGuests} guests per departure with a licensed specialist scholar-guide.`,
+      }, capped at a maximum of ${maxGuests} guests per departure.`,
     },
     {
       question: `What is included in the €${price} per-guest tariff for ${title}?`,
       answer:
         tour.included && tour.included.length > 0
           ? `The tariff includes: ${tour.included.join("; ")}.`
-          : "The tariff includes licensed archaeological guiding, private climate-controlled ground transport, and all scheduled museum and monument entry dockets.",
+          : "The tariff includes specialist guiding, private climate-controlled ground transport, and scheduled site entry tickets.",
     },
     {
       question: `How do reservations and the 20% deposit option work?`,
       answer: `Reservations can be settled in full (€${price}) or secured with a 20% deposit (€${Math.round(
         price * 0.2
-      )}) via the online reservation ledger under TÜRSAB License ${
-        siteConfig.brand.tursabLicenseNo
-      }.`,
+      )}) via the online reservation ledger.`,
     },
   ];
 
@@ -258,7 +261,7 @@ export function buildJournalArticleJsonLd(
     dateModified: article.publishedAt,
     author: {
       "@type": "Organization",
-      name: `${article.author.name} (${article.author.demoNotice})`,
+      name: article.author.name,
     },
     publisher: {
       "@type": "TravelAgency",

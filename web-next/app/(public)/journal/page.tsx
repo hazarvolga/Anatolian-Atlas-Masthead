@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowUpRight, BookOpen, Compass, Clock } from "lucide-react";
-import { JOURNAL_ARTICLES } from "@/lib/data/journal-content";
+import {
+  DEMO_EDITORIAL_DISCLAIMER,
+  JOURNAL_ARTICLES,
+} from "@/lib/data/journal-content";
 
 export const metadata: Metadata = {
   title: "The Anatolian Journal — Archaeological & Architectural Monographs",
@@ -34,9 +37,17 @@ export default function JournalIndexPage() {
             </div>
             <div className="lg:col-span-4">
               <p className="text-sm sm:text-base text-text-secondary leading-relaxed">
-                Stratigraphic notes, architectural geometry, and coastal epigraphy across six regions of Türkiye. Every factual claim is cross-referenced against UNESCO and archaeological excavation dossiers.
+                Stratigraphic notes, architectural geometry, and coastal epigraphy across six regions of Türkiye.
               </p>
             </div>
+          </div>
+
+          <div
+            role="note"
+            data-testid="journal-demo-disclaimer"
+            className="mt-6 px-4 py-3 border border-border bg-card font-mono text-xs text-text-secondary"
+          >
+            {DEMO_EDITORIAL_DISCLAIMER}
           </div>
         </header>
 
@@ -55,6 +66,10 @@ export default function JournalIndexPage() {
                   <img
                     src={featured.heroImage}
                     alt={featured.heroCaption}
+                    width={1400}
+                    height={875}
+                    fetchPriority="high"
+                    decoding="async"
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.02]"
                   />
                   <div className="absolute top-4 left-4 bg-background/95 backdrop-blur-sm px-3 py-1.5 border border-border font-mono text-[11px] tracking-widest uppercase text-foreground">

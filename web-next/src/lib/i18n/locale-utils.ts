@@ -14,20 +14,48 @@ export const NON_LOCALIZED_PREFIXES = [
   "/profile",
   "/my-reservations",
   "/design-system",
+  "/email-confirmation",
+  "/unsubscribe",
   "/_next",
   "/llms.txt",
   "/sitemap.xml",
   "/robots.txt",
 ] as const;
 
-export function isSupportedLocale(value: string | null | undefined): value is SupportedLocale {
-  return Boolean(value && (SUPPORTED_LOCALES as readonly string[]).includes(value));
+/**
+ * Routes whose UI and template copy are translated across `en`, `tr`, `es`, `it`
+ * in `src/locales/{en,tr,es,it}.ts`.
+ * Routes outside this set (e.g. `/journal/*`, `/tours/[id]`, `/destinations/[id]`, `/[slug]`)
+ * contain English-only database/editorial prose and therefore must NOT emit misleading
+ * `hreflang` alternates; on `/tr/*`, `/es/*`, `/it/*` they point `canonical` to the
+ * English URL and emit `noindex, follow`.
+ */
+export const TRANSLATED_PUBLIC_PATHS = new Set([
+  "/",
+  "/tours",
+  "/destinations",
+  "/gallery",
+  "/contact",
+]);
+
+export function isSupportedLocale(
+  value: string | null | undefined
+): value is SupportedLocale {
+  return Boolean(
+    value && (SUPPORTED_LOCALES as readonly string[]).includes(value)
+  );
 }
 
 export function isNonLocalizedPath(pathname: string): boolean {
   return NON_LOCALIZED_PREFIXES.some(
     (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
   );
+}
+
+export function isFullyTranslatedRoute(strippedPathname: string): boolean {
+  const normalized =
+    strippedPathname === "/" ? "/" : strippedPathname.replace(/\/$/, "");
+  return TRANSLATED_PUBLIC_PATHS.has(normalized);
 }
 
 /**
@@ -80,7 +108,9 @@ export function buildLocalizedPath(
   if (locale === DEFAULT_LOCALE) {
     return strippedPathname || "/";
   }
-  return strippedPathname === "/" ? `/${locale}` : `/${locale}${strippedPathname}`;
+  return strippedPathname === "/"
+    ? `/${locale}`
+    : `/${locale}${strippedPathname}`;
 }
 
 export function buildAbsoluteLocalizedUrl(
@@ -93,14 +123,24 @@ export function buildAbsoluteLocalizedUrl(
 }
 
 /**
- * Generates reciprocal `alternates` (`canonical` + `languages` hreflang + `x-default`)
- * for Next.js `Metadata`.
+ * Generates SEO `alternates` metadata:
+ * - For fully translated routes (`/`, `/tours`, `/destinations`, `/gallery`, `/contact`),
+ *   emits self-referencing localized `canonical` AND reciprocal `languages` (`en`, `tr`, `es`, `it`, `x-default`).
+ * - For English-only prose/database routes (`/journal/*`, `/tours/[id]`, `/destinations/[id]`, `/[slug]`),
+ *   points `canonical` strictly to the English prefix-free URL and omits `hreflang` alternates.
  */
 export function buildAlternatesMetadata(
   pathname: string,
   activeLocale: SupportedLocale = DEFAULT_LOCALE
 ): Metadata["alternates"] {
   const { strippedPathname } = parseLocalizedPathname(pathname);
+
+  if (!isFullyTranslatedRoute(strippedPathname)) {
+    return {
+      canonical: buildAbsoluteLocalizedUrl(strippedPathname, DEFAULT_LOCALE),
+    };
+  }
+
   return {
     canonical: buildAbsoluteLocalizedUrl(strippedPathname, activeLocale),
     languages: {

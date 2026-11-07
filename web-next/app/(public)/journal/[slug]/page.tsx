@@ -120,9 +120,17 @@ export default async function JournalArticlePage({
             {article.title}
           </h1>
 
-          <p className="text-lg sm:text-xl text-text-secondary leading-relaxed mb-8">
+          <p className="text-lg sm:text-xl text-text-secondary leading-relaxed mb-6">
             {article.subtitle}
           </p>
+
+          <div
+            role="note"
+            data-testid="article-demo-disclaimer"
+            className="mb-6 px-4 py-3 border border-border bg-card font-mono text-xs text-text-secondary"
+          >
+            {article.author.demoNotice}
+          </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 py-5 border-y border-border font-mono text-xs">
             <div>
@@ -161,6 +169,10 @@ export default async function JournalArticlePage({
             <img
               src={article.heroImage}
               alt={article.heroCaption}
+              width={1680}
+              height={720}
+              fetchPriority="high"
+              decoding="async"
               className="w-full h-full object-cover"
             />
           </div>

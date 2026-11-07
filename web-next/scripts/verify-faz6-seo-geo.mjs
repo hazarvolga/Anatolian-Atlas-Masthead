@@ -147,7 +147,32 @@ console.log(`Running Faz 6 SEO, GEO, i18n & Security Verification against ${BASE
         hasHreflangIt &&
         hasXDefault &&
         hasCanonical,
-      `6. Localized URL /${loc}/tours returns HTTP 200 with <html lang="${loc}">, canonical, and reciprocal hreflang (en, tr, es, it, x-default)`
+      `6. Localized translated URL /${loc}/tours returns HTTP 200 with <html lang="${loc}">, canonical, and reciprocal hreflang (en, tr, es, it, x-default)`
+    );
+  }
+
+  // Untranslated prose routes under /tr/*, /es/*, /it/* must have canonical -> English URL, noindex, and 0 hreflang
+  for (const loc of ["tr", "es", "it"]) {
+    const res = await fetch(
+      `${BASE_URL}/${loc}/journal/mimar-sinan-acoustic-vessels-and-structural-geometry-in-istanbul`
+    );
+    const html = await res.text();
+    const robotsHeader = res.headers.get("x-robots-tag") || "";
+    const hasEnCanonical = html.includes(
+      '<link rel="canonical" href="https://nextstopturkey.com/journal/mimar-sinan-acoustic-vessels-and-structural-geometry-in-istanbul"/>'
+    );
+    const hasNoindexMeta = html.includes(
+      '<meta name="robots" content="noindex, follow"/>'
+    );
+    const hasNoHreflang = !html.includes('hrefLang="tr"');
+
+    assert(
+      res.status === 200 &&
+        robotsHeader.includes("noindex") &&
+        hasEnCanonical &&
+        hasNoindexMeta &&
+        hasNoHreflang,
+      `6b. Untranslated prose route /${loc}/journal/[slug] points canonical to English URL, sets noindex,follow, and omits hreflang`
     );
   }
 
@@ -202,10 +227,17 @@ console.log(`Running Faz 6 SEO, GEO, i18n & Security Verification against ${BASE
   const llmsTxt = await llmsRes.text();
   assert(
     llmsRes.status === 200 &&
-      llmsTxt.includes("TÜRSAB License Number:") &&
+      !llmsTxt.includes("A-14892") &&
       llmsTxt.includes("Cappadocia") &&
       llmsTxt.includes("MONOGRAPH 01"),
-    "10. /llms.txt serves structured Markdown GEO manifest with regions, EUR tariffs, and monograph citations"
+    "10. /llms.txt serves structured Markdown GEO manifest with zero fabricated license/contact numbers, regions, EUR tariffs, and monograph citations"
+  );
+
+  // Verify proxy.ts migration
+  assert(
+    fs.existsSync(new URL("../proxy.ts", import.meta.url)) &&
+      !fs.existsSync(new URL("../middleware.ts", import.meta.url)),
+    "10b. Next.js 16 proxy.ts migration verified (proxy.ts exists, deprecated middleware.ts removed)"
   );
 }
 
@@ -252,22 +284,27 @@ try {
     {
       path: "/",
       expectedSchemas: ["TravelAgency"],
+      expectedHreflangs: 5,
     },
     {
       path: "/tours/tour-cappadocia-tuff",
       expectedSchemas: ["TouristTrip", "Product", "FAQPage", "BreadcrumbList"],
+      expectedHreflangs: 0,
     },
     {
       path: "/destinations/dest-cappadocia",
       expectedSchemas: ["TouristDestination", "BreadcrumbList"],
+      expectedHreflangs: 0,
     },
     {
       path: "/journal/mimar-sinan-acoustic-vessels-and-structural-geometry-in-istanbul",
       expectedSchemas: ["Article", "BreadcrumbList"],
+      expectedHreflangs: 0,
     },
     {
       path: "/contact",
       expectedSchemas: ["TravelAgency", "BreadcrumbList"],
+      expectedHreflangs: 5,
     },
   ];
 
@@ -339,11 +376,18 @@ try {
       `Rich Results [${target.path}]: Valid JSON-LD schemas [${seoReport.foundTypes.join(", ")}]`
     );
 
+    const rawJsonLdString = JSON.stringify(seoReport.parsedSchemas);
+    assert(
+      !rawJsonLdString.includes("A-14892") &&
+        !rawJsonLdString.includes("244 82 19"),
+      `Rich Results [${target.path}]: Zero fabricated license/phone data in JSON-LD`
+    );
+
     assert(
       seoReport.title.length >= 10 &&
         seoReport.metaDescLength >= 40 &&
         seoReport.canonical.startsWith("https://nextstopturkey.com") &&
-        seoReport.hreflangs.length === 5 &&
+        seoReport.hreflangs.length === target.expectedHreflangs &&
         seoReport.h1Count >= 1 &&
         seoReport.imagesWithoutAlt === 0,
       `Lighthouse SEO [${target.path}]: Score 100/100 (title="${seoReport.title.slice(0, 42)}...", desc=${seoReport.metaDescLength} chars, canonical=OK, hreflangs=${seoReport.hreflangs.length}, h1=${seoReport.h1Count}, missingAlt=${seoReport.imagesWithoutAlt})`

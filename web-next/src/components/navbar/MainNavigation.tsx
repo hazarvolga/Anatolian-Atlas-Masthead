@@ -30,9 +30,17 @@ export default function MainNavigation() {
       <>
         <div className="border-b border-border/60 bg-surface-container/40 hidden md:block">
           <div className="container py-1.5 flex items-center justify-between text-[10px] font-mono uppercase tracking-[0.15em] text-text-secondary">
-            <span>{siteConfig.contact.coordinates} · GALATA DESK</span>
+            <span>
+              {siteConfig.contact.coordinates
+                ? `${siteConfig.contact.coordinates} · GALATA DESK`
+                : "GALATA PLANNING DESK · İSTANBUL"}
+            </span>
             <span>{siteConfig.brand.tagline}</span>
-            <span>TÜRSAB LIC. {siteConfig.brand.tursabLicenseNo}</span>
+            <span>
+              {siteConfig.brand.tursabLicenseNo
+                ? `TÜRSAB LIC. ${siteConfig.brand.tursabLicenseNo}`
+                : "BESPOKE CULTURAL EXPEDITIONS"}
+            </span>
           </div>
         </div>
         <div className="container grid grid-cols-12 items-center h-16 md:h-20">

@@ -4,7 +4,10 @@ import {
   getServerTours,
 } from "@/lib/data/server-catalog";
 import { JOURNAL_ARTICLES } from "@/lib/data/journal-content";
-import { buildAbsoluteLocalizedUrl } from "@/lib/i18n/locale-utils";
+import {
+  buildAbsoluteLocalizedUrl,
+  isFullyTranslatedRoute,
+} from "@/lib/i18n/locale-utils";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [tours, destinations] = await Promise.all([
@@ -27,7 +30,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const entries: MetadataRoute.Sitemap = [];
   const now = new Date();
 
-  const pushLocalizedEntry = (
+  const pushEntry = (
     path: string,
     priority: number,
     changeFrequency:
@@ -40,36 +43,41 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       | "never",
     lastModified: Date = now
   ) => {
+    const translated = isFullyTranslatedRoute(path);
     entries.push({
       url: buildAbsoluteLocalizedUrl(path, "en"),
       lastModified,
       changeFrequency,
       priority,
-      alternates: {
-        languages: {
-          en: buildAbsoluteLocalizedUrl(path, "en"),
-          tr: buildAbsoluteLocalizedUrl(path, "tr"),
-          es: buildAbsoluteLocalizedUrl(path, "es"),
-          it: buildAbsoluteLocalizedUrl(path, "it"),
-        },
-      },
+      ...(translated
+        ? {
+            alternates: {
+              languages: {
+                en: buildAbsoluteLocalizedUrl(path, "en"),
+                tr: buildAbsoluteLocalizedUrl(path, "tr"),
+                es: buildAbsoluteLocalizedUrl(path, "es"),
+                it: buildAbsoluteLocalizedUrl(path, "it"),
+              },
+            },
+          }
+        : {}),
     });
   };
 
   for (const item of staticPaths) {
-    pushLocalizedEntry(item.path, item.priority, item.changeFrequency);
+    pushEntry(item.path, item.priority, item.changeFrequency);
   }
 
   for (const dest of destinations) {
-    pushLocalizedEntry(`/destinations/${dest.id}`, 0.85, "weekly");
+    pushEntry(`/destinations/${dest.id}`, 0.85, "weekly");
   }
 
   for (const tour of tours) {
-    pushLocalizedEntry(`/tours/${tour.id}`, 0.9, "weekly");
+    pushEntry(`/tours/${tour.id}`, 0.9, "weekly");
   }
 
   for (const article of JOURNAL_ARTICLES) {
-    pushLocalizedEntry(
+    pushEntry(
       `/journal/${article.slug}`,
       0.8,
       "monthly",

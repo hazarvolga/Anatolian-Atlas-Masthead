@@ -147,37 +147,56 @@ export default function ContactClient() {
                       01 / CHANCERY & PLANNING ADDRESS
                     </dt>
                     <dd className="text-sm text-background leading-relaxed">
-                      {siteConfig.contact.addressLines.map((line, idx) => (
-                        <span key={idx} className="block">
-                          {line}
+                      {siteConfig.contact.addressLines.length > 0 ? (
+                        siteConfig.contact.addressLines.map((line, idx) => (
+                          <span key={idx} className="block">
+                            {line}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-background/80">
+                          Galata, Beyoğlu · İstanbul, Türkiye
                         </span>
-                      ))}
+                      )}
                     </dd>
                   </div>
 
-                  <div className="py-4 space-y-1">
-                    <dt className="text-[10px] uppercase tracking-[0.16em] text-primary-subtle font-semibold">
-                      02 / TELEPHONE & FIELD WHATSAPP
-                    </dt>
-                    <dd className="text-sm text-background">
-                      {siteConfig.contact.phone} (İstanbul Desk)
-                    </dd>
-                    <dd className="text-xs text-background/70">
-                      {siteConfig.contact.whatsapp} (Active Field Dispatch)
-                    </dd>
-                  </div>
+                  {(siteConfig.contact.phone || siteConfig.contact.whatsapp) && (
+                    <div className="py-4 space-y-1">
+                      <dt className="text-[10px] uppercase tracking-[0.16em] text-primary-subtle font-semibold">
+                        02 / TELEPHONE & FIELD WHATSAPP
+                      </dt>
+                      {siteConfig.contact.phone && (
+                        <dd className="text-sm text-background">
+                          {siteConfig.contact.phone} (İstanbul Desk)
+                        </dd>
+                      )}
+                      {siteConfig.contact.whatsapp && (
+                        <dd className="text-xs text-background/70">
+                          {siteConfig.contact.whatsapp} (Active Field Dispatch)
+                        </dd>
+                      )}
+                    </div>
+                  )}
 
-                  <div className="py-4 space-y-1">
-                    <dt className="text-[10px] uppercase tracking-[0.16em] text-primary-subtle font-semibold">
-                      03 / ELECTRONIC CORRESPONDENCE
-                    </dt>
-                    <dd className="text-sm text-background">
-                      {siteConfig.contact.email}
-                    </dd>
-                    <dd className="text-xs text-background/70">
-                      {siteConfig.contact.reservationsEmail}
-                    </dd>
-                  </div>
+                  {(siteConfig.contact.email ||
+                    siteConfig.contact.reservationsEmail) && (
+                    <div className="py-4 space-y-1">
+                      <dt className="text-[10px] uppercase tracking-[0.16em] text-primary-subtle font-semibold">
+                        03 / ELECTRONIC CORRESPONDENCE
+                      </dt>
+                      {siteConfig.contact.email && (
+                        <dd className="text-sm text-background">
+                          {siteConfig.contact.email}
+                        </dd>
+                      )}
+                      {siteConfig.contact.reservationsEmail && (
+                        <dd className="text-xs text-background/70">
+                          {siteConfig.contact.reservationsEmail}
+                        </dd>
+                      )}
+                    </div>
+                  )}
 
                   <div className="py-4 space-y-1">
                     <dt className="text-[10px] uppercase tracking-[0.16em] text-primary-subtle font-semibold">

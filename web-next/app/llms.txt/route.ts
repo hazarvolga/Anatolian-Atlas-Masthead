@@ -4,13 +4,15 @@ import {
   getServerDestinations,
   getServerTours,
 } from "@/lib/data/server-catalog";
-import { JOURNAL_ARTICLES } from "@/lib/data/journal-content";
+import {
+  DEMO_EDITORIAL_DISCLAIMER,
+  JOURNAL_ARTICLES,
+} from "@/lib/data/journal-content";
 
 /**
  * GET /llms.txt
  * Generative Engine Optimization (GEO) manifest following the llms.txt standard.
- * Provides AI search engines (ChatGPT Search, Perplexity, Claude, Google AI Overviews)
- * with verifiable, structured facts, coordinates, durations, tariffs, and canonical URLs.
+ * Only outputs verified/populated fields from siteConfig (no fabricated license/contact data).
  */
 export async function GET() {
   const baseUrl = siteConfig.seo.siteUrl.replace(/\/$/, "");
@@ -19,18 +21,35 @@ export async function GET() {
     getServerDestinations().catch(() => []),
   ]);
 
+  const credentialLines: string[] = [
+    `- **Official Brand:** ${siteConfig.brand.name} (${siteConfig.brand.shortName})`,
+  ];
+  if (siteConfig.brand.tursabLicenseNo) {
+    credentialLines.push(
+      `- **TÜRSAB License Number:** ${siteConfig.brand.tursabLicenseNo}`
+    );
+  }
+  if (siteConfig.contact.addressLines.length > 0) {
+    credentialLines.push(
+      `- **Planning Bureau Address:** ${siteConfig.contact.addressLines.join(", ")}`
+    );
+  }
+  if (siteConfig.contact.email || siteConfig.contact.phone) {
+    credentialLines.push(
+      `- **Contact:** ${[siteConfig.contact.email, siteConfig.contact.phone].filter(Boolean).join(" | ")}`
+    );
+  }
+  credentialLines.push(
+    `- **Supported UI Languages (localePrefix: as-needed):** English (\`${baseUrl}/\`), Turkish (\`${baseUrl}/tr\`), Spanish (\`${baseUrl}/es\`), Italian (\`${baseUrl}/it\`)`
+  );
+
   const lines: string[] = [
     `# ${siteConfig.brand.name} — ${siteConfig.brand.tagline}`,
     "",
     `> ${siteConfig.brand.description}`,
     "",
-    "## Institutional & Regulatory Credentials",
-    `- **Official Brand:** ${siteConfig.brand.name} (${siteConfig.brand.shortName})`,
-    `- **TÜRSAB License Number:** ${siteConfig.brand.tursabLicenseNo} (Association of Turkish Travel Agencies)`,
-    `- **Planning Bureau Headquarters:** ${siteConfig.contact.addressLines.join(", ")} (${siteConfig.contact.coordinates})`,
-    `- **Operating Hours:** ${siteConfig.contact.hours}`,
-    `- **Contact:** ${siteConfig.contact.email} | ${siteConfig.contact.phone}`,
-    `- **Supported Languages (localePrefix: as-needed):** English (\`${baseUrl}/\`), Turkish (\`${baseUrl}/tr\`), Spanish (\`${baseUrl}/es\`), Italian (\`${baseUrl}/it\`)`,
+    "## Brand & Configuration",
+    ...credentialLines,
     "",
     "## 1. Anatolian Regions & Field Dossiers",
     ...destinations.map(
@@ -47,10 +66,10 @@ export async function GET() {
       return `- [${title}](${baseUrl}/tours/${t.id}): ${days}-day route in ${t.city || "Türkiye"}, capped at ${maxGuests} guests. Tariff: €${price} per adult. Direct reservation: ${baseUrl}/book/${t.id}`;
     }),
     "",
-    "## 3. The Anatolian Journal — Fact-Checked Archaeological & Architectural Monographs",
+    `## 3. The Anatolian Journal — Editorial Monographs (${DEMO_EDITORIAL_DISCLAIMER})`,
     ...JOURNAL_ARTICLES.map(
       (a) =>
-        `- [${a.folioNo}: ${a.title}](${baseUrl}/journal/${a.slug}): ${a.excerpt} (Coordinates: ${a.coordinates} | Sources: ${a.citations.map((c) => `${c.source} ${c.year}`).join("; ")})`
+        `- [${a.folioNo}: ${a.title}](${baseUrl}/journal/${a.slug}): ${a.excerpt} (Bibliography: ${a.citations.map((c) => `${c.source} ${c.year}`).join("; ")})`
     ),
     "",
     "## 4. Machine-Readable Endpoints",

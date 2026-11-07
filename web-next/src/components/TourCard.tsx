@@ -131,6 +131,9 @@ export default function TourCard({
           <img
             src={tour.image_url || DEFAULT_TOUR_IMAGE}
             alt={`${tour.name} — ${regionLabel}`}
+            width={1120}
+            height={700}
+            decoding="async"
             className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
             loading="lazy"
           />
@@ -252,6 +255,9 @@ export default function TourCard({
           <img
             src={tour.image_url || DEFAULT_TOUR_IMAGE}
             alt={`${tour.name} — ${regionLabel}`}
+            width={1120}
+            height={700}
+            decoding="async"
             className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
             loading="lazy"
           />

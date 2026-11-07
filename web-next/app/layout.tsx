@@ -16,6 +16,8 @@ import {
 } from "@/lib/i18n/server-locale";
 import {
   buildAlternatesMetadata,
+  DEFAULT_LOCALE,
+  isFullyTranslatedRoute,
   isNonLocalizedPath,
 } from "@/lib/i18n/locale-utils";
 import { Providers } from "./providers";
@@ -25,36 +27,42 @@ const newsreader = Newsreader({
   subsets: ["latin", "latin-ext"],
   variable: "--font-display-atlas",
   display: "swap",
+  preload: true,
 });
 
 const sourceSans = Source_Sans_3({
   subsets: ["latin", "latin-ext"],
   variable: "--font-sans-atlas",
   display: "swap",
+  preload: true,
 });
 
 const fraunces = Fraunces({
   subsets: ["latin", "latin-ext"],
   variable: "--font-display-aegean",
   display: "swap",
+  preload: false,
 });
 
 const instrumentSans = Instrument_Sans({
   subsets: ["latin", "latin-ext"],
   variable: "--font-sans-aegean",
   display: "swap",
+  preload: false,
 });
 
 const bodoniModa = Bodoni_Moda({
   subsets: ["latin", "latin-ext"],
   variable: "--font-display-noir",
   display: "swap",
+  preload: false,
 });
 
 const albertSans = Albert_Sans({
   subsets: ["latin", "latin-ext"],
   variable: "--font-sans-noir",
   display: "swap",
+  preload: false,
 });
 
 const ibmPlexMono = IBM_Plex_Mono({
@@ -62,12 +70,16 @@ const ibmPlexMono = IBM_Plex_Mono({
   weight: ["400", "500"],
   variable: "--font-mono",
   display: "swap",
+  preload: true,
 });
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getServerLocale();
   const pathname = await getServerPathname("/");
   const nonLocalized = isNonLocalizedPath(pathname);
+  const translatedRoute = isFullyTranslatedRoute(pathname);
+  const noindexUntranslatedLocale =
+    locale !== DEFAULT_LOCALE && !translatedRoute;
 
   return {
     metadataBase: new URL(siteConfig.seo.siteUrl),
@@ -79,6 +91,9 @@ export async function generateMetadata(): Promise<Metadata> {
     alternates: nonLocalized
       ? undefined
       : buildAlternatesMetadata(pathname, locale),
+    ...(noindexUntranslatedLocale
+      ? { robots: { index: false, follow: true } }
+      : {}),
   };
 }
 
@@ -108,6 +123,13 @@ export default async function RootLayout({
       data-motion={themeConfig.motion.level}
       className={`${fontVariables} ${themeConfig.mode === "dark" ? "dark" : ""}`.trim()}
     >
+      <head>
+        <link
+          rel="preconnect"
+          href="https://images.unsplash.com"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body className="font-sans antialiased bg-background text-foreground">
         <a
           href="#main-content"

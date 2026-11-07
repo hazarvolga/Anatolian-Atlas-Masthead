@@ -152,6 +152,7 @@ export default function AccommodationStepSimple({
                   size="icon"
                   variant="outline"
                   data-testid={`room-minus-${opt.key}`}
+                  aria-label={`Decrease ${opt.label}`}
                   className="w-8 h-8 border-border"
                   onClick={() => handleDecrease(opt.key)}
                   disabled={(qtys[opt.key] || 0) === 0}
@@ -160,6 +161,7 @@ export default function AccommodationStepSimple({
                 </Button>
                 <span
                   data-testid={`room-count-${opt.key}`}
+                  aria-live="polite"
                   className="w-7 text-center font-mono text-base"
                 >
                   {qtys[opt.key] || 0}
@@ -169,6 +171,7 @@ export default function AccommodationStepSimple({
                   size="icon"
                   variant="outline"
                   data-testid={`room-plus-${opt.key}`}
+                  aria-label={`Increase ${opt.label}`}
                   className="w-8 h-8 border-border"
                   onClick={() => handleIncrease(opt.key)}
                   disabled={(qtys[opt.key] || 0) === opt.maxQty}

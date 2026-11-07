@@ -97,6 +97,10 @@ export default function DestinationDetailClient({ id }: { id: string }) {
                     "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1200&q=85"
                   }
                   alt={destination.name}
+                  width={1200}
+                  height={900}
+                  fetchPriority="high"
+                  decoding="async"
                   className="w-full h-full object-cover"
                 />
               </div>

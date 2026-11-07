@@ -9,34 +9,33 @@ export const siteConfig = {
     description:
       "Small-group archaeological, culinary, and coastal journeys across İstanbul, Cappadocia, Ephesus, the Lycian Coast, Pamukkale, and Southeastern Anatolia.",
     foundedYear: 2019,
-    tursabLicenseNo: "A-14892",
+    // Empty placeholder by default — populate via NEXT_PUBLIC_TURSAB_LICENSE_NO in production
+    tursabLicenseNo: process.env.NEXT_PUBLIC_TURSAB_LICENSE_NO || "",
   },
   seo: {
     siteUrl: process.env.NEXT_PUBLIC_SITE_URL || "https://nextstopturkey.com",
     titleTemplate: "%s | NextStopTurkey — Anatolian Atlas",
     defaultTitle: "NextStopTurkey — Anatolian Atlas & Regional Journeys",
-    twitterHandle: "@nextstopturkey",
+    twitterHandle: process.env.NEXT_PUBLIC_TWITTER_HANDLE || "",
     locale: "en_US",
   },
   contact: {
-    email: "hello@nextstopturkey.com",
-    reservationsEmail: "journeys@nextstopturkey.com",
-    phone: "+90 (212) 555 01 48",
-    whatsapp: "+90 (531) 026 69 96",
-    coordinates: "41.0256° N, 28.9742° E",
-    addressLines: [
-      "Serdar-ı Ekrem Caddesi No. 28/4",
-      "Galata, Beyoğlu 34421",
-      "İstanbul, Türkiye",
-    ],
-    hours: "Monday – Saturday, 09:00 – 19:00 TRT (UTC+3)",
-    mapEmbedUrl:
-      "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3010.2286646635327!2d28.9719813!3d41.0258847!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x14cab9e7a7777c43%3A0x4c76cf3dcc8b330b!2sGalata%20Tower!5e0!3m2!1sen!2str!4v1710000000000!5m2!1sen!2str",
+    // Empty placeholders by default — populate via NEXT_PUBLIC_* or Admin Site Settings in production
+    email: process.env.NEXT_PUBLIC_CONTACT_EMAIL || "",
+    reservationsEmail: process.env.NEXT_PUBLIC_RESERVATIONS_EMAIL || "",
+    phone: process.env.NEXT_PUBLIC_CONTACT_PHONE || "",
+    whatsapp: process.env.NEXT_PUBLIC_CONTACT_WHATSAPP || "",
+    coordinates: process.env.NEXT_PUBLIC_OFFICE_COORDINATES || "",
+    addressLines: process.env.NEXT_PUBLIC_CONTACT_ADDRESS
+      ? process.env.NEXT_PUBLIC_CONTACT_ADDRESS.split("|")
+      : ([] as string[]),
+    hours: process.env.NEXT_PUBLIC_CONTACT_HOURS || "",
+    mapEmbedUrl: process.env.NEXT_PUBLIC_MAP_EMBED_URL || "",
   },
   social: {
-    instagram: "https://instagram.com/nextstopturkey",
-    youtube: "https://youtube.com/@nextstopturkey",
-    linkedin: "https://linkedin.com/company/nextstopturkey",
+    instagram: process.env.NEXT_PUBLIC_SOCIAL_INSTAGRAM || "",
+    youtube: process.env.NEXT_PUBLIC_SOCIAL_YOUTUBE || "",
+    linkedin: process.env.NEXT_PUBLIC_SOCIAL_LINKEDIN || "",
   },
   currency: {
     code: "EUR",

@@ -7,6 +7,7 @@ import { it } from "@/locales/it";
 import {
   DEFAULT_LOCALE,
   isSupportedLocale,
+  isFullyTranslatedRoute,
   buildAlternatesMetadata,
   type SupportedLocale,
 } from "./locale-utils";
@@ -66,6 +67,14 @@ export async function buildPageSeoMetadata({
   noindex?: boolean;
 }): Promise<Metadata> {
   const locale = await getServerLocale();
+  const translatedRoute = isFullyTranslatedRoute(pathname);
+
+  // If a page has English-only prose/DB content and is accessed under /tr, /es, or /it,
+  // set noindex, follow and point canonical to the English URL (without hreflang).
+  const shouldNoindexUntranslatedLocale =
+    locale !== DEFAULT_LOCALE && !translatedRoute;
+  const effectiveNoindex = noindex || shouldNoindexUntranslatedLocale;
+
   const alternates = noindex
     ? undefined
     : buildAlternatesMetadata(pathname, locale);
@@ -77,21 +86,27 @@ export async function buildPageSeoMetadata({
     it: "it_IT",
   };
 
+  const activeOgLocale = translatedRoute ? ogLocaleMap[locale] : "en_US";
+
   return {
     title,
     description,
     alternates,
-    robots: noindex
-      ? { index: false, follow: false }
+    robots: effectiveNoindex
+      ? { index: false, follow: !noindex }
       : { index: true, follow: true },
     openGraph: {
       title,
       description,
       type: openGraphType,
-      locale: ogLocaleMap[locale],
-      alternateLocale: (["en_US", "tr_TR", "es_ES", "it_IT"] as const).filter(
-        (l) => l !== ogLocaleMap[locale]
-      ),
+      locale: activeOgLocale,
+      ...(translatedRoute
+        ? {
+            alternateLocale: (
+              ["en_US", "tr_TR", "es_ES", "it_IT"] as const
+            ).filter((l) => l !== activeOgLocale),
+          }
+        : {}),
       ...(images && images.length > 0 ? { images } : {}),
     },
     twitter: {

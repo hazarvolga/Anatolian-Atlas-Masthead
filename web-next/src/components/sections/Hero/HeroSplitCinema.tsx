@@ -170,6 +170,10 @@ export default function HeroSplitCinema({
                 "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1400&q=85"
               }
               alt={`${activeRegion?.name} — ${activeRegion?.city}, Türkiye`}
+              width={1400}
+              height={960}
+              fetchPriority="high"
+              decoding="async"
               className="absolute inset-0 w-full h-full object-cover opacity-90 transition-all duration-700"
             />
             <div

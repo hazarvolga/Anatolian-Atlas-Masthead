@@ -144,11 +144,20 @@ export default function GalleryClient() {
               return (
                 <figure
                   key={image.id}
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`Open Plate ${String(index + 1).padStart(2, "0")}: ${image.location} — ${image.alt}`}
                   className={cn(
-                    "group bg-card border border-border cursor-pointer transition-colors hover:border-foreground flex flex-col justify-between",
+                    "group bg-card border border-border cursor-pointer transition-colors hover:border-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary flex flex-col justify-between",
                     isWide ? "md:col-span-7" : "md:col-span-5"
                   )}
                   onClick={() => setSelectedImage(image.id)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      setSelectedImage(image.id);
+                    }
+                  }}
                 >
                   <div>
                     <div className="px-5 py-3 border-b border-border flex items-center justify-between text-[11px] uppercase tracking-[0.15em] text-text-secondary tabular-nums bg-background/50">
@@ -161,6 +170,10 @@ export default function GalleryClient() {
                       <img
                         src={image.src}
                         alt={image.alt}
+                        width={1200}
+                        height={750}
+                        loading={index < 2 ? "eager" : "lazy"}
+                        decoding="async"
                         className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
                       />
                     </div>

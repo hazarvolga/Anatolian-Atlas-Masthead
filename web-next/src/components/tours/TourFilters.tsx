@@ -125,7 +125,12 @@ export default function TourFilters({
 
         {/* Status & Reset Ledger Bar */}
         <div className="px-5 py-3 border-x border-border bg-background flex flex-wrap justify-between items-center gap-4 text-xs uppercase tracking-[0.14em] tabular-nums">
-          <p className="text-text-secondary">
+          <p
+            className="text-text-secondary"
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+          >
             DISPLAYING <strong className="text-foreground">{filteredCount}</strong>{" "}
             OF <strong className="text-foreground">{totalCount}</strong>{" "}
             FIELD ITINERARIES

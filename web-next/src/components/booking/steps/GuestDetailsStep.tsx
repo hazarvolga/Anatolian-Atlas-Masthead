@@ -43,20 +43,28 @@ export default function GuestDetailsStep({
                   type="button"
                   variant="outline"
                   size="sm"
+                  aria-label="Decrease adults count"
                   onClick={() => onAdultsChange(Math.max(1, adults - 1))}
                   disabled={adults <= 1}
                 >
-                  <Minus className="h-4 w-4" />
+                  <Minus className="h-4 w-4" aria-hidden="true" />
                 </Button>
-                <span data-testid="adults-count" className="w-8 text-center font-medium">{adults}</span>
+                <span
+                  data-testid="adults-count"
+                  aria-live="polite"
+                  className="w-8 text-center font-medium"
+                >
+                  {adults}
+                </span>
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
                   data-testid="adults-plus"
+                  aria-label="Increase adults count"
                   onClick={() => onAdultsChange(adults + 1)}
                 >
-                  <Plus className="h-4 w-4" />
+                  <Plus className="h-4 w-4" aria-hidden="true" />
                 </Button>
               </div>
             </div>
@@ -78,19 +86,26 @@ export default function GuestDetailsStep({
                   type="button"
                   variant="outline"
                   size="sm"
+                  aria-label="Decrease children count"
                   onClick={() => onChildrenChange(Math.max(0, children - 1))}
                   disabled={children <= 0}
                 >
-                  <Minus className="h-4 w-4" />
+                  <Minus className="h-4 w-4" aria-hidden="true" />
                 </Button>
-                <span className="w-8 text-center font-medium">{children}</span>
+                <span
+                  aria-live="polite"
+                  className="w-8 text-center font-medium"
+                >
+                  {children}
+                </span>
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
+                  aria-label="Increase children count"
                   onClick={() => onChildrenChange(children + 1)}
                 >
-                  <Plus className="h-4 w-4" />
+                  <Plus className="h-4 w-4" aria-hidden="true" />
                 </Button>
               </div>
             </div>

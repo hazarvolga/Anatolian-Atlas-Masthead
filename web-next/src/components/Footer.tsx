@@ -71,15 +71,27 @@ export default function Footer() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 pb-12 border-b border-border">
             <div className="lg:col-span-5 space-y-4">
               <span className="editorial-kicker block">
-                GALATA PLANNING DESK · {siteConfig.contact.coordinates}
+                GALATA PLANNING DESK
+                {siteConfig.contact.coordinates
+                  ? ` · ${siteConfig.contact.coordinates}`
+                  : ""}
               </span>
               <p className="text-sm text-text-secondary max-w-md leading-relaxed">
                 {t.footer.description}
               </p>
-              <p className="font-mono text-xs text-foreground">
-                {settings?.contact_phone || siteConfig.contact.phone} ·{" "}
-                {settings?.contact_email || siteConfig.contact.email}
-              </p>
+              {(settings?.contact_phone ||
+                siteConfig.contact.phone ||
+                settings?.contact_email ||
+                siteConfig.contact.email) && (
+                <p className="font-mono text-xs text-foreground">
+                  {[
+                    settings?.contact_phone || siteConfig.contact.phone,
+                    settings?.contact_email || siteConfig.contact.email,
+                  ]
+                    .filter(Boolean)
+                    .join(" · ")}
+                </p>
+              )}
             </div>
 
             <div className="lg:col-span-3 space-y-3">
@@ -199,29 +211,39 @@ export default function Footer() {
               02 / {t.footer.contact}
             </h4>
             <div className="space-y-3 text-xs text-text-secondary leading-relaxed tabular-nums">
-              <p className="text-foreground font-medium">
-                {addressLines.map((line, i) => (
-                  <span key={i} className="block">
-                    {line}
+              {addressLines.length > 0 ? (
+                <p className="text-foreground font-medium">
+                  {addressLines.map((line, i) => (
+                    <span key={i} className="block">
+                      {line}
+                    </span>
+                  ))}
+                </p>
+              ) : (
+                <p className="text-text-secondary">
+                  Galata Planning Desk · İstanbul, Türkiye
+                </p>
+              )}
+              {(settings?.contact_phone || siteConfig.contact.phone) && (
+                <p>
+                  <span className="uppercase tracking-[0.14em] text-[10px] text-text-tertiary block">
+                    TEL
                   </span>
-                ))}
-              </p>
-              <p>
-                <span className="uppercase tracking-[0.14em] text-[10px] text-text-tertiary block">
-                  TEL
-                </span>
-                <span className="text-foreground">
-                  {settings?.contact_phone || siteConfig.contact.phone}
-                </span>
-              </p>
-              <p>
-                <span className="uppercase tracking-[0.14em] text-[10px] text-text-tertiary block">
-                  MAIL
-                </span>
-                <span className="text-foreground">
-                  {settings?.contact_email || siteConfig.contact.email}
-                </span>
-              </p>
+                  <span className="text-foreground">
+                    {settings?.contact_phone || siteConfig.contact.phone}
+                  </span>
+                </p>
+              )}
+              {(settings?.contact_email || siteConfig.contact.email) && (
+                <p>
+                  <span className="uppercase tracking-[0.14em] text-[10px] text-text-tertiary block">
+                    MAIL
+                  </span>
+                  <span className="text-foreground">
+                    {settings?.contact_email || siteConfig.contact.email}
+                  </span>
+                </p>
+              )}
             </div>
           </div>
 

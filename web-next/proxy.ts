@@ -1,11 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import {
   DEFAULT_LOCALE,
+  isFullyTranslatedRoute,
   isNonLocalizedPath,
   parseLocalizedPathname,
 } from "./src/lib/i18n/locale-utils";
 
-export function middleware(req: NextRequest) {
+/**
+ * Next.js 16 `proxy.ts` convention (replaces deprecated `middleware.ts`).
+ * Implements `localePrefix: 'as-needed'`, enforces `noindex` on admin/auth/checkout/account
+ * routes, and marks untranslated locale prose variants (`/tr/journal/*`, `/tr/tours/[id]`, etc.)
+ * as `noindex, follow` with canonical pointing to the English URL.
+ */
+export function proxy(req: NextRequest) {
   const { pathname, search } = req.nextUrl;
 
   // Skip static assets and Next.js internals
@@ -59,6 +66,9 @@ export function middleware(req: NextRequest) {
       request: { headers: requestHeaders },
     });
     res.headers.set("Content-Language", locale);
+    if (!isFullyTranslatedRoute(strippedPathname)) {
+      res.headers.set("X-Robots-Tag", "noindex, follow");
+    }
     return res;
   }
 

@@ -199,6 +199,10 @@ export default function HeroSection({
                 ref={heroImageRef}
                 src="https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1400&q=85"
                 alt="Morning ferry crossing the Bosphorus Strait toward Ortaköy in İstanbul, Türkiye"
+                width={1120}
+                height={1400}
+                fetchPriority="high"
+                decoding="async"
                 className="w-full h-full object-cover opacity-95 contrast-[1.03]"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-transparent" />

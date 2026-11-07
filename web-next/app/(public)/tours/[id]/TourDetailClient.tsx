@@ -253,6 +253,10 @@ export default function TourDetailClient({
                 <img
                   src={tour.image_url}
                   alt={tour.name}
+                  width={1120}
+                  height={1400}
+                  fetchPriority="high"
+                  decoding="async"
                   className="w-full h-full object-cover"
                 />
               </div>
@@ -539,13 +543,19 @@ export default function TourDetailClient({
                   </Link>
                 </div>
 
-                <div className="pt-4 border-t border-border text-xs text-text-secondary space-y-1">
-                  <span className="block text-[10px] uppercase tracking-[0.15em] text-foreground font-semibold">
-                    DIRECT GALATA DESK
-                  </span>
-                  <p className="tabular-nums">{siteConfig.contact.phone}</p>
-                  <p>{siteConfig.contact.email}</p>
-                </div>
+                {(siteConfig.contact.phone || siteConfig.contact.email) && (
+                  <div className="pt-4 border-t border-border text-xs text-text-secondary space-y-1">
+                    <span className="block text-[10px] uppercase tracking-[0.15em] text-foreground font-semibold">
+                      DIRECT GALATA DESK
+                    </span>
+                    {siteConfig.contact.phone && (
+                      <p className="tabular-nums">{siteConfig.contact.phone}</p>
+                    )}
+                    {siteConfig.contact.email && (
+                      <p>{siteConfig.contact.email}</p>
+                    )}
+                  </div>
+                )}
               </div>
             </aside>
           </div>

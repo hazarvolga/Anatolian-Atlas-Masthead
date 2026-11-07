@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import Link from "next/link";
 import { ArrowUpRight, LogOut, User, X } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -23,6 +24,17 @@ export default function NavbarMobileMenu({
   const { user, signOut } = useAuth();
   const isAdmin = useIsAdmin();
 
+  useEffect(() => {
+    if (!mobileMenuOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [mobileMenuOpen, setMobileMenuOpen]);
+
   const navLinks = [
     { index: "01", name: t.nav.home || "Atlas", path: "/" },
     {
@@ -43,6 +55,10 @@ export default function NavbarMobileMenu({
 
   return (
     <div
+      id="mobile-navigation-drawer"
+      role="dialog"
+      aria-modal={mobileMenuOpen ? "true" : undefined}
+      aria-label="Mobile navigation menu"
       className={cn(
         "fixed inset-0 z-50 lg:hidden transition-opacity duration-200",
         mobileMenuOpen
