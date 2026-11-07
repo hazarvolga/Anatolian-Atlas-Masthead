@@ -98,8 +98,16 @@ function normaliseTour(raw: any) {
   };
 }
 
-export default function TourDetailClient({ id }: { id: string }) {
-  const { data: rawTour, isLoading, error } = useTour(id);
+export default function TourDetailClient({
+  id,
+  initialTour,
+}: {
+  id: string;
+  initialTour?: any;
+}) {
+  const { data: fetchedTour, isLoading: queryLoading, error } = useTour(id);
+  const rawTour = fetchedTour || initialTour;
+  const isLoading = !rawTour && queryLoading;
   const tour = normaliseTour(rawTour);
 
   if (isLoading) {

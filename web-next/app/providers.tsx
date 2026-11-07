@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { z } from "zod";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider } from "next-themes";
 import { DesignSystemProvider } from "@/contexts/DesignSystemContext";
@@ -10,6 +11,11 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import themeConfig from "@/config/theme.config";
+
+// Disable Zod v4 new Function() JIT so strict CSP without 'unsafe-eval' never triggers a violation
+if (typeof z.config === "function") {
+  z.config({ jitless: true });
+}
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(() => new QueryClient());

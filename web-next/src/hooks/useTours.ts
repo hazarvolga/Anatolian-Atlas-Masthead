@@ -20,7 +20,7 @@ function resolveAuthenticTourImage(tour: any): string {
     rawImg.includes("1532403431143")
   ) {
     if (titleLower.includes("cappadocia") || titleLower.includes("balloon")) {
-      return "https://images.unsplash.com/photo-1641128324972-af3212f0f6bd?auto=format&fit=crop&w=1200&q=85";
+      return "https://images.unsplash.com/photo-1570939274717-7eda259b50ed?auto=format&fit=crop&w=1200&q=85";
     }
     if (titleLower.includes("istanbul")) {
       return "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1200&q=85";

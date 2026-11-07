@@ -11,14 +11,66 @@ import LanguageSelector from "@/components/LanguageSelector";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useDesignSystem } from "@/contexts/DesignSystemContext";
 import { useIsAdmin } from "@/hooks/useUserRole";
+import { siteConfig } from "@/config/site.config";
 
 export default function MainNavigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { t } = useLanguage();
   const { user, signOut } = useAuth();
+  const { config } = useDesignSystem();
   const isAdmin = useIsAdmin();
 
+  const headerVariant = config.layout.header;
+
+  // Variant B: Centered Editorial Masthead Header
+  if (headerVariant === "centered-logo") {
+    return (
+      <>
+        <div className="border-b border-border/60 bg-surface-container/40 hidden md:block">
+          <div className="container py-1.5 flex items-center justify-between text-[10px] font-mono uppercase tracking-[0.15em] text-text-secondary">
+            <span>{siteConfig.contact.coordinates} · GALATA DESK</span>
+            <span>{siteConfig.brand.tagline}</span>
+            <span>TÜRSAB LIC. {siteConfig.brand.tursabLicenseNo}</span>
+          </div>
+        </div>
+        <div className="container grid grid-cols-12 items-center h-16 md:h-20">
+          <div className="col-span-4 hidden lg:flex items-stretch">
+            <NavbarDesktopNav />
+          </div>
+          <div className="col-span-6 lg:col-span-4 flex items-center lg:justify-center">
+            <NavbarLogo />
+          </div>
+          <div className="col-span-6 lg:col-span-4 flex items-center justify-end gap-2.5">
+            <div className="hidden lg:flex items-center gap-2.5">
+              <LanguageSelector />
+              <ThemeToggle />
+              <Link
+                href="/tours"
+                className="btn-primary py-2.5 px-4 inline-flex items-center gap-1.5"
+              >
+                <span>{t.nav.bookNow || "All Routes"}</span>
+                <ArrowUpRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+            <div className="flex items-center lg:hidden">
+              <NavbarMobileButton
+                mobileMenuOpen={mobileMenuOpen}
+                setMobileMenuOpen={setMobileMenuOpen}
+              />
+            </div>
+          </div>
+        </div>
+        <NavbarMobileMenu
+          mobileMenuOpen={mobileMenuOpen}
+          setMobileMenuOpen={setMobileMenuOpen}
+        />
+      </>
+    );
+  }
+
+  // Variant A (Default): Swiss Bar Header
   return (
     <>
       <div className="container flex items-stretch justify-between h-16 md:h-20">

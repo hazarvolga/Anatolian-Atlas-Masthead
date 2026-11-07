@@ -1,12 +1,24 @@
 import type { NextConfig } from "next";
 
+const isDev = process.env.NODE_ENV !== "production";
 const apiOrigin =
   process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/?$/, "") ||
   "http://localhost:3001";
 
+/**
+ * Early Security Patch CSP:
+ * - Removes 'unsafe-eval' in production builds (kept only in dev for Next.js HMR).
+ * - Phase 8 Nonce Roadmap: In Phase 8 (Security Hardening), Next.js middleware/proxy
+ *   will generate a per-request cryptographic nonce (`x-nonce` header) to replace
+ *   `script-src 'unsafe-inline'` with `'nonce-${nonce}' 'strict-dynamic'`.
+ */
+const scriptSrc = isDev
+  ? "script-src 'self' 'unsafe-inline' 'unsafe-eval'"
+  : "script-src 'self' 'unsafe-inline'";
+
 const cspHeader = [
   "default-src 'self'",
-  "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+  scriptSrc,
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
   "font-src 'self' https://fonts.gstatic.com data:",
   "img-src 'self' data: blob: https://images.unsplash.com https://plus.unsplash.com https://images.pexels.com https://res.cloudinary.com https://*.tile.openstreetmap.org",
@@ -16,7 +28,9 @@ const cspHeader = [
   "base-uri 'self'",
   "form-action 'self'",
   "frame-ancestors 'self'",
-  "upgrade-insecure-requests",
+  ...(isDev || !apiOrigin.startsWith("https://")
+    ? []
+    : ["upgrade-insecure-requests"]),
 ].join("; ");
 
 const securityHeaders = [

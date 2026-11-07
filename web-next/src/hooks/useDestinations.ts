@@ -69,8 +69,8 @@ function enrichAndMergeDestinations(rawList: any[]): Destination[] {
       ...item,
       name: matchedDemo?.name || item.name,
       description: matchedDemo?.description || item.description,
-      image_url: item.image_url || matchedDemo?.image_url,
-      city: item.city || matchedDemo?.city || item.name,
+      image_url: matchedDemo?.image_url || item.image_url,
+      city: matchedDemo?.city || item.city || item.name,
       country: item.country || matchedDemo?.country || "Türkiye",
       coords: item.coords || matchedDemo?.coords,
       best_time: item.best_time || matchedDemo?.best_time,
@@ -89,24 +89,26 @@ function enrichAndMergeDestinations(rawList: any[]): Destination[] {
     };
   });
 
-  // Append remaining Anatolian Atlas regions not yet in DB so the 6-region index is complete
-  for (const demoDest of DEMO_DESTINATIONS) {
-    const alreadyPresent = enriched.some((d) => {
-      const n = d.name.toLowerCase();
-      if (demoDest.id === "dest-istanbul" && (n.includes("istanbul") || n.includes("i̇stanbul"))) return true;
-      if (demoDest.id === "dest-cappadocia" && n.includes("cappadocia")) return true;
-      if (demoDest.id === "dest-ephesus" && n.includes("ephesus")) return true;
-      if (demoDest.id === "dest-lycia" && (n.includes("kaş") || n.includes("lycia"))) return true;
-      if (demoDest.id === "dest-pamukkale" && (n.includes("pamukkale") || n.includes("hierapolis"))) return true;
-      if (demoDest.id === "dest-mardin" && n.includes("mardin")) return true;
-      return d.id === demoDest.id;
-    });
-    if (!alreadyPresent) {
-      enriched.push(demoDest);
+  // Deduplicate by canonical region name and append remaining Anatolian Atlas regions
+  const seenNames = new Set<string>();
+  const uniqueEnriched: Destination[] = [];
+  for (const d of enriched) {
+    const key = d.name.toLowerCase();
+    if (!seenNames.has(key)) {
+      seenNames.add(key);
+      uniqueEnriched.push(d);
     }
   }
 
-  return enriched;
+  for (const demoDest of DEMO_DESTINATIONS) {
+    const key = demoDest.name.toLowerCase();
+    if (!seenNames.has(key)) {
+      seenNames.add(key);
+      uniqueEnriched.push(demoDest);
+    }
+  }
+
+  return uniqueEnriched;
 }
 
 export const useDestinations = () => {

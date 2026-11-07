@@ -5,12 +5,14 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useDesignSystem } from "@/contexts/DesignSystemContext";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { api } from "@/lib/api/client";
 import { isDemoMode, siteConfig } from "@/config/site";
 
 export default function Footer() {
   const { t } = useLanguage();
+  const { config } = useDesignSystem();
   const currentYear = new Date().getFullYear();
   const { settings } = useSiteSettings();
   const [newsletterEmail, setNewsletterEmail] = useState("");
@@ -49,6 +51,105 @@ export default function Footer() {
     ? settings.address.split("\n")
     : siteConfig.contact.addressLines;
 
+  const navLinks = [
+    { name: t.nav.home || "Atlas", path: "/" },
+    {
+      name: (t.nav as Record<string, string>).destinations || "Regions",
+      path: "/destinations",
+    },
+    { name: t.nav.tours || "Journeys", path: "/tours" },
+    { name: t.nav.gallery || "Archive", path: "/gallery" },
+    { name: t.nav.contact || "Inquiries", path: "/contact" },
+  ];
+
+  // Variant B: Big Wordmark Monumental Footer
+  if (config.layout.footer === "big-wordmark") {
+    return (
+      <footer className="bg-background text-foreground border-t border-border">
+        <div className="container py-14 space-y-12">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 pb-12 border-b border-border">
+            <div className="lg:col-span-5 space-y-4">
+              <span className="editorial-kicker block">
+                GALATA PLANNING DESK · {siteConfig.contact.coordinates}
+              </span>
+              <p className="text-sm text-text-secondary max-w-md leading-relaxed">
+                {t.footer.description}
+              </p>
+              <p className="font-mono text-xs text-foreground">
+                {settings?.contact_phone || siteConfig.contact.phone} ·{" "}
+                {settings?.contact_email || siteConfig.contact.email}
+              </p>
+            </div>
+
+            <div className="lg:col-span-3 space-y-3">
+              <span className="editorial-meta block">Index</span>
+              <ul className="space-y-2 text-xs uppercase tracking-[0.13em]">
+                {navLinks.map((link) => (
+                  <li key={link.path}>
+                    <Link
+                      href={link.path}
+                      className="text-text-secondary hover:text-foreground transition-colors"
+                    >
+                      {link.name}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="lg:col-span-4 space-y-3">
+              <span className="editorial-meta block">
+                {t.footer.newsletter}
+              </span>
+              <form className="flex gap-2" onSubmit={handleNewsletterSubmit}>
+                <label htmlFor="wordmark-newsletter-email" className="sr-only">
+                  {t.footer.yourEmail}
+                </label>
+                <input
+                  id="wordmark-newsletter-email"
+                  type="email"
+                  placeholder={t.footer.yourEmail}
+                  className="flex-1 px-3.5 py-2.5 text-xs bg-card border border-border rounded-control text-foreground focus:border-foreground focus:outline-none"
+                  value={newsletterEmail}
+                  onChange={(event) => setNewsletterEmail(event.target.value)}
+                  required
+                />
+                <button
+                  type="submit"
+                  className="btn-primary py-2.5 px-5"
+                  disabled={isSubscribing}
+                >
+                  <span>{t.footer.subscribe}</span>
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <div className="pt-2">
+            <p
+              aria-hidden="true"
+              className="font-serif text-[clamp(2.8rem,9.2vw,8.5rem)] leading-[0.88] tracking-[-0.04em] text-foreground/90 select-none uppercase text-center"
+            >
+              {siteConfig.brand.shortName}
+            </p>
+          </div>
+
+          <div className="pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] uppercase tracking-[0.14em] text-text-secondary tabular-nums">
+            <p>
+              &copy; {currentYear}{" "}
+              {settings?.site_title || siteConfig.brand.name}.{" "}
+              {t.footer.allRights}
+            </p>
+            <p>
+              İSTANBUL · CAPPADOCIA · EPHESUS · LYCIA · PAMUKKALE · MARDİN
+            </p>
+          </div>
+        </div>
+      </footer>
+    );
+  }
+
+  // Variant A (Default): Swiss Atlas Columns
   return (
     <footer className="bg-background text-foreground border-t border-border">
       <div className="container">
@@ -78,18 +179,7 @@ export default function Footer() {
               01 / {t.footer.quickLinks}
             </h4>
             <ul className="space-y-2.5 text-xs uppercase tracking-[0.13em]">
-              {[
-                { name: t.nav.home || "Atlas", path: "/" },
-                {
-                  name:
-                    (t.nav as Record<string, string>).destinations ||
-                    "Regions",
-                  path: "/destinations",
-                },
-                { name: t.nav.tours || "Journeys", path: "/tours" },
-                { name: t.nav.gallery || "Archive", path: "/gallery" },
-                { name: t.nav.contact || "Inquiries", path: "/contact" },
-              ].map((link) => (
+              {navLinks.map((link) => (
                 <li key={link.path}>
                   <Link
                     href={link.path}
@@ -153,7 +243,7 @@ export default function Footer() {
                 id="footer-newsletter-email"
                 type="email"
                 placeholder={t.footer.yourEmail}
-                className="w-full px-3.5 py-3 text-xs bg-background border border-border text-foreground focus:border-foreground focus:outline-none rounded-none"
+                className="w-full px-3.5 py-3 text-xs bg-background border border-border text-foreground focus:border-foreground focus:outline-none rounded-control"
                 value={newsletterEmail}
                 onChange={(event) => setNewsletterEmail(event.target.value)}
                 required

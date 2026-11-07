@@ -2,20 +2,34 @@
 
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
-import { useDestinations } from "@/hooks/useDestinations";
+import { useDestinations, type Destination } from "@/hooks/useDestinations";
 import { useTours } from "@/hooks/useTours";
 import { formatPrice } from "@/config/site";
+import type { DemoTour } from "@/lib/data/demo-content";
 
 const DEFAULT_FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1400&q=85";
 
-export default function DestinationsClient() {
-  const { data: destinations = [], isLoading: destinationsLoading } =
+export default function DestinationsClient({
+  initialDestinations,
+  initialTours,
+}: {
+  initialDestinations?: Destination[];
+  initialTours?: DemoTour[];
+} = {}) {
+  const { data: fetchedDestinations, isLoading: queryLoading } =
     useDestinations();
-  const { data: tours = [] } = useTours();
+  const { data: fetchedTours } = useTours();
 
-  const safeDestinations = Array.isArray(destinations) ? destinations : [];
-  const safeTours = Array.isArray(tours) ? tours : [];
+  const safeDestinations =
+    Array.isArray(fetchedDestinations) && fetchedDestinations.length > 0
+      ? fetchedDestinations
+      : initialDestinations || [];
+  const safeTours =
+    Array.isArray(fetchedTours) && fetchedTours.length > 0
+      ? fetchedTours
+      : initialTours || [];
+  const destinationsLoading = safeDestinations.length === 0 && queryLoading;
 
   return (
     <main className="pt-20 bg-background min-h-screen">

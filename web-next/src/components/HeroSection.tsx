@@ -5,12 +5,20 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowUpRight } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useDestinations } from "@/hooks/useDestinations";
+import { useDestinations, type Destination } from "@/hooks/useDestinations";
 
-export default function HeroSection() {
+export default function HeroSection({
+  initialDestinations,
+}: {
+  initialDestinations?: Destination[];
+} = {}) {
   const { t } = useLanguage();
   const router = useRouter();
-  const { data: destinations = [] } = useDestinations();
+  const { data: fetchedDestinations } = useDestinations();
+  const destinations =
+    Array.isArray(fetchedDestinations) && fetchedDestinations.length > 0
+      ? fetchedDestinations
+      : initialDestinations || [];
 
   const [selectedRegion, setSelectedRegion] = useState<string>("all");
   const [selectedPace, setSelectedPace] = useState<string>("all");
@@ -178,18 +186,18 @@ export default function HeroSection() {
             </div>
 
             {/* Tall Editorial Monograph Photograph */}
-            <div className="relative aspect-[4/5] w-full overflow-hidden bg-foreground">
+            <div className="relative aspect-[4/5] w-full overflow-hidden bg-black">
               <img
                 src="https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1400&q=85"
                 alt="Morning ferry crossing the Bosphorus Strait toward Ortaköy in İstanbul, Türkiye"
-                className="w-full h-full object-cover opacity-92 contrast-[1.03]"
+                className="w-full h-full object-cover opacity-95 contrast-[1.03]"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-foreground/90 via-transparent to-transparent opacity-80" />
-              <div className="absolute bottom-6 left-6 right-6 text-background">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/15 to-transparent" />
+              <div className="absolute bottom-6 left-6 right-6 text-white">
                 <span className="inline-block px-2.5 py-1 bg-primary text-primary-foreground text-[10px] uppercase tracking-[0.16em] font-semibold mb-3">
                   LEAD REGION — İSTANBUL
                 </span>
-                <p className="font-serif text-2xl md:text-3xl text-background leading-tight">
+                <p className="font-serif text-2xl md:text-3xl text-white leading-tight">
                   Dawn crossings between the imperial peninsula, Galata quays, and the Asian shore.
                 </p>
               </div>

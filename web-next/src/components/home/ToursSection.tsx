@@ -5,15 +5,31 @@ import { ArrowUpRight } from "lucide-react";
 import TourCard from "@/components/TourCard";
 import { useTours } from "@/hooks/useTours";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useDesignSystem } from "@/contexts/DesignSystemContext";
 import { formatPrice } from "@/config/site";
+import type { DemoTour } from "@/lib/data/demo-content";
 
-export default function ToursSection() {
+export default function ToursSection({
+  initialTours,
+}: {
+  initialTours?: DemoTour[];
+} = {}) {
   const { t } = useLanguage();
-  const { data: tours, isLoading, error } = useTours();
+  const { config } = useDesignSystem();
+  const { data: fetchedTours, isLoading: queryLoading, error } = useTours();
+
+  const tours =
+    Array.isArray(fetchedTours) && fetchedTours.length > 0
+      ? fetchedTours
+      : initialTours || [];
+  const isLoading = tours.length === 0 && queryLoading;
 
   const safeTours = Array.isArray(tours) ? tours.slice(0, 5) : [];
   const leadTour = safeTours[0] || null;
   const catalogueTours = safeTours.slice(1, 5);
+  const isStackedVariant =
+    config.layout.tourCard === "landscape-row" ||
+    config.layout.tourCard === "minimal-list";
 
   return (
     <section className="section bg-background border-b border-border">
@@ -65,7 +81,7 @@ export default function ToursSection() {
                   <img
                     src={
                       leadTour.image_url ||
-                      "https://images.unsplash.com/photo-1641128324972-af3212f0f6bd?auto=format&fit=crop&w=1400&q=85"
+                      "https://images.unsplash.com/photo-1570939274717-7eda259b50ed?auto=format&fit=crop&w=1400&q=85"
                     }
                     alt={leadTour.name}
                     className="w-full h-full object-cover"
@@ -152,9 +168,15 @@ export default function ToursSection() {
               </article>
             )}
 
-            {/* 2-Column Asymmetric Catalogue Grid (Never 3-Card Repetition) */}
+            {/* Variant-Aware Catalogue Grid (2-Col Portrait 4:5 vs Stacked Landscape/Minimal Rows) */}
             {catalogueTours.length > 0 && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div
+                className={
+                  isStackedVariant
+                    ? "flex flex-col gap-6"
+                    : "grid grid-cols-1 lg:grid-cols-2 gap-8"
+                }
+              >
                 {catalogueTours.map((tour: any, idx: number) => (
                   <TourCard
                     key={tour.id}

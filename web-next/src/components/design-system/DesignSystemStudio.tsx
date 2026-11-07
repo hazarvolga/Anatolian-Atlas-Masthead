@@ -44,6 +44,7 @@ export default function DesignSystemStudio() {
     setRadius,
     setDensity,
     setMotionLevel,
+    setLayoutVariant,
     resetConfig,
   } = useDesignSystem();
 
@@ -79,7 +80,7 @@ export default {
   };
 
   return (
-    <div className="bg-background text-foreground min-h-screen pb-24">
+    <div className="bg-background text-foreground min-h-screen pt-20 pb-24">
       {/* Masthead Header */}
       <header className="border-b border-border bg-surface-container/40">
         <div className="container py-12 md:py-16">
@@ -244,6 +245,79 @@ export default {
       </section>
 
       <div className="container space-y-20 pt-14">
+        {/* 00. Layout Engine & Section Registry Controls */}
+        <section className="space-y-6">
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border pb-5">
+            <div>
+              <span className="editorial-kicker block mb-2">
+                00 / Layout Variant Engine & Section Registry
+              </span>
+              <h2 className="font-serif text-fluid-2xl">
+                Config-Driven Structural Variants
+              </h2>
+            </div>
+            <p className="text-xs font-mono text-text-secondary">
+              URL Preview: <code>?home={config.layout.home}&amp;tourCard={config.layout.tourCard}</code>
+            </p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
+            {[
+              {
+                key: "home" as const,
+                label: "Homepage Hero",
+                options: ["masthead", "split-cinema"] as const,
+              },
+              {
+                key: "destinationIndex" as const,
+                label: "Destination Index",
+                options: ["map-index", "grid-mosaic"] as const,
+              },
+              {
+                key: "tourCard" as const,
+                label: "Tour Card Layout",
+                options: ["portrait-4x5", "landscape-row", "minimal-list"] as const,
+              },
+              {
+                key: "header" as const,
+                label: "Header Bar",
+                options: ["swiss-bar", "centered-logo"] as const,
+              },
+              {
+                key: "footer" as const,
+                label: "Footer Colophon",
+                options: ["atlas-columns", "big-wordmark"] as const,
+              },
+            ].map((group) => (
+              <div
+                key={group.key}
+                className="border border-border bg-card rounded-card p-4 space-y-3"
+              >
+                <span className="editorial-meta block">{group.label}</span>
+                <div className="flex flex-col gap-1.5">
+                  {group.options.map((opt) => {
+                    const active = config.layout[group.key] === opt;
+                    return (
+                      <button
+                        key={opt}
+                        type="button"
+                        onClick={() => setLayoutVariant(group.key, opt as any)}
+                        className={`text-left px-3 py-2 text-xs font-mono uppercase tracking-[0.11em] border rounded-control transition-colors ${
+                          active
+                            ? "bg-primary text-primary-foreground border-primary font-semibold"
+                            : "bg-background text-foreground border-border hover:border-foreground"
+                        }`}
+                      >
+                        {opt}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
         {/* 01. Concept Presets & WCAG 2.2 Contrast Verification */}
         <section className="space-y-8">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border pb-5">

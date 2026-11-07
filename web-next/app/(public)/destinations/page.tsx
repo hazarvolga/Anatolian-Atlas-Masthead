@@ -1,12 +1,26 @@
 import type { Metadata } from "next";
 import DestinationsClient from "./DestinationsClient";
+import {
+  getServerDestinations,
+  getServerTours,
+} from "@/lib/data/server-catalog";
 
 export const metadata: Metadata = {
-  title: "Destinations",
+  title: "Six Distinct Regions of Anatolia — Regional Gazetteer",
   description:
-    "Discover breathtaking locations across Turkey and plan your perfect adventure.",
+    "Explore our geographic archive and regional monographs across İstanbul, Cappadocia, Ephesus, the Lycian Coast, Pamukkale, and Southeastern Anatolia.",
 };
 
-export default function DestinationsPage() {
-  return <DestinationsClient />;
+export default async function DestinationsPage() {
+  const [initialDestinations, initialTours] = await Promise.all([
+    getServerDestinations(),
+    getServerTours(),
+  ]);
+
+  return (
+    <DestinationsClient
+      initialDestinations={initialDestinations}
+      initialTours={initialTours}
+    />
+  );
 }

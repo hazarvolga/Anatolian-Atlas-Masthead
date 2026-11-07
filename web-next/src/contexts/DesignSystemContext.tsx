@@ -108,6 +108,11 @@ function resolveInitialConfig(): ThemeConfig {
     const qRadius = params.get("radius");
     const qDensity = params.get("density");
     const qMotion = params.get("motion");
+    const qHome = params.get("home");
+    const qTourCard = params.get("tourCard");
+    const qDestIndex = params.get("destinationIndex");
+    const qHeader = params.get("header");
+    const qFooter = params.get("footer");
 
     if (isValidPreset(qPreset)) {
       nextConfig.preset = qPreset;
@@ -119,6 +124,44 @@ function resolveInitialConfig(): ThemeConfig {
     if (isValidRadius(qRadius)) nextConfig.radius = qRadius;
     if (isValidDensity(qDensity)) nextConfig.density = qDensity;
     if (isValidMotion(qMotion)) nextConfig.motion.level = qMotion;
+
+    if (
+      qHome === "masthead" ||
+      qHome === "split-cinema" ||
+      qHome === "fullscreen-reel" ||
+      qHome === "editorial-index"
+    ) {
+      nextConfig.layout.home = qHome;
+    }
+    if (
+      qTourCard === "portrait-4x5" ||
+      qTourCard === "landscape-row" ||
+      qTourCard === "minimal-list"
+    ) {
+      nextConfig.layout.tourCard = qTourCard;
+    }
+    if (
+      qDestIndex === "map-index" ||
+      qDestIndex === "grid-mosaic" ||
+      qDestIndex === "horizontal-scroll"
+    ) {
+      nextConfig.layout.destinationIndex = qDestIndex;
+    }
+    if (
+      qHeader === "swiss-bar" ||
+      qHeader === "centered-logo" ||
+      qHeader === "minimal-overlay" ||
+      qHeader === "sidebar-rail"
+    ) {
+      nextConfig.layout.header = qHeader;
+    }
+    if (
+      qFooter === "atlas-columns" ||
+      qFooter === "minimal" ||
+      qFooter === "big-wordmark"
+    ) {
+      nextConfig.layout.footer = qFooter;
+    }
   }
 
   return nextConfig;
@@ -145,11 +188,14 @@ export function DesignSystemProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [config, setConfig] = useState<ThemeConfig>(resolveInitialConfig);
+  const [config, setConfig] = useState<ThemeConfig>(defaultThemeConfig);
 
   useEffect(() => {
-    applyAttributesToDocument(config);
-  }, [config]);
+    const initial = resolveInitialConfig();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setConfig(initial);
+    applyAttributesToDocument(initial);
+  }, []);
 
   const persistAndApply = useCallback(
     (updater: (prev: ThemeConfig) => ThemeConfig) => {

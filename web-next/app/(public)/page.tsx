@@ -1,19 +1,6 @@
-import HeroSection from "@/components/HeroSection";
-import DestinationsSection from "@/components/home/DestinationsSection";
-import ToursSection from "@/components/home/ToursSection";
-import WelcomeSection from "@/components/home/WelcomeSection";
-import TestimonialsSection from "@/components/TestimonialsSection";
-import CTASection from "@/components/home/CTASection";
+import SectionRenderer from "@/components/sections/SectionRenderer";
+import homePageManifest from "@/config/pages/home.manifest";
 
 export default function HomePage() {
-  return (
-    <>
-      <HeroSection />
-      <DestinationsSection />
-      <ToursSection />
-      <WelcomeSection />
-      <TestimonialsSection />
-      <CTASection />
-    </>
-  );
+  return <SectionRenderer manifest={homePageManifest} />;
 }

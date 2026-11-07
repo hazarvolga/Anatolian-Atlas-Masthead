@@ -1,7 +1,5 @@
 "use client";
 
-
-import { useState, useEffect } from "react";
 import {
   Select,
   SelectContent,
@@ -12,55 +10,48 @@ import {
 import { Globe } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
-type Language = {
+type LanguageOption = {
   code: string;
+  label: string;
   name: string;
-  flag: string;
 };
 
-const languages: Language[] = [
-  { code: "en", name: "English", flag: "🇬🇧" },
-  { code: "it", name: "Italiano", flag: "🇮🇹" },
-  { code: "tr", name: "Türkçe", flag: "🇹🇷" },
-  { code: "es", name: "Español", flag: "🇪🇸" },
+const LANGUAGES: LanguageOption[] = [
+  { code: "en", label: "EN", name: "English" },
+  { code: "tr", label: "TR", name: "Türkçe" },
+  { code: "es", label: "ES", name: "Español" },
+  { code: "it", label: "IT", name: "Italiano" },
 ];
 
 export default function LanguageSelector() {
   const { language, setLanguage } = useLanguage();
-  const [mounted, setMounted] = useState(false);
-
-  // This effect is to ensure hydration doesn't cause issues
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const handleLanguageChange = (value: string) => {
-    setLanguage(value);
-  };
-
-  if (!mounted) {
-    return null;
-  }
 
   return (
     <div className="flex items-center">
-      <Select value={language} onValueChange={handleLanguageChange}>
-        <SelectTrigger 
-          className="w-[80px] h-10 border-none bg-transparent focus:ring-0" 
+      <Select value={language} onValueChange={setLanguage}>
+        <SelectTrigger
+          className="h-9 w-auto min-w-[4.5rem] px-2.5 gap-1.5 border border-border/70 hover:border-foreground rounded-control bg-transparent font-mono text-[10px] uppercase tracking-[0.12em] focus:ring-0"
           aria-label="Select Language"
         >
-          <div className="flex items-center space-x-2">
-            <Globe className="h-4 w-4" />
-            <SelectValue placeholder="Select language" />
-          </div>
+          <Globe className="h-3.5 w-3.5 text-text-secondary shrink-0" />
+          <SelectValue placeholder="EN">
+            {language.toUpperCase()}
+          </SelectValue>
         </SelectTrigger>
-        <SelectContent align="start" className="w-[160px]">
-          {languages.map((language) => (
-            <SelectItem key={language.code} value={language.code} className="cursor-pointer">
-              <div className="flex items-center space-x-2">
-                <span>{language.flag}</span>
-                <span>{language.name}</span>
-              </div>
+        <SelectContent
+          align="end"
+          className="w-[150px] rounded-card border-border bg-card"
+        >
+          {LANGUAGES.map((lang) => (
+            <SelectItem
+              key={lang.code}
+              value={lang.code}
+              className="cursor-pointer text-xs font-sans"
+            >
+              <span className="font-mono text-[10px] uppercase tracking-wider text-primary mr-2">
+                {lang.label}
+              </span>
+              <span>{lang.name}</span>
             </SelectItem>
           ))}
         </SelectContent>

@@ -1,14 +1,6 @@
 import type { Metadata } from "next";
 import TourDetailClient from "./TourDetailClient";
-import { fetchServerJson } from "@/lib/api/server";
-
-interface TourMetadata {
-  title?: string;
-  seo_title?: string;
-  short_description?: string;
-  seo_description?: string;
-  description?: string;
-}
+import { getServerTourById } from "@/lib/data/server-catalog";
 
 export async function generateMetadata({
   params,
@@ -16,18 +8,15 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }): Promise<Metadata> {
   const { id } = await params;
-  const result = await fetchServerJson<TourMetadata>(`/api/tours/${id}`);
+  const tour = await getServerTourById(id);
 
-  if (!result.ok) {
-    return { title: "Tour" };
+  if (!tour) {
+    return { title: "Expedition Dossier" };
   }
 
-  const description =
-    result.data.seo_description || result.data.short_description || result.data.description;
-
   return {
-    title: result.data.seo_title || result.data.title || "Tour",
-    description: description ? description.slice(0, 160) : undefined,
+    title: tour.title || tour.name || "Expedition Dossier",
+    description: tour.description ? tour.description.slice(0, 160) : undefined,
   };
 }
 
@@ -37,6 +26,7 @@ export default async function TourDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
+  const initialTour = await getServerTourById(id);
 
-  return <TourDetailClient id={id} />;
+  return <TourDetailClient id={id} initialTour={initialTour} />;
 }

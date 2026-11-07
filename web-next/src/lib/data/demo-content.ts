@@ -89,7 +89,7 @@ export const DEMO_DESTINATIONS: Destination[] = [
     description:
       "Wind-carved tuff valleys, subterranean settlements, and eleventh-century frescoed chapels across the high plateau of Central Anatolia.",
     image_url:
-      "https://images.unsplash.com/photo-1641128324972-af3212f0f6bd?auto=format&fit=crop&w=1400&q=85",
+      "https://images.unsplash.com/photo-1570939274717-7eda259b50ed?auto=format&fit=crop&w=1400&q=85",
     gallery_images: [
       "https://images.unsplash.com/photo-1570939274717-7eda259b50ed?auto=format&fit=crop&w=1000&q=80",
     ],
@@ -280,9 +280,9 @@ export const DEMO_TOURS: DemoTour[] = [
     difficulty: "moderate",
     tour_type: "multiple_day",
     image_url:
-      "https://images.unsplash.com/photo-1641128324972-af3212f0f6bd?auto=format&fit=crop&w=1200&q=85",
+      "https://images.unsplash.com/photo-1570939274717-7eda259b50ed?auto=format&fit=crop&w=1200&q=85",
     images: [
-      "https://images.unsplash.com/photo-1641128324972-af3212f0f6bd?auto=format&fit=crop&w=1200&q=85",
+      "https://images.unsplash.com/photo-1570939274717-7eda259b50ed?auto=format&fit=crop&w=1200&q=85",
       "https://images.unsplash.com/photo-1570939274717-7eda259b50ed?auto=format&fit=crop&w=1200&q=80",
     ],
     includes: [
@@ -650,7 +650,7 @@ export const DEMO_GALLERY_ITEMS: GalleryItem[] = [
   },
   {
     id: 2,
-    src: "https://images.unsplash.com/photo-1641128324972-af3212f0f6bd?auto=format&fit=crop&w=1200&q=85",
+    src: "https://images.unsplash.com/photo-1570939274717-7eda259b50ed?auto=format&fit=crop&w=1200&q=85",
     alt: "Tuff rock formations and dawn light across Göreme valley, Cappadocia",
     location: "Göreme National Park",
     region: "Central Anatolia",

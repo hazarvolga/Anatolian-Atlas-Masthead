@@ -4,15 +4,26 @@ import { useState } from "react";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { useDestinations } from "@/hooks/useDestinations";
+import { useDestinations, type Destination } from "@/hooks/useDestinations";
 
 const DEFAULT_FALLBACK_IMAGE =
   "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1200&q=80";
 
-export default function DestinationsSection() {
+export default function DestinationsSection({
+  initialDestinations,
+}: {
+  initialDestinations?: Destination[];
+} = {}) {
   const { t } = useLanguage();
-  const { data: destinations = [], isLoading } = useDestinations();
+  const { data: fetchedDestinations, isLoading: queryLoading } =
+    useDestinations();
   const [activeIndex, setActiveIndex] = useState<number>(0);
+
+  const destinations =
+    Array.isArray(fetchedDestinations) && fetchedDestinations.length > 0
+      ? fetchedDestinations
+      : initialDestinations || [];
+  const isLoading = destinations.length === 0 && queryLoading;
 
   const safeDestinations = Array.isArray(destinations)
     ? destinations.slice(0, 6)
