@@ -1,7 +1,5 @@
 "use client";
 
-
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ReactNode } from "react";
 
 interface StepCardProps {
@@ -16,13 +14,16 @@ export default function StepCard({
   children,
 }: StepCardProps) {
   return (
-    <Card className="mb-6">
-      <CardHeader>
-        <CardTitle>
-          Step {stepNumber}: {stepTitle}
-        </CardTitle>
-      </CardHeader>
-      <CardContent>{children}</CardContent>
-    </Card>
+    <div className="mb-8 border border-border bg-card">
+      <div className="px-6 py-4 border-b border-border bg-background/60 flex items-center justify-between">
+        <span className="text-xs font-semibold uppercase tracking-[0.16em] text-primary tabular-nums">
+          STAGE 0{stepNumber} — {stepTitle}
+        </span>
+        <span className="text-[11px] uppercase tracking-[0.14em] text-text-secondary">
+          MANIFEST ENTRY
+        </span>
+      </div>
+      <div className="p-6 sm:p-8">{children}</div>
+    </div>
   );
 }

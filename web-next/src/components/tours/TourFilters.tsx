@@ -1,14 +1,6 @@
 "use client";
 
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
-import { Button } from "@/components/ui/button";
 
 interface Destination {
   id: string;
@@ -47,79 +39,78 @@ export default function TourFilters({
   onResetFilters,
 }: TourFiltersProps) {
   return (
-    <section className="py-8 border-b border-border bg-card">
+    <section className="border-b border-border bg-background">
       <div className="container">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-          {/* Destination Filter */}
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-text-secondary mb-2">
-              Region / Destination
+        <div className="grid grid-cols-1 md:grid-cols-4 border-x border-b border-border divide-y md:divide-y-0 md:divide-x divide-border bg-card">
+          {/* 01 / Region */}
+          <div className="p-5">
+            <label
+              htmlFor="catalog-region-filter"
+              className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-primary mb-2"
+            >
+              01 / Geographic Region
             </label>
-            <Select
+            <select
+              id="catalog-region-filter"
               value={destinationFilter}
-              onValueChange={setDestinationFilter}
+              onChange={(e) => setDestinationFilter(e.target.value)}
+              className="w-full bg-transparent font-serif text-lg text-foreground focus:outline-none cursor-pointer"
             >
-              <SelectTrigger className="w-full bg-background">
-                <SelectValue placeholder="All Regions" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Regions</SelectItem>
-                {destinations.map((destination) => (
-                  <SelectItem key={destination.id} value={destination.id}>
-                    {destination.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+              <option value="all">All Regions of Türkiye</option>
+              {destinations.map((destination) => (
+                <option key={destination.id} value={destination.id}>
+                  {destination.name}
+                </option>
+              ))}
+            </select>
           </div>
 
-          {/* Group Size Filter */}
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-text-secondary mb-2">
-              Group Capacity
+          {/* 02 / Group Capacity */}
+          <div className="p-5">
+            <label
+              htmlFor="catalog-group-filter"
+              className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-primary mb-2"
+            >
+              02 / Group Ceiling
             </label>
-            <Select value={groupSizeFilter} onValueChange={setGroupSizeFilter}>
-              <SelectTrigger className="w-full bg-background">
-                <SelectValue placeholder="Any group size" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Any group size</SelectItem>
-                <SelectItem value="8">Up to 8+ travelers</SelectItem>
-                <SelectItem value="10">Up to 10+ travelers</SelectItem>
-                <SelectItem value="12">Up to 12+ travelers</SelectItem>
-              </SelectContent>
-            </Select>
+            <select
+              id="catalog-group-filter"
+              value={groupSizeFilter}
+              onChange={(e) => setGroupSizeFilter(e.target.value)}
+              className="w-full bg-transparent font-serif text-lg text-foreground focus:outline-none cursor-pointer"
+            >
+              <option value="all">Any Group Size</option>
+              <option value="8">8+ Guests Capacity</option>
+              <option value="10">10+ Guests Capacity</option>
+              <option value="12">12+ Guests Capacity</option>
+            </select>
           </div>
 
-          {/* Difficulty Filter */}
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-text-secondary mb-2">
-              Walking Pace
+          {/* 03 / Walking Pace */}
+          <div className="p-5">
+            <label
+              htmlFor="catalog-pace-filter"
+              className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-primary mb-2"
+            >
+              03 / Terrain & Pace
             </label>
-            <Select
+            <select
+              id="catalog-pace-filter"
               value={difficultyFilter}
-              onValueChange={setDifficultyFilter}
+              onChange={(e) => setDifficultyFilter(e.target.value)}
+              className="w-full bg-transparent font-serif text-lg text-foreground focus:outline-none cursor-pointer"
             >
-              <SelectTrigger className="w-full bg-background">
-                <SelectValue placeholder="Any pace" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Any pace</SelectItem>
-                <SelectItem value="easy">Easy — Urban & Cultural</SelectItem>
-                <SelectItem value="moderate">
-                  Moderate — Valley & Coastal
-                </SelectItem>
-                <SelectItem value="challenging">
-                  Challenging — Ridge Trails
-                </SelectItem>
-              </SelectContent>
-            </Select>
+              <option value="all">All Walking Paces</option>
+              <option value="easy">Easy — Urban & Cultural</option>
+              <option value="moderate">Moderate — Valley & Coastal</option>
+              <option value="challenging">Challenging — High Ridges</option>
+            </select>
           </div>
 
-          {/* Price Range Filter */}
-          <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-text-secondary mb-2 tabular-nums">
-              Price Range: €{priceRange[0]} – €{priceRange[1]}
+          {/* 04 / Tariff Range */}
+          <div className="p-5">
+            <label className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-primary mb-2 tabular-nums">
+              04 / Tariff Ceiling: €{priceRange[0]} – €{priceRange[1]}
             </label>
             <Slider
               min={0}
@@ -127,20 +118,25 @@ export default function TourFilters({
               step={25}
               value={priceRange}
               onValueChange={setPriceRange}
-              className="my-4"
+              className="my-3"
             />
           </div>
         </div>
 
-        <div className="flex justify-between items-center mt-6 pt-4 border-t border-border/60 text-sm">
-          <p className="text-text-secondary tabular-nums">
-            Showing <strong className="text-foreground">{filteredCount}</strong>{" "}
-            of <strong className="text-foreground">{totalCount}</strong>{" "}
-            journeys
+        {/* Status & Reset Ledger Bar */}
+        <div className="px-5 py-3 border-x border-border bg-background flex flex-wrap justify-between items-center gap-4 text-xs uppercase tracking-[0.14em] tabular-nums">
+          <p className="text-text-secondary">
+            DISPLAYING <strong className="text-foreground">{filteredCount}</strong>{" "}
+            OF <strong className="text-foreground">{totalCount}</strong>{" "}
+            FIELD ITINERARIES
           </p>
-          <Button variant="outline" size="sm" onClick={onResetFilters}>
-            Reset Filters
-          </Button>
+          <button
+            type="button"
+            onClick={onResetFilters}
+            className="text-primary hover:text-foreground font-semibold transition-colors"
+          >
+            RESET FILTER PARAMETERS
+          </button>
         </div>
       </div>
     </section>

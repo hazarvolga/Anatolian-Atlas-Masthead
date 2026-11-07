@@ -1,8 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Calendar, Settings, User, LogOut, Compass, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ArrowUpRight, LogOut, User, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
@@ -25,14 +24,15 @@ export default function NavbarMobileMenu({
   const isAdmin = useIsAdmin();
 
   const navLinks = [
-    { name: t.nav.home || "Atlas", path: "/" },
+    { index: "01", name: t.nav.home || "Atlas", path: "/" },
     {
-      name: (t.nav as Record<string, string>).destinations || "Destinations",
+      index: "02",
+      name: (t.nav as Record<string, string>).destinations || "Regions",
       path: "/destinations",
     },
-    { name: t.nav.tours || "Journeys", path: "/tours" },
-    { name: t.nav.gallery || "Archive", path: "/gallery" },
-    { name: t.nav.contact || "Inquiries", path: "/contact" },
+    { index: "03", name: t.nav.tours || "Journeys", path: "/tours" },
+    { index: "04", name: t.nav.gallery || "Archive", path: "/gallery" },
+    { index: "05", name: t.nav.contact || "Inquiries", path: "/contact" },
   ];
 
   const handleSignOut = async () => {
@@ -51,118 +51,134 @@ export default function NavbarMobileMenu({
       aria-hidden={!mobileMenuOpen}
     >
       <div
-        className="absolute inset-0 bg-foreground/40 backdrop-blur-xs"
+        className="absolute inset-0 bg-foreground/50 backdrop-blur-xs"
         onClick={() => setMobileMenuOpen(false)}
       />
       <div
         className={cn(
-          "absolute inset-y-0 right-0 w-80 max-w-[88vw] bg-background border-l border-border p-6 transition-transform duration-200 shadow-xl",
+          "absolute inset-y-0 right-0 w-80 max-w-[90vw] bg-background border-l border-border p-6 transition-transform duration-200",
           mobileMenuOpen ? "translate-x-0" : "translate-x-full"
         )}
       >
         <div className="flex flex-col h-full">
-          {/* Mobile Header */}
-          <div className="flex justify-between items-center mb-6 pb-4 border-b border-border">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-foreground text-background rounded-md flex items-center justify-center">
-                <Compass className="h-4 w-4" />
-              </div>
-              <div>
-                <span className="font-serif font-medium text-lg text-foreground block leading-none">
-                  {siteConfig.brand.name}
-                </span>
-                <span className="text-[11px] uppercase tracking-wider text-text-secondary">
-                  {siteConfig.brand.tagline}
-                </span>
-              </div>
+          {/* Mobile Masthead */}
+          <div className="flex justify-between items-start mb-6 pb-5 border-b border-border">
+            <div>
+              <span className="text-[10px] uppercase tracking-[0.16em] text-primary block mb-1">
+                ED. IV — ANATOLIAN ATLAS
+              </span>
+              <span className="font-serif text-xl text-foreground block leading-none">
+                {siteConfig.brand.name}
+              </span>
             </div>
             <button
               type="button"
               onClick={() => setMobileMenuOpen(false)}
-              className="p-2 rounded-md text-text-secondary hover:text-foreground hover:bg-muted"
+              className="p-2 border border-border text-text-secondary hover:text-foreground"
               aria-label="Close navigation menu"
             >
-              <X className="h-5 w-5" />
+              <X className="h-4 w-4" />
             </button>
           </div>
 
           {/* Language & Theme */}
-          <div className="flex items-center justify-between mb-6 p-3 bg-card rounded-md border border-border">
+          <div className="flex items-center justify-between mb-6 p-3 bg-card border border-border">
             <LanguageSelector />
             <ThemeToggle />
           </div>
 
-          {/* Mobile Navigation Links */}
-          <nav className="flex-1 space-y-1" aria-label="Mobile navigation">
+          {/* Indexed Links */}
+          <nav className="flex-1 divide-y divide-border border-y border-border" aria-label="Mobile navigation">
             {navLinks.map((link) => (
               <Link
                 key={link.path}
                 href={link.path}
-                className="flex items-center justify-between px-3 py-3 rounded-md text-foreground hover:bg-muted font-medium transition-colors"
+                className="flex items-baseline justify-between py-4 text-foreground hover:text-primary transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
-                <span>{link.name}</span>
+                <div className="flex items-baseline gap-3">
+                  <span className="text-[11px] uppercase tracking-[0.16em] text-primary tabular-nums">
+                    {link.index}
+                  </span>
+                  <span className="font-serif text-xl">{link.name}</span>
+                </div>
+                <ArrowUpRight className="h-4 w-4 text-text-secondary" />
               </Link>
             ))}
 
             {user && (
               <>
-                <div className="w-full h-px bg-border my-3" />
                 <Link
                   href="/my-reservations"
-                  className="flex items-center space-x-3 px-3 py-3 rounded-md text-foreground hover:bg-muted font-medium"
+                  className="flex items-baseline justify-between py-4 text-foreground hover:text-primary"
                   onClick={() => setMobileMenuOpen(false)}
                 >
-                  <Calendar className="h-4 w-4 text-primary" />
-                  <span>{t.nav.myBookings || "My Reservations"}</span>
+                  <div className="flex items-baseline gap-3">
+                    <span className="text-[11px] uppercase tracking-[0.16em] text-primary tabular-nums">
+                      06
+                    </span>
+                    <span className="font-serif text-xl">
+                      {t.nav.myBookings || "My Reservations"}
+                    </span>
+                  </div>
+                  <ArrowUpRight className="h-4 w-4 text-text-secondary" />
                 </Link>
                 {isAdmin && (
                   <Link
                     href="/admin"
-                    className="flex items-center space-x-3 px-3 py-3 rounded-md text-foreground hover:bg-muted font-medium"
+                    className="flex items-baseline justify-between py-4 text-foreground hover:text-primary"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    <Settings className="h-4 w-4 text-primary" />
-                    <span>{t.nav.admin || "Editorial Desk"}</span>
+                    <div className="flex items-baseline gap-3">
+                      <span className="text-[11px] uppercase tracking-[0.16em] text-primary tabular-nums">
+                        07
+                      </span>
+                      <span className="font-serif text-xl">
+                        {t.nav.admin || "Editorial Desk"}
+                      </span>
+                    </div>
+                    <ArrowUpRight className="h-4 w-4 text-text-secondary" />
                   </Link>
                 )}
               </>
             )}
           </nav>
 
-          {/* Mobile Footer */}
-          <div className="pt-5 border-t border-border space-y-3">
+          {/* Footer Actions */}
+          <div className="pt-6 space-y-3">
             {user ? (
               <>
-                <div className="flex items-center space-x-3 p-3 bg-card rounded-md border border-border">
+                <div className="flex items-center gap-2.5 p-3 bg-card border border-border">
                   <User className="h-4 w-4 text-primary shrink-0" />
                   <span className="text-xs font-medium truncate">
                     {user.email}
                   </span>
                 </div>
-                <Button
+                <button
+                  type="button"
                   onClick={handleSignOut}
-                  variant="outline"
-                  className="w-full h-10"
+                  className="btn-outline w-full py-3"
                 >
                   <LogOut className="h-4 w-4 mr-2" />
                   {t.nav.signOut || "Sign Out"}
-                </Button>
+                </button>
               </>
             ) : (
               <div className="space-y-2.5">
-                <Button asChild variant="outline" className="w-full h-10">
-                  <Link href="/auth" onClick={() => setMobileMenuOpen(false)}>
-                    <User className="h-4 w-4 mr-2" />
-                    {t.nav.signIn || "Sign In"}
-                  </Link>
-                </Button>
-                <Button asChild className="w-full btn-primary h-10">
-                  <Link href="/tours" onClick={() => setMobileMenuOpen(false)}>
-                    <Calendar className="h-4 w-4 mr-2" />
-                    {t.nav.bookNow || "Explore Tours"}
-                  </Link>
-                </Button>
+                <Link
+                  href="/auth"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="btn-outline w-full py-3"
+                >
+                  {t.nav.signIn || "Sign In"}
+                </Link>
+                <Link
+                  href="/tours"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="btn-primary w-full py-3"
+                >
+                  {t.nav.bookNow || "Explore Routes"}
+                </Link>
               </div>
             )}
           </div>

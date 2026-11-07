@@ -1,49 +1,75 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, Mail } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ArrowUpRight } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { siteConfig } from "@/config/site";
 
 export default function CTASection() {
   const { t } = useLanguage();
 
   return (
-    <section className="py-20 md:py-28 bg-atlas-ink text-atlas-paper">
+    <section className="bg-foreground text-background border-b border-background/15">
       <div className="container">
-        <div className="max-w-3xl space-y-6">
-          <span className="text-xs font-semibold uppercase tracking-[0.16em] text-primary block">
-            05 — DISPATCH & RESERVATIONS
-          </span>
-          <h2 className="font-serif text-atlas-paper text-3xl md:text-5xl leading-tight">
-            {t?.home?.cta?.title || "Begin with a region that calls to you"}
-          </h2>
-          <p className="text-lg text-atlas-paper/80 leading-relaxed max-w-2xl">
-            {t?.home?.cta?.description ||
-              "Browse our scheduled small-group departures or speak with our planning desk in Galata, İstanbul."}
-          </p>
-          <div className="pt-2 flex flex-wrap items-center gap-4">
-            <Button
-              asChild
-              size="lg"
-              className="bg-primary text-primary-foreground hover:bg-primary/90 h-12 px-7"
-            >
-              <Link href="/tours" className="inline-flex items-center">
-                <span>{t?.home?.cta?.bookNow || "Explore Journeys"}</span>
-                <ArrowRight className="ml-2 h-4 w-4" />
+        <div className="grid grid-cols-1 lg:grid-cols-12 border-x border-background/15">
+          {/* Left 8 Columns: High-Contrast Editorial Commission Statement */}
+          <div className="lg:col-span-8 p-8 sm:p-12 lg:p-16 border-b lg:border-b-0 lg:border-r border-background/15 space-y-6">
+            <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#D89A8B] block tabular-nums">
+              05 — DISPATCH & BESPOKE ROUTE COMMISSIONING
+            </span>
+            <h2 className="font-serif text-background text-3xl sm:text-5xl lg:text-6xl leading-[1.02]">
+              {t?.home?.cta?.title || "Begin with a region that calls to you"}
+            </h2>
+            <p className="text-base sm:text-lg text-background/75 leading-relaxed max-w-2xl">
+              {t?.home?.cta?.description ||
+                "Join a scheduled small-group departure or commission a private itinerary tailored by our route historians in Galata, İstanbul."}
+            </p>
+            <div className="pt-4 flex flex-wrap items-center gap-4">
+              <Link href="/tours" className="btn-primary">
+                <span>{t?.home?.cta?.bookNow || "Browse All Itineraries"}</span>
+                <ArrowUpRight className="ml-2 h-4 w-4" />
               </Link>
-            </Button>
-            <Button
-              asChild
-              size="lg"
-              variant="outline"
-              className="border-atlas-paper/30 text-atlas-paper bg-transparent hover:bg-atlas-paper/10 h-12 px-7"
-            >
-              <Link href="/contact" className="inline-flex items-center">
-                <Mail className="mr-2 h-4 w-4" />
-                <span>Contact Galata Desk</span>
+              <Link
+                href="/contact"
+                className="inline-flex items-center justify-center border border-background/35 text-background px-7 py-4 text-xs uppercase tracking-[0.14em] font-medium hover:bg-background hover:text-foreground transition-colors"
+              >
+                <span>Consult Galata Desk</span>
               </Link>
-            </Button>
+            </div>
+          </div>
+
+          {/* Right 4 Columns: Planning Desk Specifications */}
+          <div className="lg:col-span-4 p-8 sm:p-12 flex flex-col justify-between bg-background/[0.03] space-y-8">
+            <div className="space-y-4">
+              <span className="text-[10px] uppercase tracking-[0.18em] text-[#D89A8B] font-semibold block">
+                GALATA PLANNING DESK
+              </span>
+              <p className="font-serif text-2xl text-background leading-snug">
+                Direct route consultation & private departure dates.
+              </p>
+              <p className="text-xs text-background/70 leading-relaxed">
+                {siteConfig.contact.hours}
+              </p>
+            </div>
+
+            <div className="space-y-3 pt-6 border-t border-background/15 text-xs tabular-nums">
+              <div>
+                <span className="block text-[10px] uppercase tracking-[0.15em] text-background/50">
+                  TELEPHONE DISPATCH
+                </span>
+                <span className="text-background font-medium">
+                  {siteConfig.contact.phone}
+                </span>
+              </div>
+              <div>
+                <span className="block text-[10px] uppercase tracking-[0.15em] text-background/50">
+                  ELECTRONIC MAIL
+                </span>
+                <span className="text-background font-medium">
+                  {siteConfig.contact.email}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
       </div>

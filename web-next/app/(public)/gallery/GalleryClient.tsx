@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { X, MapPin, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { DEMO_GALLERY_ITEMS, type GalleryItem } from "@/lib/data/demo-content";
@@ -70,10 +70,10 @@ export default function GalleryClient() {
   }, [selectedImage, navigateGallery]);
 
   const filterOptions: { key: FilterCategory; label: string }[] = [
-    { key: "all", label: t.gallery.filters.all || "All Regions" },
+    { key: "all", label: t.gallery.filters.all || "All Plates" },
     {
       key: "architecture",
-      label: t.gallery.filters.exterior || "Architecture & Sites",
+      label: t.gallery.filters.exterior || "Architecture & Monuments",
     },
     {
       key: "landscapes",
@@ -88,74 +88,94 @@ export default function GalleryClient() {
   );
 
   return (
-    <div className="pt-28 pb-20">
-      {/* Header */}
-      <section className="py-12 md:py-16 bg-background border-b border-border">
+    <main className="pt-20 pb-24 bg-background min-h-screen">
+      {/* Editorial Header */}
+      <section className="py-14 md:py-20 bg-card border-b border-border">
         <div className="container">
-          <div className="max-w-3xl space-y-3">
-            <span className="editorial-kicker block">
-              ANATOLIAN ATLAS — PHOTOGRAPHIC FIELD NOTES
-            </span>
-            <h1 className="font-serif text-foreground">{t.gallery.title}</h1>
-            <p className="text-text-secondary text-lg leading-relaxed">
-              {t.gallery.subtitle}
-            </p>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
+            <div className="lg:col-span-8 space-y-4">
+              <span className="editorial-kicker block">
+                04 — PHOTOGRAPHIC ARCHIVE & FIELD PLATES
+              </span>
+              <h1 className="font-serif text-foreground">{t.gallery.title}</h1>
+            </div>
+            <div className="lg:col-span-4 lg:text-right space-y-2">
+              <p className="text-text-secondary text-sm sm:text-base leading-relaxed">
+                {t.gallery.subtitle}
+              </p>
+              <span className="inline-block text-[11px] uppercase tracking-[0.16em] text-primary font-semibold tabular-nums">
+                {filteredImages.length} ARCHIVAL PLATES
+              </span>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Filters & Archive Grid */}
-      <section className="py-12">
+      {/* Filter Ledger Bar */}
+      <section className="border-b border-border bg-background">
         <div className="container">
-          <div className="flex flex-wrap gap-2 mb-10">
-            {filterOptions.map((option) => (
+          <div className="flex flex-wrap border-x border-border bg-card">
+            {filterOptions.map((option, idx) => (
               <button
                 key={option.key}
                 type="button"
                 onClick={() => filterGallery(option.key)}
                 className={cn(
-                  "px-4 py-2 rounded-md text-xs font-semibold uppercase tracking-wider transition-colors border",
+                  "px-6 py-4 text-xs font-semibold uppercase tracking-[0.15em] transition-colors border-r border-b sm:border-b-0 border-border tabular-nums",
                   activeFilter === option.key
-                    ? "bg-primary text-primary-foreground border-primary"
-                    : "bg-card text-text-secondary border-border hover:text-foreground hover:border-foreground/30"
+                    ? "bg-foreground text-background"
+                    : "bg-card text-text-secondary hover:text-foreground hover:bg-background"
                 )}
               >
+                <span className="text-primary mr-2">0{idx + 1}</span>
                 {option.label}
               </button>
             ))}
           </div>
+        </div>
+      </section>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredImages.map((image, index) => (
-              <figure
-                key={image.id}
-                className="group bg-card rounded-lg border border-border overflow-hidden cursor-pointer transition-shadow hover:shadow-md"
-                onClick={() => setSelectedImage(image.id)}
-              >
-                <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-                  <img
-                    src={image.src}
-                    alt={image.alt}
-                    className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
-                  />
-                  <span className="absolute top-3 left-3 px-2 py-0.5 rounded bg-background/95 text-foreground font-mono text-[11px] font-medium border border-border/80 tabular-nums">
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                </div>
-                <figcaption className="p-4 space-y-1">
-                  <div className="flex items-center justify-between text-xs text-primary font-medium">
-                    <span className="inline-flex items-center gap-1">
-                      <MapPin className="h-3.5 w-3.5" />
-                      {image.location}
-                    </span>
-                    <span className="text-text-secondary">{image.region}</span>
+      {/* Asymmetric Monograph Plate Grid */}
+      <section className="py-14 md:py-20">
+        <div className="container">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+            {filteredImages.map((image, index) => {
+              const isWide = index % 3 === 0;
+              return (
+                <figure
+                  key={image.id}
+                  className={cn(
+                    "group bg-card border border-border cursor-pointer transition-colors hover:border-foreground flex flex-col justify-between",
+                    isWide ? "md:col-span-7" : "md:col-span-5"
+                  )}
+                  onClick={() => setSelectedImage(image.id)}
+                >
+                  <div>
+                    <div className="px-5 py-3 border-b border-border flex items-center justify-between text-[11px] uppercase tracking-[0.15em] text-text-secondary tabular-nums bg-background/50">
+                      <span className="text-primary font-semibold">
+                        PLATE {String(index + 1).padStart(2, "0")}
+                      </span>
+                      <span>{image.region}</span>
+                    </div>
+                    <div className="relative aspect-[16/10] overflow-hidden bg-foreground border-b border-border">
+                      <img
+                        src={image.src}
+                        alt={image.alt}
+                        className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
+                      />
+                    </div>
                   </div>
-                  <p className="text-xs text-text-secondary line-clamp-2">
-                    {image.alt}
-                  </p>
-                </figcaption>
-              </figure>
-            ))}
+                  <figcaption className="p-5 space-y-1.5">
+                    <div className="font-serif text-xl text-foreground">
+                      {image.location}
+                    </div>
+                    <p className="text-xs text-text-secondary leading-relaxed">
+                      {image.alt}
+                    </p>
+                  </figcaption>
+                </figure>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -163,42 +183,42 @@ export default function GalleryClient() {
       {/* Lightbox */}
       {activeLightboxItem && (
         <div
-          className="fixed inset-0 z-50 bg-atlas-ink/95 flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-foreground/95 flex items-center justify-center p-4"
           role="dialog"
           aria-modal="true"
           aria-label={activeLightboxItem.alt}
         >
           <button
             type="button"
-            className="absolute top-6 right-6 text-atlas-paper p-2 rounded-md hover:bg-white/10 transition-colors"
+            className="absolute top-6 right-6 text-background p-3 border border-background/25 hover:bg-background hover:text-foreground transition-colors"
             onClick={() => setSelectedImage(null)}
             aria-label="Close lightbox"
           >
-            <X className="h-6 w-6" />
+            <X className="h-5 w-5" />
           </button>
 
           <button
             type="button"
-            className="absolute left-4 top-1/2 -translate-y-1/2 text-atlas-paper p-3 rounded-md hover:bg-white/10 transition-colors"
+            className="absolute left-4 top-1/2 -translate-y-1/2 text-background p-3 border border-background/25 hover:bg-background hover:text-foreground transition-colors"
             onClick={() => navigateGallery("prev")}
             aria-label="Previous photograph"
           >
-            <ChevronLeft className="h-8 w-8" />
+            <ChevronLeft className="h-6 w-6" />
           </button>
 
-          <figure className="max-w-4xl w-full space-y-3">
-            <div className="max-h-[75vh] overflow-hidden rounded-md flex items-center justify-center">
+          <figure className="max-w-4xl w-full space-y-4">
+            <div className="max-h-[75vh] overflow-hidden border border-background/20 flex items-center justify-center bg-foreground">
               <img
                 src={activeLightboxItem.src}
                 alt={activeLightboxItem.alt}
                 className="max-w-full max-h-[75vh] object-contain"
               />
             </div>
-            <figcaption className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-atlas-paper/90 px-1">
-              <span className="font-medium">
+            <figcaption className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-background/90 px-1 uppercase tracking-[0.14em]">
+              <span className="font-semibold text-[#D89A8B]">
                 {activeLightboxItem.location} — {activeLightboxItem.region}
               </span>
-              <span className="text-atlas-paper/75">
+              <span className="text-background/75 normal-case tracking-normal">
                 {activeLightboxItem.alt}
               </span>
             </figcaption>
@@ -206,14 +226,14 @@ export default function GalleryClient() {
 
           <button
             type="button"
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-atlas-paper p-3 rounded-md hover:bg-white/10 transition-colors"
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-background p-3 border border-background/25 hover:bg-background hover:text-foreground transition-colors"
             onClick={() => navigateGallery("next")}
             aria-label="Next photograph"
           >
-            <ChevronRight className="h-8 w-8" />
+            <ChevronRight className="h-6 w-6" />
           </button>
         </div>
       )}
-    </div>
+    </main>
   );
 }

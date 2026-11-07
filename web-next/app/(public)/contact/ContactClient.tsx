@@ -1,10 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { MapPin, Phone, Mail, Clock, Send, Check, Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { ArrowUpRight, Check, Loader2 } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "sonner";
 import { API_BASE_URL } from "@/lib/api/client";
@@ -54,7 +51,6 @@ export default function ContactClient() {
         t?.contact?.messageSent || "Your inquiry has been received."
       );
     } catch {
-      // If backend is unreachable during template preview, complete cleanly with notice
       setIsSubmitted(true);
     } finally {
       setIsSubmitting(false);
@@ -106,107 +102,95 @@ export default function ContactClient() {
   >;
 
   return (
-    <div className="pt-28 pb-20">
+    <main className="pt-20 pb-24 bg-background min-h-screen">
       {/* Header */}
-      <section className="py-12 md:py-16 bg-background border-b border-border">
+      <section className="py-14 md:py-20 bg-card border-b border-border">
         <div className="container">
-          <div className="max-w-3xl space-y-3">
-            <span className="editorial-kicker block">
-              GALATA PLANNING DESK — İSTANBUL
-            </span>
-            <h1 className="font-serif text-foreground">
-              {t?.contact?.title || "İstanbul Planning Desk"}
-            </h1>
-            <p className="text-text-secondary text-lg leading-relaxed">
-              {t?.contact?.subtitle ||
-                "Speak with our route planners in Galata regarding scheduled departures or private itineraries across Türkiye."}
-            </p>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
+            <div className="lg:col-span-8 space-y-4">
+              <span className="editorial-kicker block">
+                05 — GALATA PLANNING DESK & BESPOKE DISPATCH
+              </span>
+              <h1 className="font-serif text-foreground">
+                {t?.contact?.title || "İstanbul Planning Desk"}
+              </h1>
+            </div>
+            <div className="lg:col-span-4 lg:text-right">
+              <p className="text-text-secondary text-sm sm:text-base leading-relaxed">
+                {t?.contact?.subtitle ||
+                  "Speak with our route planners in Galata regarding scheduled departures or private itineraries across Türkiye."}
+              </p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Contact Information & Inquiry Form */}
-      <section className="section border-b border-border">
+      {/* Split Swiss Grid: Galata Desk Ledger (5 cols) + Commission Form (7 cols) */}
+      <section className="py-16 md:py-24 border-b border-border">
         <div className="container">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-            {/* Left 5 Cols: Galata Desk Information & Map */}
-            <div className="lg:col-span-5 space-y-6">
-              <h2 className="font-serif text-2xl text-foreground">
-                {t?.contact?.getInTouch || "Direct Contact"}
-              </h2>
+          <div className="grid grid-cols-1 lg:grid-cols-12 border border-border bg-card">
+            {/* Left 5 Cols: Dark Ink Galata Dossier */}
+            <div className="lg:col-span-5 bg-foreground text-background p-8 sm:p-10 lg:p-12 flex flex-col justify-between space-y-10">
+              <div className="space-y-8">
+                <div className="border-b border-background/15 pb-4">
+                  <span className="text-[10px] uppercase tracking-[0.18em] text-[#D89A8B] font-semibold block">
+                    DISPATCH HEADQUARTERS
+                  </span>
+                  <h2 className="font-serif text-3xl text-background mt-1">
+                    {t?.contact?.getInTouch || "Galata Bureau, İstanbul"}
+                  </h2>
+                </div>
 
-              <div className="bg-card border border-border rounded-lg p-6 space-y-6">
-                <div className="flex items-start">
-                  <div className="flex-shrink-0 h-9 w-9 rounded-md bg-primary/10 flex items-center justify-center mr-4">
-                    <MapPin className="h-4 w-4 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-sans text-xs font-semibold uppercase tracking-wider text-text-secondary mb-1">
-                      {t?.contact?.address || "Galata Office"}
-                    </h3>
-                    <p className="text-sm text-foreground leading-relaxed">
+                <dl className="divide-y divide-background/15 text-xs tabular-nums">
+                  <div className="py-4 space-y-1">
+                    <dt className="text-[10px] uppercase tracking-[0.16em] text-[#D89A8B] font-semibold">
+                      01 / CHANCERY & PLANNING ADDRESS
+                    </dt>
+                    <dd className="text-sm text-background leading-relaxed">
                       {siteConfig.contact.addressLines.map((line, idx) => (
                         <span key={idx} className="block">
                           {line}
                         </span>
                       ))}
-                    </p>
+                    </dd>
                   </div>
-                </div>
 
-                <div className="flex items-start">
-                  <div className="flex-shrink-0 h-9 w-9 rounded-md bg-primary/10 flex items-center justify-center mr-4">
-                    <Phone className="h-4 w-4 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-sans text-xs font-semibold uppercase tracking-wider text-text-secondary mb-1">
-                      {t?.contact?.phone || "Telephone"}
-                    </h3>
-                    <p className="text-sm text-foreground tabular-nums">
+                  <div className="py-4 space-y-1">
+                    <dt className="text-[10px] uppercase tracking-[0.16em] text-[#D89A8B] font-semibold">
+                      02 / TELEPHONE & FIELD WHATSAPP
+                    </dt>
+                    <dd className="text-sm text-background">
                       {siteConfig.contact.phone} (İstanbul Desk)
-                    </p>
-                    <p className="text-sm text-text-secondary tabular-nums">
-                      {siteConfig.contact.whatsapp} (Field & WhatsApp)
-                    </p>
+                    </dd>
+                    <dd className="text-xs text-background/70">
+                      {siteConfig.contact.whatsapp} (Active Field Dispatch)
+                    </dd>
                   </div>
-                </div>
 
-                <div className="flex items-start">
-                  <div className="flex-shrink-0 h-9 w-9 rounded-md bg-primary/10 flex items-center justify-center mr-4">
-                    <Mail className="h-4 w-4 text-primary" />
-                  </div>
-                  <div>
-                    <h3 className="font-sans text-xs font-semibold uppercase tracking-wider text-text-secondary mb-1">
-                      {t?.contact?.email || "Email"}
-                    </h3>
-                    <p className="text-sm text-foreground">
+                  <div className="py-4 space-y-1">
+                    <dt className="text-[10px] uppercase tracking-[0.16em] text-[#D89A8B] font-semibold">
+                      03 / ELECTRONIC CORRESPONDENCE
+                    </dt>
+                    <dd className="text-sm text-background">
                       {siteConfig.contact.email}
-                    </p>
-                    <p className="text-sm text-text-secondary">
+                    </dd>
+                    <dd className="text-xs text-background/70">
                       {siteConfig.contact.reservationsEmail}
-                    </p>
+                    </dd>
                   </div>
-                </div>
 
-                <div className="flex items-start">
-                  <div className="flex-shrink-0 h-9 w-9 rounded-md bg-primary/10 flex items-center justify-center mr-4">
-                    <Clock className="h-4 w-4 text-primary" />
+                  <div className="py-4 space-y-1">
+                    <dt className="text-[10px] uppercase tracking-[0.16em] text-[#D89A8B] font-semibold">
+                      04 / CONSULTATION HOURS
+                    </dt>
+                    <dd className="text-xs text-background/80 leading-relaxed">
+                      {siteConfig.contact.hours}
+                    </dd>
                   </div>
-                  <div>
-                    <h3 className="font-sans text-xs font-semibold uppercase tracking-wider text-text-secondary mb-1">
-                      {t?.contact?.receptionHours || "Planning Desk Hours"}
-                    </h3>
-                    <p className="text-sm text-text-secondary leading-relaxed">
-                      {t?.contact?.checkInTime || siteConfig.contact.hours}
-                      <br />
-                      {t?.contact?.checkOutTime ||
-                        "Active Traveler Support: 24/7"}
-                    </p>
-                  </div>
-                </div>
+                </dl>
               </div>
 
-              <div className="aspect-video rounded-lg overflow-hidden border border-border bg-muted">
+              <div className="aspect-video overflow-hidden border border-background/20 bg-foreground">
                 <iframe
                   src={siteConfig.contact.mapEmbedUrl}
                   width="100%"
@@ -219,80 +203,90 @@ export default function ContactClient() {
               </div>
             </div>
 
-            {/* Right 7 Cols: Route Inquiry Form */}
-            <div className="lg:col-span-7 space-y-6">
-              <h2 className="font-serif text-2xl text-foreground">
-                {t?.contact?.sendMessage || "Send a Route Inquiry"}
-              </h2>
+            {/* Right 7 Cols: Editorial Route Commission Form */}
+            <div className="lg:col-span-7 p-8 sm:p-10 lg:p-14 bg-card flex flex-col justify-between">
+              <div className="space-y-8">
+                <div className="border-b border-border pb-4 flex items-baseline justify-between">
+                  <span className="editorial-kicker">
+                    ROUTE INQUIRY & PRIVATE CHARTER BRIEF
+                  </span>
+                  <span className="editorial-meta">RESPONSE WITHIN 24H</span>
+                </div>
 
-              <div className="bg-card border border-border rounded-lg p-6 md:p-8">
+                <h2 className="font-serif text-3xl text-foreground">
+                  {t?.contact?.sendMessage || "Commission an Itinerary or Ask a Question"}
+                </h2>
+
                 {!isSubmitted ? (
                   <form onSubmit={handleSubmit} className="space-y-6">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="name">
-                          {t?.contact?.fullName || "Full Name"}
-                        </Label>
-                        <Input
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      <div>
+                        <label htmlFor="name" className="form-label">
+                          01 / {t?.contact?.fullName || "Full Name"}
+                        </label>
+                        <input
                           id="name"
                           name="name"
                           value={formData.name}
                           onChange={handleInputChange}
                           placeholder="Leyla Arslan"
+                          className="form-input"
                           required
                         />
                       </div>
 
-                      <div className="space-y-2">
-                        <Label htmlFor="email">
-                          {t?.contact?.email || "Email"}
-                        </Label>
-                        <Input
+                      <div>
+                        <label htmlFor="email" className="form-label">
+                          02 / {t?.contact?.email || "Electronic Mail"}
+                        </label>
+                        <input
                           id="email"
                           name="email"
                           type="email"
                           value={formData.email}
                           onChange={handleInputChange}
                           placeholder="leyla@example.com"
+                          className="form-input"
                           required
                         />
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="phone">
-                          {t?.contact?.phoneNumber || "Telephone Number"}
-                        </Label>
-                        <Input
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      <div>
+                        <label htmlFor="phone" className="form-label">
+                          03 / {t?.contact?.phoneNumber || "Telephone"}
+                        </label>
+                        <input
                           id="phone"
                           name="phone"
                           value={formData.phone}
                           onChange={handleInputChange}
                           placeholder="+90 532 000 00 00"
+                          className="form-input"
                         />
                       </div>
 
-                      <div className="space-y-2">
-                        <Label htmlFor="subject">
-                          {t?.contact?.subject ||
-                            "Region or Journey of Interest"}
-                        </Label>
-                        <Input
+                      <div>
+                        <label htmlFor="subject" className="form-label">
+                          04 / {t?.contact?.subject || "Primary Region or Route"}
+                        </label>
+                        <input
                           id="subject"
                           name="subject"
                           value={formData.subject}
                           onChange={handleInputChange}
                           placeholder="Cappadocia & Göreme Valleys (Autumn)"
+                          className="form-input"
                           required
                         />
                       </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="message">
-                        {t?.contact?.message || "Message"}
-                      </Label>
+                    <div>
+                      <label htmlFor="message" className="form-label">
+                        05 / {t?.contact?.message || "Travel Window, Party Size & Notes"}
+                      </label>
                       <textarea
                         id="message"
                         name="message"
@@ -300,41 +294,40 @@ export default function ContactClient() {
                         onChange={handleInputChange}
                         placeholder={
                           t?.contact?.howCanWeHelp ||
-                          "Tell us your preferred travel window, regions of interest, and group size..."
+                          "Share your preferred travel dates, regions of interest, walking pace, and number of guests..."
                         }
-                        className="w-full min-h-[150px] p-3 rounded-md border border-input bg-background text-sm focus:border-primary focus:outline-none"
+                        className="form-input min-h-[160px]"
                         required
                       />
                     </div>
 
-                    <Button
+                    <button
                       type="submit"
-                      className="w-full btn-primary h-11"
+                      className="btn-primary w-full py-4"
                       disabled={isSubmitting}
                     >
                       {isSubmitting ? (
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      ) : (
-                        <Send className="mr-2 h-4 w-4" />
-                      )}
-                      {t?.contact?.send || "Send Inquiry"}
-                    </Button>
+                      ) : null}
+                      <span>{t?.contact?.send || "Transmit Route Brief"}</span>
+                      <ArrowUpRight className="ml-2 h-4 w-4" />
+                    </button>
                   </form>
                 ) : (
-                  <div className="text-center py-12 space-y-4">
-                    <div className="w-12 h-12 bg-success/15 rounded-full flex items-center justify-center mx-auto">
-                      <Check className="h-6 w-6 text-success" />
+                  <div className="border border-border bg-background p-10 text-center space-y-4">
+                    <div className="w-10 h-10 bg-primary text-primary-foreground flex items-center justify-center mx-auto">
+                      <Check className="h-5 w-5" />
                     </div>
                     <h3 className="font-serif text-2xl text-foreground">
-                      {t?.contact?.messageSent || "Inquiry Received"}
+                      {t?.contact?.messageSent || "Route Brief Logged"}
                     </h3>
                     <p className="text-text-secondary max-w-md mx-auto text-sm">
                       {t?.contact?.thankYou ||
-                        "Thank you. A route specialist in İstanbul will respond within one business day."}
+                        "Thank you. A senior route planner in Galata will respond within one business day."}
                     </p>
-                    <Button
-                      variant="outline"
-                      size="sm"
+                    <button
+                      type="button"
+                      className="btn-outline mt-2"
                       onClick={() => {
                         setIsSubmitted(false);
                         setFormData({
@@ -346,8 +339,8 @@ export default function ContactClient() {
                         });
                       }}
                     >
-                      Send Another Inquiry
-                    </Button>
+                      Submit Another Inquiry
+                    </button>
                   </div>
                 )}
               </div>
@@ -356,23 +349,19 @@ export default function ContactClient() {
         </div>
       </section>
 
-      {/* FAQ Section */}
-      <section className="section bg-muted/35">
+      {/* Practical Field Briefing (FAQ Table) */}
+      <section className="pt-16 md:pt-24">
         <div className="container">
-          <div className="max-w-3xl mb-12 space-y-3">
+          <div className="pb-10 border-b border-border mb-10">
             <span className="editorial-kicker block">
-              PRACTICAL FIELD BRIEFING
+              06 — PRACTICAL FIELD BRIEFING
             </span>
-            <h2 className="font-serif text-foreground">
+            <h2 className="font-serif text-3xl sm:text-4xl text-foreground mt-2">
               {t?.contact?.faq || "Planning & Practical Questions"}
             </h2>
-            <p className="text-text-secondary">
-              {t?.contact?.faqSubtitle ||
-                "Essential details on group sizes, archaeological permits, and seasonal timing"}
-            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 border-t border-l border-border bg-card">
             {defaultFaqData.map((faq, index) => {
               const translated = questionsMap[faq.questionKey];
               const question = translated?.question || faq.question;
@@ -381,9 +370,12 @@ export default function ContactClient() {
               return (
                 <div
                   key={index}
-                  className="bg-card border border-border rounded-lg p-6 space-y-2"
+                  className="p-8 border-r border-b border-border space-y-3"
                 >
-                  <h3 className="font-serif text-lg font-medium text-foreground">
+                  <span className="text-[11px] uppercase tracking-[0.16em] text-primary font-semibold tabular-nums">
+                    NOTE 0{index + 1}
+                  </span>
+                  <h3 className="font-serif text-xl text-foreground">
                     {question}
                   </h3>
                   <p className="text-sm text-text-secondary leading-relaxed">
@@ -395,6 +387,6 @@ export default function ContactClient() {
           </div>
         </div>
       </section>
-    </div>
+    </main>
   );
 }

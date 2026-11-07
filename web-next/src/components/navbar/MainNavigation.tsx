@@ -1,39 +1,108 @@
 "use client";
 
-
 import { useState } from "react";
+import Link from "next/link";
+import { ArrowUpRight, LogOut, User } from "lucide-react";
 import NavbarLogo from "./NavbarLogo";
 import NavbarDesktopNav from "./NavbarDesktopNav";
 import NavbarMobileButton from "./NavbarMobileButton";
 import NavbarMobileMenu from "./NavbarMobileMenu";
+import LanguageSelector from "@/components/LanguageSelector";
+import ThemeToggle from "@/components/ThemeToggle";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { useIsAdmin } from "@/hooks/useUserRole";
 
 export default function MainNavigation() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { t } = useLanguage();
+  const { user, signOut } = useAuth();
+  const isAdmin = useIsAdmin();
 
   return (
     <>
-      <div className="container flex justify-between items-center py-4">
-        {/* Left side - Logo */}
-        <NavbarLogo />
-        
-        {/* Right side - Desktop Navigation */}
-        <div className="hidden lg:flex">
+      <div className="container flex items-stretch justify-between h-16 md:h-20">
+        {/* Left Cell: Editorial Masthead Wordmark */}
+        <div className="flex items-center pr-6">
+          <NavbarLogo />
+        </div>
+
+        {/* Center Cell: Swiss Grid Indexed Navigation */}
+        <div className="hidden lg:flex items-stretch">
           <NavbarDesktopNav />
         </div>
-        
-        {/* Mobile Menu Button */}
-        <div className="lg:hidden">
-          <NavbarMobileButton 
-            mobileMenuOpen={mobileMenuOpen} 
-            setMobileMenuOpen={setMobileMenuOpen} 
+
+        {/* Right Cell: Language, Account & Direct Route Action */}
+        <div className="hidden lg:flex items-center gap-3 pl-6">
+          <LanguageSelector />
+          <ThemeToggle />
+
+          {user ? (
+            <div className="flex items-center gap-2 pl-2 border-l border-border">
+              <Link
+                href="/my-reservations"
+                className="px-3 py-2 text-[11px] uppercase tracking-[0.13em] font-medium text-foreground hover:text-primary transition-colors"
+              >
+                {t.nav.myBookings || "Dossier"}
+              </Link>
+              {isAdmin && (
+                <Link
+                  href="/admin"
+                  className="px-2.5 py-1.5 text-[11px] uppercase tracking-[0.13em] font-semibold bg-foreground text-background hover:bg-primary transition-colors"
+                >
+                  Desk
+                </Link>
+              )}
+              <Link
+                href="/profile"
+                className="inline-flex items-center gap-1.5 px-2.5 py-1.5 border border-border bg-card text-xs text-foreground hover:border-foreground transition-colors"
+                title={user.email}
+              >
+                <User className="h-3.5 w-3.5 text-primary" />
+                <span className="max-w-24 truncate text-[11px]">
+                  {user.email.split("@")[0]}
+                </span>
+              </Link>
+              <button
+                type="button"
+                onClick={() => signOut()}
+                className="p-2 text-text-secondary hover:text-destructive transition-colors"
+                aria-label="Sign Out"
+              >
+                <LogOut className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          ) : (
+            <div className="flex items-center gap-3 pl-2 border-l border-border">
+              <Link
+                href="/auth"
+                className="px-3 py-2 text-[11px] uppercase tracking-[0.14em] font-medium text-text-secondary hover:text-foreground transition-colors"
+              >
+                {t.nav.signIn || "Sign In"}
+              </Link>
+              <Link
+                href="/tours"
+                className="btn-primary py-3 px-5 inline-flex items-center gap-2"
+              >
+                <span>{t.nav.bookNow || "All Routes"}</span>
+                <ArrowUpRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+          )}
+        </div>
+
+        {/* Mobile Menu Trigger */}
+        <div className="flex items-center lg:hidden">
+          <NavbarMobileButton
+            mobileMenuOpen={mobileMenuOpen}
+            setMobileMenuOpen={setMobileMenuOpen}
           />
         </div>
       </div>
 
-      {/* Mobile Menu */}
-      <NavbarMobileMenu 
-        mobileMenuOpen={mobileMenuOpen} 
-        setMobileMenuOpen={setMobileMenuOpen} 
+      <NavbarMobileMenu
+        mobileMenuOpen={mobileMenuOpen}
+        setMobileMenuOpen={setMobileMenuOpen}
       />
     </>
   );

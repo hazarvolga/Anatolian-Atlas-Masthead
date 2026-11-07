@@ -43,3 +43,11 @@ export const siteConfig = {
 export function isDemoMode(): boolean {
   return siteConfig.dataMode === "demo";
 }
+
+export function formatPrice(amount: number): string {
+  const safeAmount = Number.isFinite(amount) ? amount : 0;
+  return `${siteConfig.currency.symbol}${safeAmount.toLocaleString("en-US", {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  })}`;
+}

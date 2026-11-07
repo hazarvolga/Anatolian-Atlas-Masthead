@@ -10,19 +10,20 @@ export default function NavbarDesktopNav() {
   const pathname = usePathname();
 
   const navLinks = [
-    { name: t.nav.home || "Atlas", path: "/" },
+    { index: "01", name: t.nav.home || "Atlas", path: "/" },
     {
-      name: (t.nav as Record<string, string>).destinations || "Destinations",
+      index: "02",
+      name: (t.nav as Record<string, string>).destinations || "Regions",
       path: "/destinations",
     },
-    { name: t.nav.tours || "Journeys", path: "/tours" },
-    { name: t.nav.gallery || "Archive", path: "/gallery" },
-    { name: t.nav.contact || "Inquiries", path: "/contact" },
+    { index: "03", name: t.nav.tours || "Journeys", path: "/tours" },
+    { index: "04", name: t.nav.gallery || "Archive", path: "/gallery" },
+    { index: "05", name: t.nav.contact || "Inquiries", path: "/contact" },
   ];
 
   return (
-    <nav aria-label="Primary navigation">
-      <ul className="hidden lg:flex items-center space-x-1">
+    <nav aria-label="Primary navigation" className="h-full">
+      <ul className="hidden lg:flex items-stretch h-full">
         {navLinks.map((link) => {
           const isActive =
             link.path === "/"
@@ -30,17 +31,33 @@ export default function NavbarDesktopNav() {
               : pathname?.startsWith(link.path);
 
           return (
-            <li key={link.path}>
+            <li
+              key={link.path}
+              className="flex items-stretch border-r border-border first:border-l"
+            >
               <Link
                 href={link.path}
                 className={cn(
-                  "px-4 py-2 rounded-md text-sm font-medium transition-colors duration-150",
+                  "relative px-5 xl:px-6 flex flex-col justify-center transition-colors duration-150 group",
                   isActive
-                    ? "text-primary font-semibold bg-primary/5"
-                    : "text-text-secondary hover:text-foreground hover:bg-muted/60"
+                    ? "bg-card text-foreground"
+                    : "text-text-secondary hover:text-foreground hover:bg-card/60"
                 )}
               >
-                {link.name}
+                <span className="text-[10px] uppercase tracking-[0.16em] text-primary tabular-nums leading-none mb-1">
+                  {link.index}
+                </span>
+                <span className="text-xs uppercase tracking-[0.14em] font-medium leading-none">
+                  {link.name}
+                </span>
+                <span
+                  className={cn(
+                    "absolute bottom-0 left-0 right-0 h-[2px] bg-primary transition-transform duration-200 origin-left",
+                    isActive
+                      ? "scale-x-100"
+                      : "scale-x-0 group-hover:scale-x-100"
+                  )}
+                />
               </Link>
             </li>
           );

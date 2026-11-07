@@ -3,8 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Compass, MapPin, Search } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { ArrowUpRight } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useDestinations } from "@/hooks/useDestinations";
 
@@ -32,66 +31,103 @@ export default function HeroSection() {
   };
 
   return (
-    <section className="relative pt-28 pb-16 md:pt-36 md:pb-24 bg-background border-b border-border">
+    <section className="relative pt-16 md:pt-20 bg-background border-b border-border">
+      {/* Top Issue / Monograph Metadata Strip */}
+      <div className="border-b border-border bg-card/60">
+        <div className="container py-2.5 flex flex-wrap items-center justify-between gap-4 text-[11px] uppercase tracking-[0.16em] text-text-secondary tabular-nums">
+          <div className="flex items-center gap-3">
+            <span className="inline-block w-2 h-2 bg-primary" />
+            <span className="font-semibold text-foreground">
+              ISSUE 04 — ANATOLIAN GEOGRAPHIC & CULTURAL ARCHIVE
+            </span>
+          </div>
+          <div className="hidden md:flex items-center gap-6">
+            <span>DISPATCH: GALATA, İSTANBUL</span>
+            <span className="text-border">|</span>
+            <span>6 REGIONS · SMALL-GROUP & PRIVATE</span>
+            <span className="text-border">|</span>
+            <span className="text-primary font-semibold">AUTUMN / SPRING EDITION</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Asymmetric Editorial Composition ("Leke": ~58% Paper Field / ~42% Dark Ink & Photographic Plate) */}
       <div className="container">
-        {/* 12-Column Asymmetric Editorial Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-start">
-          {/* Left Column (7 cols ~58%): Paper Field & Typography */}
-          <div className="lg:col-span-7 space-y-8 pt-2 lg:pt-6">
-            <div className="inline-flex items-center gap-2.5">
-              <span className="w-2 h-2 rounded-full bg-primary" />
-              <span className="editorial-kicker">{t.hero.subtitle}</span>
-            </div>
+        <div className="grid grid-cols-1 lg:grid-cols-12 border-x border-border">
+          {/* Left Column (7 cols): Monumental Display Typography & Route Ledger */}
+          <div className="lg:col-span-7 flex flex-col justify-between p-6 sm:p-10 lg:p-14 border-b lg:border-b-0 lg:border-r border-border">
+            <div className="space-y-8">
+              <div className="flex items-center justify-between border-b border-border pb-4">
+                <span className="editorial-kicker">
+                  00 / FIELD MONOGRAPH — {t.hero.subtitle}
+                </span>
+                <span className="editorial-meta hidden sm:inline">
+                  EST. İSTANBUL
+                </span>
+              </div>
 
-            <h1 className="font-serif text-foreground tracking-tight leading-[1.05]">
-              {t.hero.title}
-            </h1>
+              <h1 className="font-serif text-foreground tracking-[-0.035em] leading-[0.95]">
+                {t.hero.title}
+              </h1>
 
-            <p className="text-lg md:text-xl text-text-secondary max-w-[58ch] leading-relaxed">
-              {t.hero.description}
-            </p>
+              <div className="grid grid-cols-1 md:grid-cols-12 gap-6 pt-2">
+                <div className="md:col-span-4 border-l-2 border-primary pl-4">
+                  <p className="text-xs uppercase tracking-[0.14em] text-foreground font-semibold mb-1">
+                    Curatorial Premise
+                  </p>
+                  <p className="text-xs text-text-secondary leading-relaxed">
+                    Paced archaeological, culinary, and coastal itineraries led by regional historians. Max 12 guests.
+                  </p>
+                </div>
+                <div className="md:col-span-8">
+                  <p className="text-base md:text-lg text-text-secondary leading-relaxed">
+                    {t.hero.description}
+                  </p>
+                </div>
+              </div>
 
-            {/* Primary & Secondary CTAs */}
-            <div className="flex flex-wrap items-center gap-4 pt-1">
-              <Button asChild size="lg" className="btn-primary h-12 px-7">
-                <Link href="/tours" className="inline-flex items-center gap-2.5">
+              {/* Editorial Actions */}
+              <div className="flex flex-wrap items-center gap-4 pt-2">
+                <Link href="/tours" className="btn-primary">
                   <span>{t.hero.bookStay}</span>
-                  <ArrowRight className="h-4 w-4" />
+                  <ArrowUpRight className="h-4 w-4 ml-2" />
                 </Link>
-              </Button>
-
-              <Button asChild variant="outline" size="lg" className="btn-outline h-12 px-7">
-                <Link
-                  href="/destinations"
-                  className="inline-flex items-center gap-2"
-                >
-                  <Compass className="h-4 w-4 text-primary" />
+                <Link href="/destinations" className="btn-outline">
                   <span>{t.hero.exploreApartments}</span>
                 </Link>
-              </Button>
+              </div>
             </div>
 
-            {/* Compact Working Route Discovery Bar */}
-            <form
-              onSubmit={handleDiscoverySubmit}
-              className="mt-8 p-4 sm:p-5 bg-card rounded-lg border border-border shadow-sm"
-              aria-label="Filter journeys by region and walking pace"
-            >
-              <div className="grid grid-cols-1 sm:grid-cols-12 gap-4 items-end">
-                <div className="sm:col-span-5">
+            {/* Flush Architectural Route Index Filter */}
+            <div className="mt-12 pt-8 border-t border-border">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-foreground">
+                  ROUTE INDEX & EXPEDITION FILTER
+                </span>
+                <span className="text-[11px] uppercase tracking-[0.14em] text-primary tabular-nums">
+                  DIRECT DISPATCH
+                </span>
+              </div>
+
+              <form
+                onSubmit={handleDiscoverySubmit}
+                className="grid grid-cols-1 sm:grid-cols-12 border border-border bg-card"
+                aria-label="Filter journeys by region and walking pace"
+              >
+                <div className="sm:col-span-5 p-3.5 border-b sm:border-b-0 sm:border-r border-border">
                   <label
                     htmlFor="hero-region-select"
-                    className="block text-[11px] font-semibold uppercase tracking-wider text-text-secondary mb-1.5"
+                    className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-text-secondary mb-1"
                   >
-                    Region / Destination
+                    01 / Geographic Region
                   </label>
                   <select
                     id="hero-region-select"
                     value={selectedRegion}
                     onChange={(e) => setSelectedRegion(e.target.value)}
-                    className="w-full h-10 px-3 rounded-md border border-border bg-background text-foreground text-sm focus:border-primary focus:outline-none"
+                    className="w-full bg-transparent text-foreground font-serif text-base focus:outline-none cursor-pointer"
                   >
-                    <option value="all">All Regions in Türkiye</option>
+                    <option value="all">All Six Regions of Türkiye</option>
                     {safeDestinations.map((dest: any) => (
                       <option key={dest.id} value={dest.id}>
                         {dest.name}
@@ -100,87 +136,93 @@ export default function HeroSection() {
                   </select>
                 </div>
 
-                <div className="sm:col-span-4">
+                <div className="sm:col-span-4 p-3.5 border-b sm:border-b-0 sm:border-r border-border">
                   <label
                     htmlFor="hero-pace-select"
-                    className="block text-[11px] font-semibold uppercase tracking-wider text-text-secondary mb-1.5"
+                    className="block text-[10px] font-semibold uppercase tracking-[0.16em] text-text-secondary mb-1"
                   >
-                    Walking Pace
+                    02 / Terrain & Pace
                   </label>
                   <select
                     id="hero-pace-select"
                     value={selectedPace}
                     onChange={(e) => setSelectedPace(e.target.value)}
-                    className="w-full h-10 px-3 rounded-md border border-border bg-background text-foreground text-sm focus:border-primary focus:outline-none"
+                    className="w-full bg-transparent text-foreground font-serif text-base focus:outline-none cursor-pointer"
                   >
-                    <option value="all">All Paces</option>
-                    <option value="easy">Easy — Urban & Cultural</option>
-                    <option value="moderate">Moderate — Valley & Coastal Trails</option>
-                    <option value="challenging">Challenging — Mountain Ridges</option>
+                    <option value="all">All Walking Paces</option>
+                    <option value="easy">Easy — Urban & Maritime</option>
+                    <option value="moderate">Moderate — Valleys & Trails</option>
+                    <option value="challenging">Challenging — High Ridges</option>
                   </select>
                 </div>
 
-                <div className="sm:col-span-3">
-                  <Button
+                <div className="sm:col-span-3 flex">
+                  <button
                     type="submit"
-                    className="w-full h-10 bg-foreground text-background hover:bg-primary hover:text-primary-foreground transition-colors text-sm font-medium"
+                    className="w-full bg-foreground text-background hover:bg-primary hover:text-primary-foreground transition-colors px-4 py-4 text-xs uppercase tracking-[0.16em] font-semibold flex items-center justify-center gap-2"
                   >
-                    <Search className="h-4 w-4 mr-2" />
-                    Find Routes
-                  </Button>
+                    <span>Consult</span>
+                    <ArrowUpRight className="h-3.5 w-3.5" />
+                  </button>
                 </div>
-              </div>
-            </form>
-
-            {/* Geographic Index Strip */}
-            <div className="pt-2 border-t border-border/70 grid grid-cols-3 gap-6 text-xs text-text-secondary">
-              <div>
-                <span className="block font-mono text-[11px] uppercase tracking-wider text-primary">
-                  01 / Straits
-                </span>
-                <span className="font-medium text-foreground">
-                  İstanbul & Bosphorus
-                </span>
-              </div>
-              <div>
-                <span className="block font-mono text-[11px] uppercase tracking-wider text-primary">
-                  02 / Plateau
-                </span>
-                <span className="font-medium text-foreground">
-                  Cappadocia & Göreme
-                </span>
-              </div>
-              <div>
-                <span className="block font-mono text-[11px] uppercase tracking-wider text-primary">
-                  03 / Coast & East
-                </span>
-                <span className="font-medium text-foreground">
-                  Ephesus, Lycia & Mardin
-                </span>
-              </div>
+              </form>
             </div>
           </div>
 
-          {/* Right Column (5 cols ~42%): Dominant Authentic Türkiye Photograph */}
-          <div className="lg:col-span-5">
-            <figure className="relative bg-card p-3 rounded-lg border border-border shadow-md">
-              <div className="aspect-[4/5] overflow-hidden rounded-md bg-muted">
-                <img
-                  src="https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1400&q=85"
-                  alt="Morning ferry crossing the Bosphorus Strait toward Ortaköy in İstanbul, Türkiye"
-                  className="w-full h-full object-cover"
-                />
+          {/* Right Column (5 cols): Dominant Dark Ink & Photographic Mass */}
+          <div className="lg:col-span-5 bg-foreground text-background flex flex-col justify-between">
+            {/* Top Plate Header inside Dark Mass */}
+            <div className="px-6 py-4 border-b border-background/15 flex items-center justify-between text-[11px] uppercase tracking-[0.16em] text-background/75 tabular-nums">
+              <span>PLATE I — MARMARA & THE STRAITS</span>
+              <span>ARCHIVE NO. NST-01</span>
+            </div>
+
+            {/* Tall Editorial Monograph Photograph */}
+            <div className="relative aspect-[4/5] w-full overflow-hidden bg-foreground">
+              <img
+                src="https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=1400&q=85"
+                alt="Morning ferry crossing the Bosphorus Strait toward Ortaköy in İstanbul, Türkiye"
+                className="w-full h-full object-cover opacity-92 contrast-[1.03]"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#172D2B] via-transparent to-transparent opacity-80" />
+              <div className="absolute bottom-6 left-6 right-6 text-background">
+                <span className="inline-block px-2.5 py-1 bg-primary text-primary-foreground text-[10px] uppercase tracking-[0.16em] font-semibold mb-3">
+                  LEAD REGION — İSTANBUL
+                </span>
+                <p className="font-serif text-2xl md:text-3xl text-background leading-tight">
+                  Dawn crossings between the imperial peninsula, Galata quays, and the Asian shore.
+                </p>
               </div>
-              <figcaption className="pt-3 px-1 flex items-center justify-between text-xs text-text-secondary">
-                <span className="inline-flex items-center gap-1.5 font-medium text-foreground">
-                  <MapPin className="h-3.5 w-3.5 text-primary" />
-                  Ortaköy & The Bosphorus Strait, İstanbul
+            </div>
+
+            {/* Bottom Dark Ink Ledger Caption */}
+            <div className="p-6 border-t border-background/15 grid grid-cols-3 gap-4 text-xs">
+              <div>
+                <span className="block text-[10px] uppercase tracking-[0.15em] text-background/60 mb-1">
+                  SEASON WINDOW
                 </span>
-                <span className="font-mono text-[11px] tabular-nums">
-                  41.0475° N, 29.0277° E
+                <span className="font-medium text-background tabular-nums">
+                  Apr – Jun · Sep – Nov
                 </span>
-              </figcaption>
-            </figure>
+              </div>
+              <div>
+                <span className="block text-[10px] uppercase tracking-[0.15em] text-background/60 mb-1">
+                  GROUP CEILING
+                </span>
+                <span className="font-medium text-background tabular-nums">
+                  Max 10 – 12 Guests
+                </span>
+              </div>
+              <div className="text-right">
+                <Link
+                  href="/destinations/dest-istanbul"
+                  className="inline-flex items-center gap-1 text-[11px] uppercase tracking-[0.14em] text-[#D89A8B] hover:text-background font-semibold mt-2"
+                >
+                  <span>Read Dossier</span>
+                  <ArrowUpRight className="h-3.5 w-3.5" />
+                </Link>
+              </div>
+            </div>
           </div>
         </div>
       </div>

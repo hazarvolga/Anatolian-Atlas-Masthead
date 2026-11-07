@@ -2,29 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import {
-  Facebook,
-  Instagram,
-  Twitter,
-  Linkedin,
-  Youtube,
-  Mail,
-  Phone,
-  MapPin,
-} from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
 import { api } from "@/lib/api/client";
 import { isDemoMode, siteConfig } from "@/config/site";
-
-const SOCIAL_ICONS: Record<string, React.ComponentType<{ size?: number }>> = {
-  facebook: Facebook,
-  instagram: Instagram,
-  twitter: Twitter,
-  linkedin: Linkedin,
-  youtube: Youtube,
-};
 
 export default function Footer() {
   const { t } = useLanguage();
@@ -62,67 +45,45 @@ export default function Footer() {
     }
   };
 
-  const socialLinksObj = settings?.social_media_links ?? siteConfig.social;
-  const activeSocialLinks = Object.entries(socialLinksObj)
-    .filter(
-      ([platform, url]) =>
-        Boolean(url) && url !== "#" && Boolean(SOCIAL_ICONS[platform])
-    )
-    .map(([platform, url]) => ({
-      platform,
-      url,
-      Icon: SOCIAL_ICONS[platform],
-    }));
-
   const addressLines = settings?.address
     ? settings.address.split("\n")
     : siteConfig.contact.addressLines;
 
   return (
-    <footer className="bg-card text-card-foreground pt-16 pb-10 border-t border-border">
+    <footer className="bg-background text-foreground border-t border-border">
       <div className="container">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 mb-14">
-          {/* Column 1: Brand & Editorial Statement */}
-          <div className="lg:col-span-4 space-y-4">
-            <span className="font-serif text-2xl font-medium text-foreground block">
-              {settings?.site_title || siteConfig.brand.name}
-            </span>
-            <p className="text-sm text-text-secondary leading-relaxed max-w-sm">
-              {t.footer.description}
-            </p>
-            {activeSocialLinks.length > 0 && (
-              <div className="flex space-x-4 pt-2">
-                {activeSocialLinks.map(({ platform, url, Icon }) => (
-                  <a
-                    key={platform}
-                    href={url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-text-secondary hover:text-primary transition-colors"
-                    aria-label={
-                      platform.charAt(0).toUpperCase() + platform.slice(1)
-                    }
-                  >
-                    <Icon size={18} />
-                    <span className="sr-only">{platform}</span>
-                  </a>
-                ))}
-              </div>
-            )}
+        {/* Swiss Grid Monograph Colophon */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 border-x border-b border-border divide-y md:divide-y-0 md:divide-x divide-border">
+          {/* Column 1 (4 cols): Masthead & Colophon Note */}
+          <div className="lg:col-span-4 p-8 sm:p-10 flex flex-col justify-between space-y-6">
+            <div className="space-y-3">
+              <span className="text-[10px] uppercase tracking-[0.18em] text-primary font-semibold block">
+                COLOPHON — EDITION IV
+              </span>
+              <span className="font-serif text-2xl sm:text-3xl text-foreground block tracking-tight">
+                {settings?.site_title || siteConfig.brand.name}
+              </span>
+              <p className="text-xs sm:text-sm text-text-secondary leading-relaxed max-w-sm">
+                {t.footer.description}
+              </p>
+            </div>
+            <div className="text-[11px] uppercase tracking-[0.14em] text-text-secondary tabular-nums">
+              PUBLISHED IN GALATA, İSTANBUL
+            </div>
           </div>
 
-          {/* Column 2: Atlas Navigation */}
-          <div className="lg:col-span-2 space-y-3">
-            <h4 className="font-sans text-xs font-semibold uppercase tracking-[0.14em] text-text-secondary">
-              {t.footer.quickLinks}
+          {/* Column 2 (2 cols): Index Navigation */}
+          <div className="lg:col-span-2 p-8 sm:p-10 space-y-4">
+            <h4 className="font-sans text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
+              01 / {t.footer.quickLinks}
             </h4>
-            <ul className="space-y-2.5 text-sm">
+            <ul className="space-y-2.5 text-xs uppercase tracking-[0.13em]">
               {[
                 { name: t.nav.home || "Atlas", path: "/" },
                 {
                   name:
                     (t.nav as Record<string, string>).destinations ||
-                    "Destinations",
+                    "Regions",
                   path: "/destinations",
                 },
                 { name: t.nav.tours || "Journeys", path: "/tours" },
@@ -132,56 +93,57 @@ export default function Footer() {
                 <li key={link.path}>
                   <Link
                     href={link.path}
-                    className="text-text-secondary hover:text-foreground transition-colors"
+                    className="text-text-secondary hover:text-foreground transition-colors inline-flex items-center gap-1"
                   >
-                    {link.name}
+                    <span>{link.name}</span>
                   </Link>
                 </li>
               ))}
             </ul>
           </div>
 
-          {/* Column 3: Galata Planning Desk */}
-          <div className="lg:col-span-3 space-y-3">
-            <h4 className="font-sans text-xs font-semibold uppercase tracking-[0.14em] text-text-secondary">
-              {t.footer.contact}
+          {/* Column 3 (3 cols): Galata Dispatch Coordinates */}
+          <div className="lg:col-span-3 p-8 sm:p-10 space-y-4">
+            <h4 className="font-sans text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
+              02 / {t.footer.contact}
             </h4>
-            <ul className="space-y-3 text-sm text-text-secondary">
-              <li className="flex items-start">
-                <MapPin className="w-4 h-4 mr-2.5 mt-1 text-primary shrink-0" />
-                <span>
-                  {addressLines.map((line, i) => (
-                    <span key={i} className="block">
-                      {line}
-                    </span>
-                  ))}
+            <div className="space-y-3 text-xs text-text-secondary leading-relaxed tabular-nums">
+              <p className="text-foreground font-medium">
+                {addressLines.map((line, i) => (
+                  <span key={i} className="block">
+                    {line}
+                  </span>
+                ))}
+              </p>
+              <p>
+                <span className="uppercase tracking-[0.14em] text-[10px] text-text-tertiary block">
+                  TEL
                 </span>
-              </li>
-              <li className="flex items-center">
-                <Phone className="w-4 h-4 mr-2.5 text-primary shrink-0" />
-                <span className="tabular-nums">
+                <span className="text-foreground">
                   {settings?.contact_phone || siteConfig.contact.phone}
                 </span>
-              </li>
-              <li className="flex items-center">
-                <Mail className="w-4 h-4 mr-2.5 text-primary shrink-0" />
-                <span>
+              </p>
+              <p>
+                <span className="uppercase tracking-[0.14em] text-[10px] text-text-tertiary block">
+                  MAIL
+                </span>
+                <span className="text-foreground">
                   {settings?.contact_email || siteConfig.contact.email}
                 </span>
-              </li>
-            </ul>
+              </p>
+            </div>
           </div>
 
-          {/* Column 4: Seasonal Dispatches */}
-          <div className="lg:col-span-3 space-y-3">
-            <h4 className="font-sans text-xs font-semibold uppercase tracking-[0.14em] text-text-secondary">
-              {t.footer.newsletter}
+          {/* Column 4 (3 cols): Seasonal Monograph Dispatches */}
+          <div className="lg:col-span-3 p-8 sm:p-10 space-y-4 bg-card/50">
+            <h4 className="font-sans text-[11px] font-semibold uppercase tracking-[0.16em] text-primary">
+              03 / {t.footer.newsletter}
             </h4>
-            <p className="text-sm text-text-secondary leading-relaxed">
+            <p className="text-xs text-text-secondary leading-relaxed">
               {t.footer.newsletterDesc}
             </p>
             <form
-              className="flex flex-col space-y-2.5 pt-1"
+              className="space-y-2.5 pt-2"
               onSubmit={handleNewsletterSubmit}
             >
               <label htmlFor="footer-newsletter-email" className="sr-only">
@@ -191,30 +153,32 @@ export default function Footer() {
                 id="footer-newsletter-email"
                 type="email"
                 placeholder={t.footer.yourEmail}
-                className="rounded-md px-3.5 py-2.5 text-sm bg-background border border-border text-foreground focus:border-primary focus:outline-none"
+                className="w-full px-3.5 py-3 text-xs bg-background border border-border text-foreground focus:border-foreground focus:outline-none rounded-none"
                 value={newsletterEmail}
                 onChange={(event) => setNewsletterEmail(event.target.value)}
                 required
               />
               <button
                 type="submit"
-                className="btn-primary w-full py-2.5"
+                className="btn-primary w-full py-3"
                 disabled={isSubscribing}
               >
-                {t.footer.subscribe}
+                <span>{t.footer.subscribe}</span>
+                <ArrowUpRight className="h-3.5 w-3.5 ml-1.5" />
               </button>
             </form>
           </div>
         </div>
 
-        <div className="border-t border-border pt-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-text-secondary">
+        {/* Bottom Copyright & Regional Strip */}
+        <div className="py-6 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] uppercase tracking-[0.14em] text-text-secondary tabular-nums">
           <p>
             &copy; {currentYear}{" "}
             {settings?.site_title || siteConfig.brand.name}.{" "}
             {t.footer.allRights}
           </p>
-          <p className="tracking-wide">
-            İstanbul · Cappadocia · Ephesus · Lycian Coast · Pamukkale · Mardin
+          <p>
+            İSTANBUL · CAPPADOCIA · EPHESUS · LYCIA · PAMUKKALE · MARDİN
           </p>
         </div>
       </div>
