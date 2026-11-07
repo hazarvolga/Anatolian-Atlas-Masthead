@@ -8,8 +8,16 @@ interface User {
   email: string;
   firstName?: string;
   lastName?: string;
+  first_name?: string;
+  last_name?: string;
   role: string;
   isVerified?: boolean;
+  created_at?: string;
+  last_sign_in_at?: string;
+  email_confirmed_at?: string;
+  user_metadata?: {
+    full_name?: string;
+  };
 }
 
 interface AuthContextType {
