@@ -21,7 +21,8 @@ serving on port 5173. Copy only the files each stage needs, adapt router/head/en
 and promote `web-next/` to the repository root only after every route passes the same
 browser checks. The Vite app is deleted in the final stage, not kept as a catch-all bridge.
 
-- Next port: 3000 (already allowed by backend CORS).
+- Next port: 3000 in containers; 3100 locally because an unrelated app already
+  listens on 3000 on this machine (backend CORS already allows both).
 - Package manager: npm, separate lockfile.
 - Shared UI: existing Tailwind 3 configuration and `src/styles/*.css` are copied into `web-next`.
 - Server Components: layouts, static copy, metadata, 404, dynamic page shell.
