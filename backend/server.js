@@ -16,6 +16,7 @@ import adminRoutes from './routes/admin.js';
 import usersRoutes from './routes/users.js';
 import reviewsRoutes from './routes/reviews.js'; // Import new reviews routes
 import pagesRoutes from './routes/pages.js';
+import paymentsRoutes from './routes/payments.js';
 
 // Database connection
 const prisma = new PrismaClient();
@@ -46,12 +47,18 @@ app.use(cors({
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100 // limit each IP to 100 requests per windowMs
+  max: 100, // limit each IP to 100 requests per windowMs
+  skip: (req) => req.originalUrl === '/api/payments/webhook'
 });
 app.use(limiter);
 
 // Body parsing middleware
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({
+  limit: '10mb',
+  verify: (req, _res, buf) => {
+    req.rawBody = buf;
+  }
+}));
 app.use(express.urlencoded({ extended: true }));
 
 // Logging
@@ -96,6 +103,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/reviews', reviewsRoutes); // Use new reviews routes
 app.use('/api/pages', pagesRoutes);
+app.use('/api/payments', paymentsRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {

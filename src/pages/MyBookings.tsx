@@ -110,7 +110,7 @@ export default function MyReservations() {
                           <div>
                             <p><strong>Date:</strong> {formatReservationDate(reservation)}</p>
                             <p><strong>Guests:</strong> {reservation.numAdults ?? reservation.adults ?? 0} adults{(reservation.numChildren ?? reservation.children ?? 0) > 0 && `, ${reservation.numChildren ?? reservation.children} children`}</p>
-                            <p><strong>Total:</strong> ₺{Number(reservation.totalPrice ?? reservation.total_price ?? 0).toFixed(2)}</p>
+                            <p><strong>Total:</strong> €{Number(reservation.totalPrice ?? reservation.total_price ?? 0).toFixed(2)}</p>
                           </div>
                           <div>
                             <p><strong>Guest Name:</strong> {[reservation.user?.first_name, reservation.user?.last_name].filter(Boolean).join(' ') || reservation.guest_name || user.email}</p>

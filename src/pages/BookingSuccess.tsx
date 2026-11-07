@@ -202,7 +202,7 @@ export default function BookingSuccess() {
                               {isReservationOnly ? 'Toplam Tutar:' : 'Total Amount:'}
                             </span>
                             <span className="text-gray-600 ml-2">
-                              ${bookingData.total_price || 0}
+                              €{bookingData.total_price || 0}
                             </span>
                           </p>
                         </div>

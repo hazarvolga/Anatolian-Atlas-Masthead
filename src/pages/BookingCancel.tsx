@@ -21,7 +21,7 @@ export default function BookingCancel() {
                   </div>
                   <CardTitle className="text-red-600">Payment Cancelled</CardTitle>
                   <CardDescription>
-                    Your booking was not completed. No charges were made to your account.
+                    Your reservation was not confirmed. No charges were made to your account.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -30,7 +30,7 @@ export default function BookingCancel() {
                       <h3 className="font-semibold mb-2">What happened?</h3>
                       <p className="text-sm text-muted-foreground">
                         You cancelled the payment process before it was completed. 
-                        Your booking was not created and no payment was processed.
+                        Your reservation was not confirmed and no payment was processed.
                       </p>
                     </div>
                     

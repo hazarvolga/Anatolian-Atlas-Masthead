@@ -93,7 +93,7 @@ export default function MyReservations() {
                       <TableCell className="font-medium">{reservation.tour?.title || reservation.tours?.name || 'Tour'}</TableCell>
                       <TableCell>{getReservationDate(reservation) ? format(getReservationDate(reservation)!, "PPP") : '—'}</TableCell>
                       <TableCell>{reservation.numAdults ?? reservation.adults ?? 0} adults{(reservation.numChildren ?? reservation.children ?? 0) > 0 && `, ${reservation.numChildren ?? reservation.children} children`}</TableCell>
-                      <TableCell>₺{Number(reservation.totalPrice ?? reservation.total_price ?? 0).toFixed(2)}</TableCell>
+                      <TableCell>€{Number(reservation.totalPrice ?? reservation.total_price ?? 0).toFixed(2)}</TableCell>
                       <TableCell>
                         <Badge className={getStatusColor(reservation.status)}>
                           {reservation.status?.charAt(0).toUpperCase() + reservation.status?.slice(1)}
@@ -171,7 +171,7 @@ export default function MyReservations() {
                     <TableCell className="font-medium">{reservation.tour?.title || reservation.tours?.name || 'Tour'}</TableCell>
                     <TableCell>{getReservationDate(reservation) ? format(getReservationDate(reservation)!, "PPP") : '—'}</TableCell>
                     <TableCell>{reservation.numAdults ?? reservation.adults ?? 0} adults{(reservation.numChildren ?? reservation.children ?? 0) > 0 && `, ${reservation.numChildren ?? reservation.children} children`}</TableCell>
-                    <TableCell>₺{Number(reservation.totalPrice ?? reservation.total_price ?? 0).toFixed(2)}</TableCell>
+                    <TableCell>€{Number(reservation.totalPrice ?? reservation.total_price ?? 0).toFixed(2)}</TableCell>
                     <TableCell>
                       <Badge className={getStatusColor(reservation.status)}>
                         {reservation.status?.charAt(0).toUpperCase() + reservation.status?.slice(1)}

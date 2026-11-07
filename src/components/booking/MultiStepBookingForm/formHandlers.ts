@@ -1,5 +1,4 @@
-import { toast } from "@/components/ui/use-toast";
-import { useCreatePayment } from "@/hooks/usePayments";
+import { useCreateCheckoutSession, useCreatePayment } from "@/hooks/usePayments";
 import { format } from "date-fns";
 import type { FormData } from "./formConfig";
 
@@ -15,23 +14,31 @@ export interface BookingPayload {
 
 export const useBookingMutations = (_user: any) => {
   const reservation = useCreatePayment();
+  const checkoutSession = useCreateCheckoutSession();
 
   const handlePayment = async (
-    _values: FormData,
-    _checkInDate: Date,
-    _adults: number,
-    _children: number,
+    values: FormData,
+    checkInDate: Date,
+    adults: number,
+    children: number,
     _rooms: any[] = [],
     _addOns: string[] = [],
     _pricingTotal?: number,
-    _action?: string
+    action?: string
   ) => {
-    toast({
-      title: "Online ödeme henüz aktif değil",
-      description: "Lütfen 'Sadece Rezervasyon' seçeneğiyle devam edin.",
-      variant: "destructive",
+    const session = await checkoutSession.mutateAsync({
+      tourId: values.tourId,
+      bookingDate: format(checkInDate, 'yyyy-MM-dd'),
+      adults,
+      children,
+      paymentType: action === 'deposit' ? 'deposit' : 'full',
     });
-    throw new Error('Online payment is not configured');
+
+    if (!session?.url) {
+      throw new Error('Failed to create checkout session');
+    }
+
+    return session;
   };
 
   const handleReserve = async (

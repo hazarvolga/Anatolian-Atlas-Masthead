@@ -117,7 +117,7 @@ export default function Profile() {
                             <p><b>İsim:</b> {[reservation.user?.first_name, reservation.user?.last_name].filter(Boolean).join(" ") || reservation.guest_name || user.email}</p>
                             <p><b>Email:</b> {reservation.user?.email || reservation.guest_email || user.email}</p>
                             {reservation.guest_phone && <p><b>Telefon:</b> {reservation.guest_phone}</p>}
-                            <p><b>Toplam:</b> ₺{Number(reservation.totalPrice ?? reservation.total_price ?? 0).toFixed(2)}</p>
+                            <p><b>Toplam:</b> €{Number(reservation.totalPrice ?? reservation.total_price ?? 0).toFixed(2)}</p>
                           </div>
                         </div>
                         {reservation.special_requests && (
@@ -126,7 +126,7 @@ export default function Profile() {
                         {/* Fatura benzeri özet */}
                         <div className="mt-5 p-4 bg-muted/60 rounded-lg text-xs">
                           <b>Fatura Detayları</b><br />
-                          <span>Ödeme Toplamı: ₺{Number(reservation.totalPrice ?? reservation.total_price ?? 0).toFixed(2)}</span><br />
+                          <span>Ödeme Toplamı: €{Number(reservation.totalPrice ?? reservation.total_price ?? 0).toFixed(2)}</span><br />
                           <span>Misafir Adı: {[reservation.user?.first_name, reservation.user?.last_name].filter(Boolean).join(" ") || reservation.guest_name || user.email}</span><br />
                           <span>Misafir Emaili: {reservation.user?.email || reservation.guest_email || user.email}</span><br />
                         </div>

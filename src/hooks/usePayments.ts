@@ -35,6 +35,34 @@ export const useCreatePayment = () => {
   });
 };
 
+interface CheckoutSessionData {
+  tourId: string;
+  bookingDate: string;
+  adults: number;
+  children: number;
+  paymentType?: 'full' | 'deposit';
+}
+
+export const useCreateCheckoutSession = () => {
+  return useMutation({
+    mutationFn: async (checkoutData: CheckoutSessionData) => {
+      const { data } = await axios.post(
+        `${API_BASE_URL}/api/payments/create-checkout-session`,
+        checkoutData,
+        { headers: getAuthHeaders() }
+      );
+      return data as { url: string; sessionId: string; reservationId: string };
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Payment Failed",
+        description: error.response?.data?.message || "There was an error starting the payment. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+};
+
 export const useVerifyPayment = () => {
   return useMutation({
     mutationFn: async (sessionId: string) => {
