@@ -1,8 +1,6 @@
-version: '3.8'
 services:
-  # PostgreSQL Database
   postgres:
-    image: postgres:13
+    image: postgres:15-alpine
     container_name: nextstopturkey-postgres-dev
     environment:
       POSTGRES_DB: nextstopturkey
@@ -14,22 +12,28 @@ services:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - tours-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
 
-  # Express.js Backend API
   backend:
     build:
       context: .
       dockerfile: backend/Dockerfile
-    container_name: tours-backend
+    container_name: tours-backend-dev
     environment:
       NODE_ENV: development
       DATABASE_URL: postgresql://postgres:postgres123@postgres:5432/nextstopturkey
-      JWT_SECRET: your-super-secret-jwt-key
+      JWT_SECRET: dev-jwt-secret-replace-in-production
       PORT: 3001
+      FRONTEND_URL: http://localhost:3100
     ports:
       - "3001:3001"
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
     volumes:
       - ./backend:/app
       - ./prisma:/app/prisma:ro
@@ -38,22 +42,21 @@ services:
       - tours-network
     command: sh -c "npx prisma migrate deploy --schema ./prisma/schema.prisma && npm run dev"
 
-  # React Frontend (Vite)
   frontend:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: tours-frontend
+    container_name: tours-frontend-dev
     environment:
-      VITE_API_URL: http://localhost:3001
+      NEXT_PUBLIC_API_URL: http://localhost:3001
+      NEXT_PUBLIC_SITE_URL: http://localhost:3100
+      NEXT_PUBLIC_DATA_MODE: connected
     ports:
-      - "5173:5173"
-    volumes:
-      - .:/app
-      - /app/node_modules
+      - "3100:3100"
+    depends_on:
+      - backend
     networks:
       - tours-network
-    command: npm run dev
 
 volumes:
   postgres_data:
