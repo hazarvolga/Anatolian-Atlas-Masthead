@@ -9,7 +9,7 @@ interface CreatePaymentData {
   bookingDate: string;
   adults: number;
   children: number;
-  total_price: number;
+  total_price?: number;
   guestName: string;
   guestEmail: string;
 }
