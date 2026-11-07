@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useSiteSettings, SiteSettings } from "@/hooks/useSiteSettings";
+import { siteConfig } from "@/config/site.config";
 import { useDesignSystem } from "@/contexts/DesignSystemContext";
 import defaultThemeConfig, {
   resolveThemeFromConcept,
@@ -52,7 +53,7 @@ const settingFields: {
   {
     id: "site_title",
     label: "Site Title",
-    placeholder: "e.g., NextStopTurkey",
+    placeholder: `e.g., ${siteConfig.brand.name}`,
     icon: <Info className="h-4 w-4" />,
     section: "General",
   },
@@ -150,7 +151,7 @@ const settingFields: {
   {
     id: "copyright_text",
     label: "Copyright Text",
-    placeholder: `© ${new Date().getFullYear()} NextStopTurkey. All rights reserved.`,
+    placeholder: `© ${new Date().getFullYear()} ${siteConfig.brand.name}. All rights reserved.`,
     icon: <Copyright className="h-4 w-4" />,
     section: "Footer",
   },

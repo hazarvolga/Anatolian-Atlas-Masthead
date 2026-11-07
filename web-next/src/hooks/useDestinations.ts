@@ -10,11 +10,6 @@ import {
   resolveDemoImageUrl,
 } from "@/lib/data/demo-images";
 
-const getAuthHeaders = () => {
-  const token = localStorage.getItem("authToken");
-  return token ? { Authorization: `Bearer ${token}` } : {};
-};
-
 export interface Destination {
   id: string;
   name: string;
@@ -106,9 +101,7 @@ export const useAdminDestinations = () => {
   return useQuery({
     queryKey: ["admin-destinations"],
     queryFn: async () => {
-      const { data } = await api.get("/api/admin/destinations", {
-        headers: getAuthHeaders(),
-      });
+      const { data } = await api.get("/api/admin/destinations");
       return data;
     },
   });
@@ -121,8 +114,7 @@ export const useCreateDestination = () => {
     mutationFn: async (destinationData: CreateDestinationData) => {
       const { data } = await api.post(
         "/api/admin/destinations",
-        destinationData,
-        { headers: getAuthHeaders() }
+        destinationData
       );
       return data;
     },
@@ -159,8 +151,7 @@ export const useUpdateDestination = () => {
     }) => {
       const { data } = await api.put(
         `/api/admin/destinations/${destinationId}`,
-        destinationData,
-        { headers: getAuthHeaders() }
+        destinationData
       );
       return data;
     },
@@ -189,9 +180,7 @@ export const useDeleteDestination = () => {
 
   return useMutation({
     mutationFn: async (destinationId: string) => {
-      await api.delete(`/api/admin/destinations/${destinationId}`, {
-        headers: getAuthHeaders(),
-      });
+      await api.delete(`/api/admin/destinations/${destinationId}`);
       return destinationId;
     },
     onSuccess: () => {

@@ -1,98 +1,115 @@
 "use client";
 
 import { useState } from "react";
-import axios from "axios";
-import { API_BASE_URL } from "@/lib/api/client";
+import { api } from "@/lib/api/client";
 
-const BASE_FUNC_URL = `${API_BASE_URL}/api`;
-
-export function useAIDestinationHelper({ accessToken }: { accessToken: string | null }) {
+export function useAIDestinationHelper({
+  accessToken,
+}: {
+  accessToken?: string | null;
+}) {
   const [loading, setLoading] = useState(false);
   const [aiResult, setAIResult] = useState<string | null>(null);
-  const [imageHelper, setImageHelper] = useState<{ alt?: string; valid?: boolean; error?: string } | null>(null);
-  const [enrichedData, setEnrichedData] = useState<{ coords?: string, bestTime?: string, activities?: string[], error?: string, rawText?: string }|null>(null);
+  const [imageHelper, setImageHelper] = useState<{
+    alt?: string;
+    valid?: boolean;
+    error?: string;
+  } | null>(null);
+  const [enrichedData, setEnrichedData] = useState<{
+    coords?: string;
+    bestTime?: string;
+    activities?: string[];
+    error?: string;
+    rawText?: string;
+  } | null>(null);
 
-  // Description generation
-  const askAIForDescription = async (name: string, country?: string, city?: string) => {
+  const askAIForDescription = async (
+    name: string,
+    country?: string,
+    city?: string
+  ) => {
     setLoading(true);
     setAIResult(null);
     try {
-      const response = await fetch(`${BASE_FUNC_URL}/ai-destination-helper`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({
+      const { data } = await api.post(
+        "/api/ai-destination-helper",
+        {
           action: "generate_description",
           name,
           country,
           city,
-        }),
-      });
-      const data = await response.json();
-      if (response.ok) setAIResult(data.suggestion);
-      else setAIResult("AI önerisi alınamadı: " + (data.error || "Bilinmeyen hata"));
+        },
+        accessToken
+          ? { headers: { Authorization: `Bearer ${accessToken}` } }
+          : undefined
+      );
+      if (data?.suggestion) setAIResult(data.suggestion);
+      else
+        setAIResult(
+          "AI önerisi alınamadı: " + (data?.error || "Bilinmeyen hata")
+        );
     } catch (e: any) {
+      const msg = e.response?.data?.error || e.message || "";
       setAIResult(
-        e.message.includes("AI anahtarı eksik")
-          ? "AI Settings bölümünden API anahtarı kaydetmeniz gerekmektedir!" 
-          : e.message || "Beklenmeyen hata oluştu"
+        msg.includes("AI anahtarı eksik")
+          ? "AI Settings bölümünden API anahtarı kaydetmeniz gerekmektedir!"
+          : msg || "Beklenmeyen hata oluştu"
       );
     }
     setLoading(false);
   };
 
-  // Image helper
   const getImageAltText = async (imageUrl: string, name: string) => {
     setImageHelper(null);
     setLoading(true);
     try {
-      const response = await fetch(`${BASE_FUNC_URL}/ai-destination-helper`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${accessToken}`,
-        },
-        body: JSON.stringify({
+      const { data } = await api.post(
+        "/api/ai-destination-helper",
+        {
           action: "image_alt",
           imageUrl,
           name,
-        }),
-      });
-      const data = await response.json();
-      if (response.ok) setImageHelper({ alt: data.alt, valid: data.valid });
-      else setImageHelper({ error: data.error });
+        },
+        accessToken
+          ? { headers: { Authorization: `Bearer ${accessToken}` } }
+          : undefined
+      );
+      if (data?.alt) setImageHelper({ alt: data.alt, valid: data.valid });
+      else setImageHelper({ error: data?.error });
     } catch (e: any) {
-      setImageHelper({ 
-        error: e.message.includes("AI anahtarı eksik")
+      const msg = e.response?.data?.error || e.message || "";
+      setImageHelper({
+        error: msg.includes("AI anahtarı eksik")
           ? "AI Settings bölümünden API anahtarı kaydediniz!"
-          : e.message 
+          : msg,
       });
     }
     setLoading(false);
   };
 
-  const enrichData = async (name: string, country?: string, city?: string) => {
+  const enrichData = async (
+    name: string,
+    country?: string,
+    city?: string
+  ) => {
     setEnrichedData(null);
     setLoading(true);
     try {
-      const response = await axios.post(`${API_BASE_URL}/api/ai/enrich-data`, {
-        name,
-        country,
-        city,
-      }, {
-        headers: {
-          "Authorization": `Bearer ${accessToken}`,
-        },
-      });
+      const response = await api.post(
+        "/api/ai/enrich-data",
+        { name, country, city },
+        accessToken
+          ? { headers: { Authorization: `Bearer ${accessToken}` } }
+          : undefined
+      );
       if (response.status === 200) setEnrichedData(response.data);
-      else setEnrichedData({ error: response.data.error });
+      else setEnrichedData({ error: response.data?.error });
     } catch (e: any) {
-      setEnrichedData({ 
-        error: e.message.includes("AI anahtarı eksik")
+      const msg = e.response?.data?.error || e.message || "";
+      setEnrichedData({
+        error: msg.includes("AI anahtarı eksik")
           ? "AI API anahtarı eksik! AI Settings formundan kaydetmelisiniz."
-          : e.message 
+          : msg,
       });
     }
     setLoading(false);

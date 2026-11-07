@@ -1,14 +1,11 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import axios from "axios";
 import { TourProps as Tour } from "@/types/tour";
+import { api } from "@/lib/api/client";
 
 const fetchTour = async (id: string): Promise<Tour> => {
-  const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001';
-  const { data } = await axios.get(`${API_BASE_URL}/api/admin/tours/${id}`, {
-    headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` }
-  });
+  const { data } = await api.get(`/api/admin/tours/${id}`);
   return data;
 };
 

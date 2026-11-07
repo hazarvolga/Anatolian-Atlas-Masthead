@@ -1,21 +1,14 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import axios from "axios";
 import { toast } from "@/components/ui/use-toast";
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001';
-
-const getAuthHeaders = () => {
-  const token = localStorage.getItem('authToken');
-  return token ? { Authorization: `Bearer ${token}` } : {};
-};
+import { api } from "@/lib/api/client";
 
 export const useAdminUsers = () => {
   return useQuery({
-    queryKey: ['admin-users'],
+    queryKey: ["admin-users"],
     queryFn: async () => {
-      const { data } = await axios.get(`${API_BASE_URL}/api/admin/users`, { headers: getAuthHeaders() });
+      const { data } = await api.get("/api/admin/users");
       return data;
     },
   });
@@ -23,14 +16,22 @@ export const useAdminUsers = () => {
 
 export const useUpdateUserRole = () => {
   const queryClient = useQueryClient();
-  
+
   return useMutation({
-    mutationFn: async ({ userId, roleName }: { userId: string; roleName: string }) => {
-      const { data } = await axios.put(`${API_BASE_URL}/api/admin/users/${userId}/role`, { roleName }, { headers: getAuthHeaders() });
+    mutationFn: async ({
+      userId,
+      roleName,
+    }: {
+      userId: string;
+      roleName: string;
+    }) => {
+      const { data } = await api.put(`/api/admin/users/${userId}/role`, {
+        roleName,
+      });
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
       toast({
         title: "Role Updated",
         description: "User role has been updated successfully.",
@@ -39,7 +40,9 @@ export const useUpdateUserRole = () => {
     onError: (error: any) => {
       toast({
         title: "Update Failed",
-        description: error.response?.data?.message || "There was an error updating user role.",
+        description:
+          error.response?.data?.message ||
+          "There was an error updating user role.",
         variant: "destructive",
       });
     },

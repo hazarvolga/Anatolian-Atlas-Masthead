@@ -8,6 +8,7 @@ import { PrismaClient } from '@prisma/client';
 
 // Route imports
 import authRoutes from './routes/auth.js';
+import { originCheckMiddleware } from './middleware/auth.js';
 import toursRoutes from './routes/tours.js';
 import reservationsRoutes from './routes/reservations.js';
 import destinationsRoutes from './routes/destinations.js';
@@ -97,6 +98,9 @@ app.get('/api/site-settings', async (req, res) => {
     res.status(500).json({ message: 'Failed to fetch site settings' });
   }
 });
+
+// CSRF Origin/Referer validation for all state-changing API mutations
+app.use('/api', originCheckMiddleware);
 
 // API Routes
 app.use('/api/auth', authRoutes);

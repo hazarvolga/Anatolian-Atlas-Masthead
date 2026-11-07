@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { siteConfig } from "@/config/site.config";
 import {
   Card,
   CardContent,
@@ -191,7 +192,7 @@ export default function EmailTemplateManager() {
             <div className="rounded-lg border p-6 bg-background space-y-4 text-sm">
               <div className="border-b pb-3">
                 <p className="font-serif text-lg font-semibold">
-                  NextStopTurkey
+                  {siteConfig.brand.name}
                 </p>
                 <p className="text-xs text-muted-foreground">
                   Template type: {selectedPreview.type}
@@ -207,7 +208,7 @@ export default function EmailTemplateManager() {
                 ))}
               </ul>
               <div className="border-t pt-3 text-xs text-muted-foreground">
-                NextStopTurkey · Manage preferences or unsubscribe at{" "}
+                {siteConfig.brand.name} · Manage preferences or unsubscribe at{" "}
                 <code>/unsubscribe</code>
               </div>
             </div>

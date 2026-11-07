@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/contexts/AuthContext";
+import { siteConfig } from "@/config/site.config";
 import LoginForm from "@/components/auth/LoginForm";
 import SignupForm from "@/components/auth/SignupForm";
 
@@ -30,7 +31,7 @@ export default function AuthClient() {
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <Link href="/" className="text-2xl font-serif font-semibold text-foreground">
-            NextStopTurkey
+            {siteConfig.brand.name}
           </Link>
           <p className="text-muted-foreground mt-2">
             Sign in or create an account to manage your journeys

@@ -1,16 +1,8 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import axios from "axios";
 import { TourPricing, TourTimeSlot, SeasonalPricing } from "@/types/tour";
-
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:3001";
-
-const getAuthHeaders = () => {
-  const token = localStorage.getItem("authToken");
-  return token ? { Authorization: `Bearer ${token}` } : {};
-};
+import { api } from "@/lib/api/client";
 
 interface UseAdminTourPricingProps {
   tour?: any;
@@ -24,9 +16,8 @@ export const useAdminTourPricing = ({ tour }: UseAdminTourPricingProps) => {
 
   const loadExistingPricingData = useCallback(async (tourId: string) => {
     try {
-      const { data } = await axios.get(
-        `${API_BASE_URL}/api/admin/tours/${tourId}/pricing-data`,
-        { headers: getAuthHeaders() }
+      const { data } = await api.get(
+        `/api/admin/tours/${tourId}/pricing-data`
       );
 
       setTourPricing(data.tourPricing || []);
@@ -46,16 +37,12 @@ export const useAdminTourPricing = ({ tour }: UseAdminTourPricingProps) => {
 
   const savePricingData = async (tourId: string) => {
     try {
-      await axios.put(
-        `${API_BASE_URL}/api/admin/tours/${tourId}/pricing-data`,
-        {
-          tourPricing,
-          timeSlots,
-          seasonalPricing,
-          groupDiscounts,
-        },
-        { headers: getAuthHeaders() }
-      );
+      await api.put(`/api/admin/tours/${tourId}/pricing-data`, {
+        tourPricing,
+        timeSlots,
+        seasonalPricing,
+        groupDiscounts,
+      });
 
       await loadExistingPricingData(tourId);
     } catch (error) {

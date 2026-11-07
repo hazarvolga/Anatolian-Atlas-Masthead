@@ -10,14 +10,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
-import axios from "axios";
-
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3001';
-
-const getAuthHeaders = () => {
-  const token = localStorage.getItem('authToken');
-  return token ? { Authorization: `Bearer ${token}` } : {};
-};
+import { api } from "@/lib/api/client";
 
 const PROVIDERS = [
   {
@@ -125,7 +118,7 @@ export default function AISettings() {
       if (!user) return;
       setLoading(true);
       try {
-        const { data } = await axios.get(`${API_BASE_URL}/api/admin/settings/ai`, { headers: getAuthHeaders() });
+        const { data } = await api.get("/api/admin/settings/ai");
         if (data) {
           setProvider(data.provider || PROVIDERS[0].id);
           setModel(data.model || PROVIDERS[0].models[0]?.id || "");
@@ -146,10 +139,13 @@ export default function AISettings() {
   const saveApiKey = async () => {
     setLoading(true);
     try {
-      await axios.post(`${API_BASE_URL}/api/admin/settings/ai`, 
-        { provider, model, apiKey, customEndpoint, customModel }, 
-        { headers: getAuthHeaders() }
-      );
+      await api.post("/api/admin/settings/ai", {
+        provider,
+        model,
+        apiKey,
+        customEndpoint,
+        customModel,
+      });
       toast.success("AI settings saved successfully.");
       setHasSavedApiKey(!!apiKey); // Update UI to reflect saved key
       setApiKey(""); // Clear API key from input
@@ -194,7 +190,7 @@ export default function AISettings() {
         body.customEndpoint = customEndpoint;
         body.customModel = customModel;
       }
-      const { data } = await axios.post(`${API_BASE_URL}/api/admin/ai/test`, body, { headers: getAuthHeaders() });
+      const { data } = await api.post("/api/admin/ai/test", body);
       setTestResult(data?.reply ?? "");
     } catch (err: any) {
       setTestResult(err.response?.data?.error || err.message || "Test sırasında hata oluştu.");

@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
+import { siteConfig } from "@/config/site.config";
 import BookingClient from "./BookingClient";
 
 export const metadata: Metadata = {
   title: "Book Your Tour",
-  description: "Complete your tour reservation with NextStopTurkey.",
+  description: `Complete your tour reservation with ${siteConfig.brand.name}.`,
 };
 
 export default async function BookingPage({

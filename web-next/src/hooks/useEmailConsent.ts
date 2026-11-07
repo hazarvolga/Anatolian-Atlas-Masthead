@@ -1,12 +1,8 @@
 "use client";
 
-import { useState } from 'react';
-import { api } from '@/lib/api/client';
-import { useToast } from '@/hooks/use-toast';
-
-const getAuthHeaders = () => ({
-  Authorization: `Bearer ${localStorage.getItem('authToken')}`,
-});
+import { useState } from "react";
+import { api } from "@/lib/api/client";
+import { useToast } from "@/hooks/use-toast";
 
 export interface EmailConsent {
   id: string;
@@ -31,17 +27,15 @@ export const useEmailConsent = () => {
     try {
       setLoading(true);
       const response = await api.get(
-        `/api/email-subscriptions/${encodeURIComponent(email)}`,
-        { headers: getAuthHeaders() }
+        `/api/email-subscriptions/${encodeURIComponent(email)}`
       );
       setConsents(response.data || []);
       return response.data as EmailConsent[];
-    } catch (error) {
-      console.error('Error fetching user consents:', error);
+    } catch {
       toast({
-        title: 'Error',
-        description: 'Failed to fetch email consents',
-        variant: 'destructive',
+        title: "Error",
+        description: "Failed to fetch email consents",
+        variant: "destructive",
       });
       return [] as EmailConsent[];
     } finally {
@@ -52,17 +46,14 @@ export const useEmailConsent = () => {
   const fetchSubscriptions = async () => {
     try {
       setLoading(true);
-      const response = await api.get(`/api/admin/email-subscriptions`, {
-        headers: getAuthHeaders(),
-      });
+      const response = await api.get("/api/admin/email-subscriptions");
       setSubscriptions(response.data || []);
       return response.data as EmailConsent[];
-    } catch (error) {
-      console.error('Error fetching email subscriptions:', error);
+    } catch {
       toast({
-        title: 'Error',
-        description: 'Failed to fetch email subscriptions',
-        variant: 'destructive',
+        title: "Error",
+        description: "Failed to fetch email subscriptions",
+        variant: "destructive",
       });
       return [] as EmailConsent[];
     } finally {
@@ -78,52 +69,51 @@ export const useEmailConsent = () => {
     try {
       await api.put(
         `/api/email-subscriptions/${encodeURIComponent(email)}/${subscriptionType}`,
-        { is_subscribed: isSubscribed },
-        { headers: getAuthHeaders() }
+        { is_subscribed: isSubscribed }
       );
 
       toast({
-        title: 'Success',
-        description: 'Email consent updated successfully',
+        title: "Success",
+        description: "Email consent updated successfully",
       });
 
       await fetchUserConsents(email);
       return true;
-    } catch (error) {
-      console.error('Error updating consent:', error);
+    } catch {
       toast({
-        title: 'Error',
-        description: 'Failed to update email consent',
-        variant: 'destructive',
+        title: "Error",
+        description: "Failed to update email consent",
+        variant: "destructive",
       });
       return false;
     }
   };
 
-  const unsubscribeTypes = async (email: string, subscriptionTypes: string[]): Promise<boolean> => {
+  const unsubscribeTypes = async (
+    email: string,
+    subscriptionTypes: string[]
+  ): Promise<boolean> => {
     try {
       setLoading(true);
       await Promise.all(
         subscriptionTypes.map((type) =>
           api.put(
             `/api/email-subscriptions/${encodeURIComponent(email)}/${type}`,
-            { is_subscribed: false },
-            { headers: getAuthHeaders() }
+            { is_subscribed: false }
           )
         )
       );
 
       toast({
-        title: 'Success',
-        description: 'Your email preferences were updated',
+        title: "Success",
+        description: "Your email preferences were updated",
       });
       return true;
-    } catch (error) {
-      console.error('Error unsubscribing:', error);
+    } catch {
       toast({
-        title: 'Error',
-        description: 'Failed to update email preferences',
-        variant: 'destructive',
+        title: "Error",
+        description: "Failed to update email preferences",
+        variant: "destructive",
       });
       return false;
     } finally {
@@ -131,7 +121,10 @@ export const useEmailConsent = () => {
     }
   };
 
-  const checkConsent = async (email: string, subscriptionType: string): Promise<boolean> => {
+  const checkConsent = async (
+    email: string,
+    subscriptionType: string
+  ): Promise<boolean> => {
     try {
       const response = await api.get(
         `/api/email-subscriptions/${encodeURIComponent(email)}/${subscriptionType}`
@@ -139,25 +132,24 @@ export const useEmailConsent = () => {
       const data = response.data;
 
       if (!data) {
-        return subscriptionType === 'transactional';
+        return subscriptionType === "transactional";
       }
 
-      return data.is_subscribed && (
-        subscriptionType === 'transactional' || data.double_optin_confirmed
+      return (
+        data.is_subscribed &&
+        (subscriptionType === "transactional" || data.double_optin_confirmed)
       );
-    } catch (error) {
-      console.error('Error checking consent:', error);
-      return subscriptionType === 'transactional';
+    } catch {
+      return subscriptionType === "transactional";
     }
   };
 
   const unsubscribeViaToken = async (token: string) => {
     try {
       setLoading(true);
-      const response = await api.post(
-        `/api/email-subscriptions/unsubscribe`,
-        { token }
-      );
+      const response = await api.post("/api/email-subscriptions/unsubscribe", {
+        token,
+      });
       return response.data;
     } finally {
       setLoading(false);
@@ -167,10 +159,9 @@ export const useEmailConsent = () => {
   const confirmDoubleOptin = async (token: string) => {
     try {
       setLoading(true);
-      const response = await api.post(
-        `/api/email-subscriptions/confirm`,
-        { token }
-      );
+      const response = await api.post("/api/email-subscriptions/confirm", {
+        token,
+      });
       return response.data as EmailConsent;
     } finally {
       setLoading(false);
@@ -183,8 +174,7 @@ export const useEmailConsent = () => {
   ): Promise<string> => {
     const response = await api.post(
       `/api/email-subscriptions/${encodeURIComponent(email)}/token`,
-      { subscriptionType },
-      { headers: getAuthHeaders() }
+      { subscriptionType }
     );
     return response.data.token as string;
   };

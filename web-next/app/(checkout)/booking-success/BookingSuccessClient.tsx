@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { ArrowLeft, ArrowUpRight, Check } from "lucide-react";
 import { useVerifyPayment } from "@/hooks/usePayments";
 import { api } from "@/lib/api/client";
+import { siteConfig } from "@/config/site.config";
 
 interface BookingDetails {
   id: string;
@@ -163,7 +164,7 @@ export default function BookingSuccessClient() {
               TEMPLATE PREVIEW MODE — SIMULATED RESERVATION MANIFEST
             </span>
             <p className="text-text-secondary">
-              This confirmation demonstrates the complete NextStopTurkey booking flow using local sample data. No live payment was charged. Connect the Express/PostgreSQL backend and Stripe keys to process live reservations.
+              This confirmation demonstrates the complete {siteConfig.brand.name} booking flow using local sample data. No live payment was charged. Connect the Express/PostgreSQL backend and Stripe keys to process live reservations.
             </p>
           </div>
         )}

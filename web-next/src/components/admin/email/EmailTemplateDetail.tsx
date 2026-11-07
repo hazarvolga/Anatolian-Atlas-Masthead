@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, Mail } from "lucide-react";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { siteConfig } from "@/config/site.config";
 
 export default function EmailTemplateDetail() {
   const searchParams = useSearchParams();
@@ -20,11 +21,11 @@ export default function EmailTemplateDetail() {
   const templateId = searchParams.get("templateId") || "1";
 
   const companyName =
-    siteSettings?.company_name || siteSettings?.site_title || "NextStopTurkey";
+    siteSettings?.company_name || siteSettings?.site_title || siteConfig.brand.name;
   const contactEmail =
     siteSettings?.support_email ||
     siteSettings?.contact_email ||
-    "info@nextstopturkey.com";
+    siteConfig.contact.email;
 
   return (
     <div className="space-y-6">

@@ -1,10 +1,11 @@
 import { Suspense } from "react";
 import type { Metadata } from "next";
+import { siteConfig } from "@/config/site.config";
 import BookingSuccessClient from "./BookingSuccessClient";
 
 export const metadata: Metadata = {
   title: "Booking Confirmed",
-  description: "Your reservation details on NextStopTurkey.",
+  description: `Your reservation details on ${siteConfig.brand.name}.`,
   robots: { index: false, follow: false },
 };
 

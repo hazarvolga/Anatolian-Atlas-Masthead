@@ -217,7 +217,7 @@ export default function ContactClient() {
                   style={{ border: 0 }}
                   allowFullScreen
                   loading="lazy"
-                  title="NextStopTurkey Galata Office Map, İstanbul"
+                  title={`${siteConfig.brand.name} Galata Office Map, İstanbul`}
                 />
               </div>
             </div>

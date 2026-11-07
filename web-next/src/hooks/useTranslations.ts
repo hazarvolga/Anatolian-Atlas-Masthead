@@ -2,8 +2,8 @@
 
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
 import { toast } from 'sonner';
+import { api } from '@/lib/api/client';
 
 export interface Translation {
   id: string;
@@ -28,7 +28,7 @@ export const useTranslations = () => {
   return useQuery({
     queryKey: ['translations'],
     queryFn: async () => {
-      const response = await axios.get('/api/translations');
+      const response = await api.get('/api/translations');
       return response.data as Translation[];
     },
   });
@@ -38,7 +38,7 @@ export const useTranslationKeys = () => {
   return useQuery({
     queryKey: ['translation-keys'],
     queryFn: async () => {
-      const response = await axios.get('/api/translation-keys');
+      const response = await api.get('/api/translation-keys');
       return response.data as TranslationKey[];
     },
   });
@@ -54,7 +54,7 @@ export const useAutoTranslate = () => {
       sourceLanguage?: string;
       context?: string;
     }) => {
-      const response = await axios.post('/api/translate', {
+      const response = await api.post('/api/translate', {
         text, targetLanguage, sourceLanguage, context
       });
       return response.data.translatedText;
@@ -73,7 +73,7 @@ export const useCreateTranslation = () => {
 
   return useMutation({
     mutationFn: async (translation: Omit<Translation, 'id' | 'created_at' | 'updated_at'>) => {
-      const response = await axios.post('/api/translations', translation);
+      const response = await api.post('/api/translations', translation);
       return response.data;
     },
     onSuccess: () => {
@@ -91,7 +91,7 @@ export const useUpdateTranslation = () => {
 
   return useMutation({
     mutationFn: async ({ id, ...updates }: Partial<Translation> & { id: string }) => {
-      const response = await axios.put(`/api/translations/${id}`, { ...updates, updated_at: new Date().toISOString() });
+      const response = await api.put(`/api/translations/${id}`, { ...updates, updated_at: new Date().toISOString() });
       return response.data;
     },
     onSuccess: () => {
@@ -119,7 +119,7 @@ export const useBulkAutoTranslate = () => {
       targetLanguages: string[];
       keys: string[];
     }) => {
-      const response = await axios.get('/api/translations', {
+      const response = await api.get('/api/translations', {
         params: { language: sourceLanguage, keys }
       });
       const sourceTranslations = response.data;

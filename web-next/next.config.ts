@@ -59,6 +59,10 @@ const securityHeaders = [
     value: "SAMEORIGIN",
   },
   {
+    key: "Cross-Origin-Opener-Policy",
+    value: "same-origin",
+  },
+  {
     key: "X-DNS-Prefetch-Control",
     value: "on",
   },

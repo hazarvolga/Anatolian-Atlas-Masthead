@@ -1,15 +1,28 @@
 import express from 'express';
+import rateLimit from 'express-rate-limit';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 const router = express.Router();
+
+const contactLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 15,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Too many contact submissions from this IP. Please try again later.' },
+});
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const readText = (value) => String(value ?? '').trim();
 
 // Public: message sent from the website contact form.
-router.post('/', async (req, res) => {
+router.post('/', contactLimiter, async (req, res) => {
+  // Honeypot bot protection: if hidden `website` or `honeypot` field is filled, reject
+  if (req.body?.website || req.body?.honeypot) {
+    return res.status(400).json({ message: 'Spam submission rejected.' });
+  }
   const name = readText(req.body?.name);
   const email = readText(req.body?.email).toLowerCase();
   const phone = readText(req.body?.phone) || null;
