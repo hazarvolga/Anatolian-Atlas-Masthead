@@ -241,6 +241,8 @@ export const en = {
     newsletterDesc: "Subscribe to get updates on new tours and special offers.",
     yourEmail: "Your email",
     subscribe: "Subscribe",
+    subscribeSuccess: "Thanks! Check your inbox to confirm your subscription.",
+    subscribeError: "Subscription failed. Please try again.",
     allRights: "All rights reserved."
   },
   notFound: {

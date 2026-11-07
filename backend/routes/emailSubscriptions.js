@@ -32,6 +32,61 @@ const canManageEmail = async (req, email) => {
   return normalizeEmail(user?.email) === email;
 };
 
+// Public: newsletter / marketing opt-in from the website.
+// The record stays unconfirmed until the double opt-in link is opened.
+router.post('/', async (req, res) => {
+  const email = normalizeEmail(req.body?.email);
+  const type = req.body?.subscription_type || req.body?.type || 'newsletter';
+  const source = typeof req.body?.source === 'string' && req.body.source.trim()
+    ? req.body.source.trim().slice(0, 100)
+    : 'website';
+
+  if (!EMAIL_PATTERN.test(email)) {
+    return res.status(400).json({ message: 'A valid email address is required.' });
+  }
+  if (!SUBSCRIPTION_TYPES.includes(type) || type === 'transactional') {
+    return res.status(400).json({ message: 'Invalid subscription type.' });
+  }
+
+  try {
+    const existing = await prisma.emailSubscription.findUnique({
+      where: { email_subscription_type: { email, subscription_type: type } },
+    });
+    const alreadyConfirmed = Boolean(existing?.is_subscribed && existing?.double_optin_confirmed);
+
+    const subscription = await prisma.emailSubscription.upsert({
+      where: { email_subscription_type: { email, subscription_type: type } },
+      update: {
+        is_subscribed: true,
+        double_optin_confirmed: alreadyConfirmed,
+        consent_given_at: new Date(),
+        source,
+        ip_address: req.ip,
+        user_agent: req.get('user-agent') || null,
+      },
+      create: {
+        email,
+        subscription_type: type,
+        is_subscribed: true,
+        double_optin_confirmed: false,
+        source,
+        ip_address: req.ip,
+        user_agent: req.get('user-agent') || null,
+      },
+    });
+
+    res.status(existing ? 200 : 201).json({
+      email: subscription.email,
+      subscription_type: subscription.subscription_type,
+      is_subscribed: subscription.is_subscribed,
+      double_optin_confirmed: subscription.double_optin_confirmed,
+    });
+  } catch (error) {
+    console.error('Failed to create email subscription:', error);
+    res.status(500).json({ message: 'Failed to create email subscription.' });
+  }
+});
+
 // Public: consent lookup used by the client-side email service.
 // Returns null when the email has no record so callers can fall back to defaults.
 router.get('/:email/:type', async (req, res) => {

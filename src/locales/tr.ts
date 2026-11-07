@@ -242,6 +242,8 @@ export const tr = {
     newsletterDesc: "Yeni turlar ve özel teklifler hakkında güncellemeler almak için abone olun.",
     yourEmail: "E-posta adresiniz",
     subscribe: "Abone Ol",
+    subscribeSuccess: "Teşekkürler! Aboneliğinizi onaylamak için e-postanızı kontrol edin.",
+    subscribeError: "Abonelik başarısız oldu. Lütfen tekrar deneyin.",
     allRights: "Tüm hakları saklıdır."
   },
   notFound: {

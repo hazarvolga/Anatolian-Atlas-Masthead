@@ -1,7 +1,11 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Facebook, Instagram, Twitter, Linkedin, Youtube, Mail, Phone, MapPin } from "lucide-react";
+import { toast } from "sonner";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3001";
 
 const SOCIAL_ICONS: Record<string, React.ComponentType<any>> = {
   facebook: Facebook,
@@ -15,6 +19,33 @@ export default function Footer() {
   const { t } = useLanguage();
   const currentYear = new Date().getFullYear();
   const { settings, isLoading } = useSiteSettings();
+  const [newsletterEmail, setNewsletterEmail] = useState("");
+  const [isSubscribing, setIsSubscribing] = useState(false);
+
+  const handleNewsletterSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const email = newsletterEmail.trim();
+    if (!email || isSubscribing) return;
+
+    setIsSubscribing(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/email-subscriptions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, subscription_type: "newsletter", source: "footer" }),
+      });
+      if (!response.ok) {
+        const data = await response.json().catch(() => null);
+        throw new Error(data?.message || "Subscription failed");
+      }
+      toast.success(t.footer.subscribeSuccess);
+      setNewsletterEmail("");
+    } catch {
+      toast.error(t.footer.subscribeError);
+    } finally {
+      setIsSubscribing(false);
+    }
+  };
 
   // Sosyal linkler loaded veya loading iken
   const socialLinksObj = settings?.social_media_links ?? {};
@@ -155,16 +186,19 @@ export default function Footer() {
             <p className="text-muted-foreground mb-4">
               {t.footer.newsletterDesc}
             </p>
-            <form className="flex flex-col space-y-2">
+            <form className="flex flex-col space-y-2" onSubmit={handleNewsletterSubmit}>
               <input 
                 type="email" 
                 placeholder={t.footer.yourEmail} 
                 className="rounded-md px-4 py-2 bg-muted text-foreground"
+                value={newsletterEmail}
+                onChange={(event) => setNewsletterEmail(event.target.value)}
                 required 
               />
               <button 
                 type="submit" 
                 className="btn-primary mt-2"
+                disabled={isSubscribing}
               >
                 {t.footer.subscribe}
               </button>

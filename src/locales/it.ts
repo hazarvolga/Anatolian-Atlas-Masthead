@@ -241,6 +241,8 @@ export const it = {
     newsletterDesc: "Iscriviti per ricevere aggiornamenti sui nuovi tour e offerte speciali.",
     yourEmail: "La tua email",
     subscribe: "Iscriviti",
+    subscribeSuccess: "Grazie! Controlla la tua casella di posta per confermare l'iscrizione.",
+    subscribeError: "Iscrizione non riuscita. Riprova.",
     allRights: "Tutti i diritti riservati."
   },
   notFound: {

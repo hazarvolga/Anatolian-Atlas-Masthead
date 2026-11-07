@@ -13,7 +13,7 @@ Proje "Stable R5" olarak etiketlenmiş ve ana sayfa/tur/destinasyon listeleme DB
 
 | Metrik | Değer |
 |---|---|
-| Backend route handler | 57 |
+| Backend route handler | 58 |
 | Frontend'in çağırdığı farklı API yolu | 78 |
 | TypeScript hatası (`tsc --noEmit`) | **93** |
 | ESLint | **308 error / 23 warning** |
@@ -128,8 +128,9 @@ Doğrulama: `node --check` ✅; `npm run build` ✅. `backend/.env.example` test
 | 41 | İmzalı unsubscribe ve double opt-in bağlantıları (JWT, 7 gün, amaç bağlı); süresi geçersiz/yanlış token **400** | `backend/routes/emailSubscriptions.js` | `confirm` → `double_optin_confirmed=true`; `unsubscribe` → `is_subscribed=false`; DB durumu doğrulandı |
 | 42 | `useEmailConsent` tüketicilerin beklediği sözleşmeye çekildi (`subscriptions`, `loading`, `fetchSubscriptions`, `unsubscribeViaToken`, `confirmDoubleOptin`, `generateUnsubscribeToken`) | `src/hooks/useEmailConsent.ts` | `/email-confirmation?token=…` → **"Email Confirmed!"** + e-posta/tür; `/unsubscribe?token=…` → **"Successfully Unsubscribed"** |
 | 43 | Admin **Consent & KVKK** sekmesi mock yerine gerçek veriyi okuyor; sayaçlar ve tablo canlı | `backend/routes/admin.js`, `src/components/admin/email/AdminEmailConsent.tsx` | Panelde 2 kayıt listelendi; sayaçlar **2 / 1 / 1 / 1**; konsolda hata yok |
+| 44 | Footer bülten formu `POST /api/email-subscriptions` ucuna bağlandı; e-posta/tür doğrulaması, IP + user-agent kaydı, onaylanmış kaydı düşürmeyen idempotent upsert, gönderim sırasında pasif buton, 4 dilde başarı/hata mesajı | `backend/routes/emailSubscriptions.js`, `src/components/Footer.tsx`, `src/locales/*.ts` | İlk kayıt **201**, tekrar **200**; geçersiz e-posta ve transactional tür **400**; onaylı kayıt yeniden gönderimde onaylı kalıyor; tarayıcıda başarı toast'ı + input temizliği, hata toast'ında input korunuyor |
 
-Doğrulama: `node --check` ✅; `npm run build` ✅; değişen frontend dosyalarında yeni lint hatası yok. Test abonelikleri ve test kullanıcısı silindi (`EmailSubscription` **0** satır). Gerçek gönderim (SMTP) hâlâ yok; şablon CRUD'u ve `emails/send` bu adımın dışında.
+Doğrulama: `node --check` ✅; `npm run build` ✅; değişen frontend dosyalarında yeni tip/lint hatası yok. Test abonelikleri ve test kullanıcısı silindi (`EmailSubscription` **0** satır). Gerçek gönderim (SMTP) hâlâ yok; şablon CRUD'u ve `emails/send` bu adımın dışında.
 
 ---
 
@@ -193,7 +194,7 @@ Doğrulanan canlı sonuçlar:
 ### P0-5 · E-posta altyapısı yok — ⏳ Kısmen düzeltildi
 - Backend'de nodemailer/SMTP kodu yok; `EmailTemplate`/`EmailLog` tabloları yalnızca şemada.
 - Frontend'in çağırdığı `/api/emails/send`, `/api/email-templates/*`, `/api/send-welcome-account-email`, `/api/send-booking-guest-email` uçlarının **hiçbiri yok** (canlı 404).
-- ✅ **Düzeltildi:** `/api/email-subscriptions/*` (izin sorgu/güncelleme, imzalı unsubscribe ve double opt-in) ve admin listesi eklendi (bkz. #39–#43).
+- ✅ **Düzeltildi:** `/api/email-subscriptions/*` (izin sorgu/güncelleme, public bülten kaydı, imzalı unsubscribe ve double opt-in) ve admin listesi eklendi (bkz. #39–#44).
 - `src/emails/templates/*` React Email şablonları hiçbir yerden gönderilmiyor.
 - **Sonuç:** izin/consent katmanı çalışıyor; rezervasyon onayı, hoş geldin, bülten gönderimi ve unsubscribe **e-postasının kendisi** SMTP olmadığı için hâlâ ölü.
 
@@ -302,7 +303,7 @@ Doğrulanan canlı sonuçlar:
 
 ### Sprint 1 — Ticari akış (3–5 gün)
 7. ✅ **Tamamlandı:** Stripe Checkout + webhook + `payments/verify-session`; rezervasyon durum makinesi (bkz. #32–#38). Canlı test anahtarı bekliyor.
-8. ⏳ **Kısmen tamamlandı:** e-posta izin/abonelik katmanı + imzalı unsubscribe ve double opt-in hazır (bkz. #39–#43). SMTP/nodemailer servisi, şablon gönderimi ve bülten/consent uçlarının gönderim tarafı açık.
+8. ⏳ **Kısmen tamamlandı:** e-posta izin/abonelik katmanı, footer bülten kaydı + imzalı unsubscribe ve double opt-in hazır (bkz. #39–#44). SMTP/nodemailer servisi, şablon gönderimi ve bülten/consent uçlarının gönderim tarafı açık.
 9. Rol tekilliği: tek kaynak (`User.role` veya `UserRole`) seç; `req.user.id` tutarlılığı.
 10. JWT'yi httpOnly cookie'ye taşı; secret zorunluluğu ve prod config düzeltmesi.
 11. Rate limit'i endpoint bazlı yap (auth için sıkı, public read için gevşek).

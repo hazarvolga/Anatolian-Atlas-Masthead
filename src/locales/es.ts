@@ -242,6 +242,8 @@ export const es = {
     newsletterDesc: "Suscríbete para recibir actualizaciones sobre nuevos tours y ofertas especiales.",
     yourEmail: "Tu correo electrónico",
     subscribe: "Suscribirse",
+    subscribeSuccess: "¡Gracias! Revisa tu correo para confirmar la suscripción.",
+    subscribeError: "No se pudo completar la suscripción. Inténtalo de nuevo.",
     allRights: "Todos los derechos reservados."
   },
   notFound: {
