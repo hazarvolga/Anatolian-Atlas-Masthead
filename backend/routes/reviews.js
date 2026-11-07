@@ -5,6 +5,31 @@ import { authMiddleware } from '../middleware/auth.js';
 const prisma = new PrismaClient();
 const router = express.Router();
 
+// GET /api/reviews/user - Get all reviews written by the logged-in user
+router.get('/user', authMiddleware, async (req, res) => {
+  try {
+    const reviews = await prisma.review.findMany({
+      where: { userId: req.user.id },
+      include: {
+        tour: {
+          select: {
+            id: true,
+            title: true,
+            slug: true,
+          },
+        },
+      },
+      orderBy: {
+        created_at: 'desc',
+      },
+    });
+    res.json(reviews);
+  } catch (error) {
+    console.error('Failed to get user reviews:', error);
+    res.status(500).json({ message: 'Failed to retrieve user reviews.' });
+  }
+});
+
 // GET /api/reviews/tour/:tourId - Get all reviews for a specific tour
 router.get('/tour/:tourId', async (req, res) => {
   const { tourId } = req.params;

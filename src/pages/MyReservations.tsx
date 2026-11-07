@@ -51,7 +51,7 @@ export default function MyReservations() {
   };
   
   const hasReviewForTour = (tourId: string) => {
-    return userReviews.some(review => review.tour_id === tourId);
+    return userReviews.some(review => (review.tourId ?? review.tour_id) === tourId);
   };
   
   if (isLoading) {

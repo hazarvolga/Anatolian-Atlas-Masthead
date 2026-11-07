@@ -88,6 +88,7 @@ Compose backend servisi artık açılışta `prisma migrate deploy` çalıştır
 | 22 | Navbar rezervasyon linkleri var olan rotaya bağlandı | `src/components/navbar/TopBar.tsx`, `src/components/navbar/NavbarMobileMenu.tsx` | Link → `/my-reservations` (**200** sayfa) |
 | 23 | Toplu review doğrulama ucu eklendi | `backend/routes/admin.js` | `PUT /api/admin/reviews/bulk-update` → **200** `{count}`; eksik/yanlış gövde → **400** |
 | 24 | Booking başlığı yerel i18n kaynaklarından okuyor; eksik anahtarlar eklendi | `src/components/booking/MultiStepBookingForm/FormHeader.tsx`, `src/locales/{it,tr,es}.ts` | `/api/translations` **404**'ü kalktı; başlık seçili dilde |
+| 25 | Kullanıcının yorumları ucu eklendi; yorum sahipliği kontrolü `tourId` alanıyla uyumlu | `backend/routes/reviews.js`, `src/pages/MyBookings.tsx`, `src/pages/MyReservations.tsx` | `GET /api/reviews/user` → **200**; tokensiz → **401**; sayfa konsolu temiz |
 
 Doğrulama: `npm run build` ✅; değişen dosyalarda ESLint temiz. Rezervasyon kaydı test sonrası DB'den silindi (tablo **0** satır).
 
