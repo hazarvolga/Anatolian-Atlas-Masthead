@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export default function NavbarDesktopNav() {
-  const { t } = useLanguage();
+  const { t, localizePath } = useLanguage();
   const pathname = usePathname();
 
   const navLinks = [
@@ -37,7 +37,7 @@ export default function NavbarDesktopNav() {
               className="flex items-stretch border-r border-border first:border-l"
             >
               <Link
-                href={link.path}
+                href={localizePath(link.path)}
                 className={cn(
                   "relative px-5 xl:px-6 flex flex-col justify-center transition-colors duration-150 group",
                   isActive

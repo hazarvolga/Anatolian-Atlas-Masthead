@@ -5,6 +5,7 @@ import EmailConfirmationClient from "./EmailConfirmationClient";
 export const metadata: Metadata = {
   title: "Email Confirmation",
   description: "Confirm your email subscription.",
+  robots: { index: false, follow: false },
 };
 
 export default function EmailConfirmationPage() {

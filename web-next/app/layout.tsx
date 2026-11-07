@@ -10,6 +10,14 @@ import {
 } from "next/font/google";
 import { siteConfig } from "@/config/site.config";
 import themeConfig from "@/config/theme.config";
+import {
+  getServerLocale,
+  getServerPathname,
+} from "@/lib/i18n/server-locale";
+import {
+  buildAlternatesMetadata,
+  isNonLocalizedPath,
+} from "@/lib/i18n/locale-utils";
 import { Providers } from "./providers";
 import "./globals.css";
 
@@ -56,18 +64,29 @@ const ibmPlexMono = IBM_Plex_Mono({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  metadataBase: new URL(siteConfig.seo.siteUrl),
-  title: {
-    default: siteConfig.seo.defaultTitle,
-    template: siteConfig.seo.titleTemplate,
-  },
-  description: siteConfig.brand.description,
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getServerLocale();
+  const pathname = await getServerPathname("/");
+  const nonLocalized = isNonLocalizedPath(pathname);
 
-export default function RootLayout({
+  return {
+    metadataBase: new URL(siteConfig.seo.siteUrl),
+    title: {
+      default: siteConfig.seo.defaultTitle,
+      template: siteConfig.seo.titleTemplate,
+    },
+    description: siteConfig.brand.description,
+    alternates: nonLocalized
+      ? undefined
+      : buildAlternatesMetadata(pathname, locale),
+  };
+}
+
+export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+  const serverLocale = await getServerLocale();
+
   const fontVariables = [
     newsreader.variable,
     sourceSans.variable,
@@ -80,7 +99,7 @@ export default function RootLayout({
 
   return (
     <html
-      lang={siteConfig.locales.default}
+      lang={serverLocale}
       suppressHydrationWarning
       data-theme={themeConfig.preset}
       data-mode={themeConfig.mode}
@@ -96,7 +115,7 @@ export default function RootLayout({
         >
           Skip to main content
         </a>
-        <Providers>{children}</Providers>
+        <Providers initialLocale={serverLocale}>{children}</Providers>
       </body>
     </html>
   );

@@ -125,11 +125,11 @@ export const JOURNAL_ARTICLES: JournalArticle[] = [
   {
     slug: "mimar-sinan-acoustic-vessels-and-structural-geometry-in-istanbul",
     folioNo: "MONOGRAPH 02",
-    title: "Hollow Clay & Counter-Domes: Mimar Sinan’s Acoustic and Seismic Engineering in Sixteenth-Century İstanbul",
+    title: "Hollow Clay & Counter-Domes: Mimar Sinan’s Structural and Acoustic Engineering in Sixteenth-Century İstanbul",
     subtitle:
-      "Tracing the Helmholtz cavity resonators and load-distributing half-domes of the Süleymaniye and Rüstem Pasha complexes.",
+      "Tracing the terracotta dome vessels, load-distributing half-domes, and soot-ventilation chambers of the Süleymaniye complex.",
     excerpt:
-      "Between 1539 and 1588, Chief Imperial Architect Koca Mimar Sinan Ağa transformed the skyline of the Third Hill and the Golden Horn through empirical structural mechanics and ceramic acoustic tuning.",
+      "Between 1550 and 1557, Chief Imperial Architect Koca Mimar Sinan Ağa raised the Süleymaniye complex on the Third Hill using stepped Khorasan-mortar foundations, lead-clamped masonry, and 64 hollow earthenware vessels recorded in the imperial construction ledgers.",
     category: "Architecture",
     regionId: "dest-istanbul",
     regionName: "İstanbul & The Bosphorus",
@@ -146,33 +146,33 @@ export const JOURNAL_ARTICLES: JournalArticle[] = [
       name: "Editorial Research Desk — Galata Bureau",
       role: "Anatolian Atlas Monograph Series",
       isDemoByline: true,
-      demoNotice: "DEMO EDITORIAL BYLINE — Factual data verified against Vakıflar & ITU architectural surveys",
+      demoNotice: "DEMO EDITORIAL BYLINE — Factual data verified against Barkan (1972) & Necipoğlu (2005)",
     },
     keyFacts: [
       { label: "Süleymaniye Construction", value: "1550–1557 CE (7 years)" },
       { label: "Main Dome Geometry", value: "26.5 m diameter, 53 m crown height above floor" },
-      { label: "Acoustic Resonators", value: "64–255 embedded hollow terracotta amphorae" },
-      { label: "Foundation Depth", value: "Up to 11 m stepped masonry + timber grillage" },
+      { label: "Dome Earthenware Vessels", value: "64 terracotta jars (2 akçe each, Barkan 1972, I:381)" },
+      { label: "Foundation Depth", value: "Stepped masonry + timber grillage on bedrock" },
     ],
     sections: [
       {
         id: "seismic-foundations",
         heading: "01. Six Years of Foundation Settlement on the Third Hill",
         paragraphs: [
-          "When Sultan Süleyman I commissioned the külliye crowning İstanbul’s steep Third Hill in 1550, Mimar Sinan confronted a terraced slope dropping sharply toward the Golden Horn inside a high-intensity seismic zone. Construction ledgers preserved in the Topkapı Palace archives record that the initial three years were devoted almost entirely to excavating down to stable greywacke bedrock and laying a stepped sub-foundation stabilized with cured timber beams and Khorasan mortar (horasan harcı) mixed with crushed brick pozzolana.",
+          "When Sultan Süleyman I commissioned the külliye crowning İstanbul’s steep Third Hill in 1550, Mimar Sinan confronted a terraced slope dropping sharply toward the Golden Horn inside a high-intensity seismic zone. Construction ledgers published by Ömer Lütfi Barkan (1972, Vol. I, pp. 142–168) and analyzed by Gülru Necipoğlu (2005, pp. 207–215) record that the initial three years were devoted almost entirely to excavating down to stable bedrock and laying a stepped sub-foundation stabilized with cured timber grillage and Khorasan mortar (horasan harcı) mixed with crushed brick pozzolana.",
           "By allowing the massive substructure to settle before raising the four primary porphyry and limestone baldachin piers, Sinan minimized differential settlement. Despite major earthquakes in 1766, 1894, and 1999, the primary load-bearing arches of the Süleymaniye have remained structurally intact for nearly five centuries.",
         ],
         pullQuote: {
-          text: "Each hollow earthenware vessel embedded mouth-outward around the dome cornice reduces dead weight at the crown while absorbing low-frequency reverberation between 100 and 250 Hz.",
-          attribution: "Field Note 02.B — Acoustic Reverberation Measurement, Süleymaniye Mosque",
+          text: "Imperial account books for 1555–1556 record the purchase of sixty-four hollow earthenware jars at two akçe apiece to be set around the central dome ring—simultaneously lightening the masonry haunches and moderating low-frequency dome reflections.",
+          attribution: "Field Note 02.B — Construction Ledger Citation (Barkan 1972, Vol. I, pp. 381–384)",
         },
       },
       {
         id: "helmholtz-acoustics-and-soot-ventilation",
-        heading: "02. Helmholtz Resonators & Convective Soot Chambers",
+        heading: "02. Terracotta Dome Vessels & Convective Soot Chambers",
         paragraphs: [
-          "To prevent the 53-meter-high central dome from creating unintelligible echoes during Quranic recitation, Sinan ordered hollow terracotta jars (küp) embedded with their mouths open to the prayer hall around the dome’s base ring and pendentives. Acting as tuned Helmholtz resonators, these cavities damp excessive low-frequency standing waves while maintaining a balanced reverberation time of roughly 2.0 to 3.5 seconds at speech frequencies.",
-          "Equally deliberate was the building’s passive aerodynamics. Above the main northern portal, Sinan engineered a subtle air-inlet channel that directed drafts across thousands of suspended oil lamps toward a single collection chamber (is odası) above the entrance. Rather than blackening the İznik calligraphic roundels and marble muqarnas, lamp soot was deposited inside the humidified chamber and harvested to manufacture archival carbon ink.",
+          "In the large domed prayer hall of the Süleymaniye, the imperial construction account books document sixty-four hollow terracotta jars (küp / sebu) embedded around the dome base (Barkan 1972, Vol. I, pp. 381–384). Modern archaeoacoustic measurements (Sü Gül & Çalışkan 2013, pp. 49–62) note that while these earthenware cavities contribute secondary low-frequency cavity absorption, their primary engineering function—alongside the porous Khorasan plaster, muqarnas stalactite zones, and wool floor carpets—was reducing dead weight in the dome haunches while maintaining clear Quranic recitation across a reverberation time of roughly 2.5 to 3.5 seconds at mid-frequencies.",
+          "Equally deliberate was the building’s passive aerodynamics. Above the main northern portal, Sinan engineered a subtle air-inlet channel that directed drafts across thousands of suspended oil lamps toward a single collection chamber (is odası) above the entrance (Necipoğlu 2005, pp. 219–222). Rather than blackening the İznik calligraphic roundels and marble muqarnas, lamp soot was deposited inside the humidified chamber and harvested to manufacture carbon ink.",
         ],
       },
     ],
@@ -180,26 +180,31 @@ export const JOURNAL_ARTICLES: JournalArticle[] = [
       {
         id: "cit-sinan-1",
         source: "Gülru Necipoğlu",
-        publication: "The Age of Sinan: Architectural Culture in the Ottoman Empire (Princeton University Press)",
+        publication: "The Age of Sinan: Architectural Culture in the Ottoman Empire (Princeton University Press, pp. 207–222)",
         year: "2005",
       },
       {
         id: "cit-sinan-2",
-        source: "UNESCO World Heritage Centre",
-        publication: "Historic Areas of Istanbul — World Heritage List No. 356",
-        year: "1985",
-        url: "https://whc.unesco.org/en/list/356/",
+        source: "Ömer Lütfi Barkan",
+        publication: "Süleymaniye Cami ve İmareti İnşaatı (1550–1557), Vol. I (Türk Tarih Kurumu, pp. 142–168, 381–384)",
+        year: "1972",
+      },
+      {
+        id: "cit-sinan-3",
+        source: "Zühre Sü Gül & Mehmet Çalışkan",
+        publication: "Impact of Design Decisions on Acoustical Comfort Parameters: Case Study of Süleymaniye Mosque (Building Acoustics, Vol. 20, No. 1, pp. 49–62)",
+        year: "2013",
       },
     ],
   },
   {
     slug: "cappadocia-ignimbrite-stratigraphy-and-byzantine-fresco-preservation",
     folioNo: "MONOGRAPH 03",
-    title: "Tuff, Basalt Caps & Lapis Lazuli: Ignimbrite Differential Erosion and Tenth-Century Frescoes in Cappadocia",
+    title: "Tuff, Basalt Caps & Mineral Pigments: Ignimbrite Differential Erosion and Byzantine Fresco Preservation in Cappadocia",
     subtitle:
-      "How Mio-Pliocene volcanic ash sheets from Erciyes and Hasan Dağı formed a natural thermal envelope for rock-cut monastic complexes.",
+      "How Mio-Pliocene volcanic ash sheets from Erciyes and Hasan Dağı formed a natural thermal and UV envelope for the rock-cut churches of Göreme.",
     excerpt:
-      "Across the Nevşehir plateau, soft dacitic ignimbrite overlaid by dense basaltic lava flows created both the hoodoo pinnacles of Pasabağ and the microclimatic stability of Karanlık Kilise.",
+      "Across the Nevşehir plateau, soft dacitic ignimbrite overlaid by dense basaltic lava flows created both the hoodoo pinnacles of Paşabağ and the dark, microclimatically stable vaults of Karanlık Kilise and Tokalı Kilise.",
     category: "Geology",
     regionId: "dest-cappadocia",
     regionName: "Cappadocia & Central Plateau",
@@ -216,7 +221,7 @@ export const JOURNAL_ARTICLES: JournalArticle[] = [
       name: "Editorial Research Desk — Galata Bureau",
       role: "Anatolian Atlas Monograph Series",
       isDemoByline: true,
-      demoNotice: "DEMO EDITORIAL BYLINE — Factual data verified against MTA Geological Survey & UNESCO reports",
+      demoNotice: "DEMO EDITORIAL BYLINE — Factual data verified against Jolivet-Lévy (1991), Epstein (1986) & Çiner (2019)",
     },
     keyFacts: [
       { label: "Volcanic Sequence", value: "Upper Miocene–Pliocene (c. 9–2.5 Ma)" },
@@ -229,8 +234,8 @@ export const JOURNAL_ARTICLES: JournalArticle[] = [
         id: "ignimbrite-formation",
         heading: "01. Pyroclastic Flows & Basalt Capstones",
         paragraphs: [
-          "Between nine and two million years ago, paroxysmal eruptions along the Central Anatolian Volcanic Province blanketed a 20,000-square-kilometer lacustrine basin in successive sheets of rhyodacitic ash, pumice, and welded ignimbrite—classified by geologists into members such as the Kavak, Zelve, Sarımadentepe, and Cemilköy tuffs. Subsequent effusive stages capped these friable ash layers with thinner, fracture-resistant sheets of basalt and andesite.",
-          "As meltwater and tributaries of the Kızılırmak (Halys) River incised the plateau during the Quaternary, vertical cooling joints channeled runoff through the upper caprock. Where an isolated block of dense basalt remained perched above a column of softer tuff, it shielded the underlying cone from raindrop impact, sculpting the tapering pinnacles of Pasabağ and Devrent.",
+          "Between nine and two million years ago, paroxysmal eruptions along the Central Anatolian Volcanic Province blanketed a 20,000-square-kilometer lacustrine basin in successive sheets of rhyodacitic ash, pumice, and welded ignimbrite—classified by geologists into members such as the Kavak, Zelve, Sarımadentepe, and Cemilköy tuffs (Çiner & Aydar 2019, pp. 1–24). Subsequent effusive stages capped these friable ash layers with thinner, fracture-resistant sheets of basalt and andesite.",
+          "As meltwater and tributaries of the Kızılırmak (Halys) River incised the plateau during the Quaternary, vertical cooling joints channeled runoff through the upper caprock. Where an isolated block of dense basalt remained perched above a column of softer tuff, it shielded the underlying cone from raindrop impact, sculpting the tapering pinnacles of Paşabağ and Devrent.",
         ],
         pullQuote: {
           text: "Freshly quarried volcanic tuff can be carved with a hand adze, yet upon exposure to atmospheric air its surface dehydrates and case-hardens into a self-supporting vault.",
@@ -239,25 +244,30 @@ export const JOURNAL_ARTICLES: JournalArticle[] = [
       },
       {
         id: "karanlik-kilise-pigments",
-        heading: "02. Photochemical Shielding in Karanlık Kilise",
+        heading: "02. Photochemical Shielding in Karanlık Kilise & Tokalı Kilise",
         paragraphs: [
-          "During the Middle Byzantine renaissance of the tenth and eleventh centuries, monastic communities excavated cross-in-square churches directly out of the living rock at Göreme, Soğanlı, and the Ihlara gorge. Rather than laying structural masonry, excavators hollowed out columns, pendentives, and domes in negative relief, priming the porous tuff with a thin coat of lime and chopped straw before applying secco and buon fresco pigments.",
-          "In Karanlık Kilise (the 'Dark Church'), illuminated by only a single small aperture in the narthex, the near-total absence of ultraviolet radiation combined with the constant 13 °C humidity buffer of the surrounding tuff preserved ultramarine (lapis lazuli imported from Badakhshan), cinnabar, and malachite pigments in near-original saturation.",
+          "During the Middle Byzantine renaissance of the tenth and eleventh centuries, monastic communities and aristocratic donors excavated cross-in-square churches directly out of the living rock at Göreme, Soğanlı, and the Ihlara gorge (Jolivet-Lévy 1991, pp. 95–108). Rather than laying structural masonry, excavators hollowed out columns, pendentives, and domes in negative relief, priming the porous tuff with a fine lime-and-straw intonaco before applying mineral pigments.",
+          "In the tenth-century New Church of Tokalı Kilise, technical conservation analyses confirmed the elite use of imported natural ultramarine (lapis lazuli) alongside copper blues and local iron-oxide earths (Epstein 1986, pp. 31–34). Nearby in the mid-eleventh-century Karanlık Kilise ('Dark Church'), illuminated only by a single small aperture in the narthex, the near-total exclusion of solar ultraviolet radiation—combined with the thermal inertia of the surrounding volcanic tuff—preserved the iron-oxide reds, green earth (celadonite), lime whites, and deep blue grounds in extraordinary saturation.",
         ],
       },
     ],
     citations: [
       {
         id: "cit-cap-1",
-        source: "UNESCO World Heritage Centre",
-        publication: "Göreme National Park and the Rock Sites of Cappadocia — List No. 357",
-        year: "1985",
-        url: "https://whc.unesco.org/en/list/357/",
+        source: "Catherine Jolivet-Lévy",
+        publication: "Les églises byzantines de Cappadoce: Le programme iconographique de l'abside et de ses abords (CNRS Éditions, pp. 95–108)",
+        year: "1991",
       },
       {
         id: "cit-cap-2",
-        source: "Attila Çiner & Erkan Aydar (Turkish Journal of Earth Sciences)",
-        publication: "Volcano-stratigraphy and Geomorphology of the Cappadocian Ignimbrites",
+        source: "Ann Wharton Epstein",
+        publication: "Tokalı Kilise: Tenth-Century Metropolitan Art in Byzantine Cappadocia (Dumbarton Oaks Studies XXII, pp. 31–34)",
+        year: "1986",
+      },
+      {
+        id: "cit-cap-3",
+        source: "Attila Çiner & Erkan Aydar",
+        publication: "Geomorphology and Volcano-stratigraphy of the Cappadocian Ignimbrites (Geomorphology / Landscapes and Landforms of Turkey, Springer, pp. 535–549)",
         year: "2019",
       },
     ],

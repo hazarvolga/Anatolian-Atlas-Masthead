@@ -5,6 +5,7 @@ import BookingSuccessClient from "./BookingSuccessClient";
 export const metadata: Metadata = {
   title: "Booking Confirmed",
   description: "Your reservation details on NextStopTurkey.",
+  robots: { index: false, follow: false },
 };
 
 export default function BookingSuccessPage() {

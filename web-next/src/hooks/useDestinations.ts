@@ -5,7 +5,6 @@ import { api } from "@/lib/api/client";
 import { toast } from "@/components/ui/use-toast";
 import { isDemoMode } from "@/config/site";
 import { DEMO_DESTINATIONS } from "@/lib/data/demo-content";
-import { triggerCatalogRevalidate } from "@/lib/cache/revalidate-client";
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem("authToken");
@@ -127,7 +126,6 @@ export const useCreateDestination = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-destinations"] });
       queryClient.invalidateQueries({ queryKey: ["destinations"] });
-      void triggerCatalogRevalidate(["catalog-destinations", "catalog-tours"]);
       toast({
         title: "Destination Created",
         description: "Destination created successfully.",
@@ -166,7 +164,6 @@ export const useUpdateDestination = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-destinations"] });
       queryClient.invalidateQueries({ queryKey: ["destinations"] });
-      void triggerCatalogRevalidate(["catalog-destinations", "catalog-tours"]);
       toast({
         title: "Destination Updated",
         description: "Destination updated successfully.",
@@ -197,7 +194,6 @@ export const useDeleteDestination = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["admin-destinations"] });
       queryClient.invalidateQueries({ queryKey: ["destinations"] });
-      void triggerCatalogRevalidate(["catalog-destinations", "catalog-tours"]);
       toast({
         title: "Destination Deleted",
         description: "Destination deleted successfully.",

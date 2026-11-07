@@ -95,6 +95,22 @@ export default function BookingSuccessClient() {
   );
 
   useEffect(() => {
+    // Purge any saved nst_booking_draft_* keys upon reaching booking confirmation
+    if (typeof window !== "undefined") {
+      try {
+        const keysToRemove: string[] = [];
+        for (let i = 0; i < window.sessionStorage.length; i += 1) {
+          const k = window.sessionStorage.key(i);
+          if (k && k.startsWith("nst_booking_draft")) {
+            keysToRemove.push(k);
+          }
+        }
+        keysToRemove.forEach((k) => window.sessionStorage.removeItem(k));
+      } catch {
+        // Ignore storage errors
+      }
+    }
+
     if (sessionId) {
       verifyPayment.mutate(sessionId, {
         onSuccess: (data) => {

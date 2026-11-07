@@ -5,6 +5,7 @@ import UnsubscribeClient from "./UnsubscribeClient";
 export const metadata: Metadata = {
   title: "Manage Email Subscriptions",
   description: "Choose which emails you would like to receive from us.",
+  robots: { index: false, follow: false },
 };
 
 export default function UnsubscribePage() {

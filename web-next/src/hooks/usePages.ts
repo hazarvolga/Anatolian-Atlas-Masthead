@@ -3,7 +3,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { api } from "@/lib/api/client";
-import { triggerCatalogRevalidate } from "@/lib/cache/revalidate-client";
 
 export const usePages = () => {
   return useQuery({
@@ -63,9 +62,8 @@ export const useCreatePage = () => {
       const response = await api.post("/api/admin/pages", page);
       return response.data;
     },
-    onSuccess: (created) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["pages"] });
-      void triggerCatalogRevalidate(["cms-pages"], ["/", ...(created?.slug ? [`/${created.slug}`] : [])]);
       toast.success("Page created successfully");
     },
     onError: () => {
@@ -85,10 +83,9 @@ export const useUpdatePage = () => {
       const response = await api.put(`/api/admin/pages/${id}`, updates);
       return response.data;
     },
-    onSuccess: (updated) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["pages"] });
       queryClient.invalidateQueries({ queryKey: ["page"] });
-      void triggerCatalogRevalidate(["cms-pages"], ["/", ...(updated?.slug ? [`/${updated.slug}`] : [])]);
       toast.success("Page updated successfully");
     },
     onError: () => {
@@ -106,7 +103,6 @@ export const useDeletePage = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["pages"] });
-      void triggerCatalogRevalidate(["cms-pages"], ["/"]);
       toast.success("Page deleted successfully");
     },
     onError: () => {

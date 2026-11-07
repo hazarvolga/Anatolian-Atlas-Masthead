@@ -11,7 +11,7 @@ import { api } from "@/lib/api/client";
 import { isDemoMode, siteConfig } from "@/config/site";
 
 export default function Footer() {
-  const { t } = useLanguage();
+  const { t, localizePath } = useLanguage();
   const { config } = useDesignSystem();
   const currentYear = new Date().getFullYear();
   const { settings } = useSiteSettings();
@@ -88,7 +88,7 @@ export default function Footer() {
                 {navLinks.map((link) => (
                   <li key={link.path}>
                     <Link
-                      href={link.path}
+                      href={localizePath(link.path)}
                       className="text-text-secondary hover:text-foreground transition-colors"
                     >
                       {link.name}

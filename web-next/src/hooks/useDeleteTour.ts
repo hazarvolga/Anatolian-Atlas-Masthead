@@ -4,7 +4,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import axios from 'axios';
 import { toast } from "@/components/ui/use-toast";
-import { triggerCatalogRevalidate } from "@/lib/cache/revalidate-client";
 
 export const useDeleteTour = () => {
   const queryClient = useQueryClient();
@@ -24,10 +23,9 @@ export const useDeleteTour = () => {
         throw new Error(err.response?.data?.message || 'Failed to delete tour');
       }
     },
-    onSuccess: (tourId) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['admin-tours'] });
       queryClient.invalidateQueries({ queryKey: ['tours'] });
-      void triggerCatalogRevalidate(['catalog-tours', `catalog-tour-${tourId}`]);
       toast({
         title: "Tur Silindi",
         description: "Tur başarıyla silindi.",

@@ -12,13 +12,20 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import themeConfig from "@/config/theme.config";
+import type { SupportedLocale } from "@/lib/i18n/locale-utils";
 
 // Disable Zod v4 new Function() JIT so strict CSP without 'unsafe-eval' never triggers a violation
 if (typeof z.config === "function") {
   z.config({ jitless: true });
 }
 
-export function Providers({ children }: { children: React.ReactNode }) {
+export function Providers({
+  children,
+  initialLocale = "en",
+}: {
+  children: React.ReactNode;
+  initialLocale?: SupportedLocale;
+}) {
   const [queryClient] = useState(() => new QueryClient());
 
   return (
@@ -29,12 +36,10 @@ export function Providers({ children }: { children: React.ReactNode }) {
         enableSystem={false}
       >
         <DesignSystemProvider>
-          <LanguageProvider>
+          <LanguageProvider initialLocale={initialLocale}>
             <AuthProvider>
               <TooltipProvider>
-                <SmoothScrollProvider>
-                  {children}
-                </SmoothScrollProvider>
+                <SmoothScrollProvider>{children}</SmoothScrollProvider>
                 <Toaster />
                 <Sonner />
               </TooltipProvider>

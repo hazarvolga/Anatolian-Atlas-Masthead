@@ -14,6 +14,15 @@ import {
   JOURNAL_ARTICLES,
   getJournalArticleBySlug,
 } from "@/lib/data/journal-content";
+import {
+  buildPageSeoMetadata,
+  getServerLocale,
+} from "@/lib/i18n/server-locale";
+import {
+  buildBreadcrumbJsonLd,
+  buildJournalArticleJsonLd,
+} from "@/lib/seo/jsonld";
+import JsonLd from "@/components/seo/JsonLd";
 
 export async function generateStaticParams() {
   return JOURNAL_ARTICLES.map((article) => ({
@@ -35,10 +44,13 @@ export async function generateMetadata({
     };
   }
 
-  return {
+  return buildPageSeoMetadata({
+    pathname: `/journal/${article.slug}`,
     title: `${article.title} — ${article.folioNo}`,
     description: article.subtitle,
-  };
+    openGraphType: "article",
+    images: [article.heroImage],
+  });
 }
 
 export default async function JournalArticlePage({
@@ -47,6 +59,7 @@ export default async function JournalArticlePage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
+  const locale = await getServerLocale();
   const article = getJournalArticleBySlug(slug);
 
   if (!article) {
@@ -59,6 +72,19 @@ export default async function JournalArticlePage({
 
   return (
     <main className="bg-background text-foreground min-h-screen pt-24 pb-24">
+      <JsonLd
+        data={[
+          buildJournalArticleJsonLd(article, locale),
+          buildBreadcrumbJsonLd(
+            [
+              { name: "Atlas", path: "/" },
+              { name: "The Anatolian Journal", path: "/journal" },
+              { name: article.folioNo, path: `/journal/${article.slug}` },
+            ],
+            locale
+          ),
+        ]}
+      />
       <article className="container">
         {/* Breadcrumb & Folio Top Bar */}
         <div className="flex flex-wrap items-center justify-between gap-4 pb-6 mb-8 border-b border-border">

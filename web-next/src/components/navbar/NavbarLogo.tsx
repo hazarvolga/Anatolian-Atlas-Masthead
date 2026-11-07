@@ -2,17 +2,19 @@
 
 import Link from "next/link";
 import { useSiteSettings } from "@/hooks/useSiteSettings";
+import { useLanguage } from "@/contexts/LanguageContext";
 import { siteConfig } from "@/config/site";
 
 export default function NavbarLogo() {
   const { settings } = useSiteSettings();
+  const { localizePath } = useLanguage();
 
   const hasLogo = !!settings?.site_logo_url;
   const siteTitle = settings?.site_title || siteConfig.brand.name;
 
   return (
     <Link
-      href="/"
+      href={localizePath("/")}
       className="flex items-center gap-3.5 group focus-visible:outline-none"
     >
       {hasLogo && (

@@ -19,7 +19,7 @@ export default function NavbarMobileMenu({
   mobileMenuOpen,
   setMobileMenuOpen,
 }: NavbarMobileMenuProps) {
-  const { t } = useLanguage();
+  const { t, localizePath } = useLanguage();
   const { user, signOut } = useAuth();
   const isAdmin = useIsAdmin();
 
@@ -93,7 +93,7 @@ export default function NavbarMobileMenu({
             {navLinks.map((link) => (
               <Link
                 key={link.path}
-                href={link.path}
+                href={localizePath(link.path)}
                 className="flex items-baseline justify-between py-4 text-foreground hover:text-primary transition-colors"
                 onClick={() => setMobileMenuOpen(false)}
               >
