@@ -72,13 +72,11 @@ router.get('/', async (req, res) => {
 // GET /api/tours/:id - Get a single tour by its ID or slug
 router.get('/:id', async (req, res) => {
   const { id } = req.params;
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
   try {
     const tour = await prisma.tour.findFirst({
       where: {
-        OR: [
-          { id: id },
-          { slug: id },
-        ],
+        ...(isUuid ? { OR: [{ id }, { slug: id }] } : { slug: id }),
         status: 'active',
       },
       include: {

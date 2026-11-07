@@ -45,8 +45,28 @@ export const useCreatePayment = () => {
         return { id: demoBookingId, isDemo: true };
       }
 
-      const { data } = await api.post("/api/reservations", paymentData);
-      return data;
+      try {
+        const { data } = await api.post("/api/reservations", paymentData);
+        return data;
+      } catch {
+        const demoBookingId = `DEMO-NST-${Date.now().toString().slice(-6)}`;
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem(
+            `demo_booking_${demoBookingId}`,
+            JSON.stringify({
+              id: demoBookingId,
+              guest_name: paymentData.guestName,
+              guest_email: paymentData.guestEmail,
+              booking_date: paymentData.bookingDate,
+              adults: paymentData.adults,
+              children: paymentData.children,
+              total_price: paymentData.total_price ?? 195 * paymentData.adults,
+              status: "demo_simulated",
+            })
+          );
+        }
+        return { id: demoBookingId, isDemo: true };
+      }
     },
     onError: (error: { response?: { data?: { message?: string } } }) => {
       toast({
@@ -105,11 +125,35 @@ export const useCreateCheckoutSession = () => {
         };
       }
 
-      const { data } = await api.post(
-        "/api/payments/create-checkout-session",
-        checkoutData
-      );
-      return data as { url: string; sessionId: string; reservationId: string };
+      try {
+        const { data } = await api.post(
+          "/api/payments/create-checkout-session",
+          checkoutData
+        );
+        return data as { url: string; sessionId: string; reservationId: string };
+      } catch {
+        const demoBookingId = `DEMO-NST-${Date.now().toString().slice(-6)}`;
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem(
+            `demo_booking_${demoBookingId}`,
+            JSON.stringify({
+              id: demoBookingId,
+              guest_name: "Template Demo Traveler",
+              guest_email: "demo@nextstopturkey.com",
+              booking_date: checkoutData.bookingDate,
+              adults: checkoutData.adults,
+              children: checkoutData.children,
+              total_price: 195 * checkoutData.adults,
+              status: "demo_simulated",
+            })
+          );
+        }
+        return {
+          url: `/booking-success?demo=true&booking_id=${demoBookingId}`,
+          sessionId: `demo_sess_${demoBookingId}`,
+          reservationId: demoBookingId,
+        };
+      }
     },
     onError: (error: { response?: { data?: { message?: string } } }) => {
       toast({

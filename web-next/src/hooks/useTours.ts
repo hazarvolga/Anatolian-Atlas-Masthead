@@ -117,7 +117,7 @@ export const useTour = (id: string) => {
       if (!id) return null;
 
       const demoMatch = DEMO_TOURS.find((t) => t.id === id);
-      if (isDemoMode() && demoMatch) {
+      if (demoMatch) {
         return demoMatch;
       }
 
@@ -150,15 +150,6 @@ export const useTourAvailability = (tourId?: string) => {
 
       const demoMatch = DEMO_TOURS.find((t) => t.id === tourId);
       if (!isDemoMode() && !demoMatch) {
-        try {
-          const response = await api.get(`/api/tours/${tourId}/availability`);
-          if (Array.isArray(response.data) && response.data.length > 0) {
-            return response.data;
-          }
-        } catch {
-          // Fall back to deterministic availability schedule below
-        }
-      } else if (!isDemoMode()) {
         try {
           const response = await api.get(`/api/tours/${tourId}/availability`);
           if (Array.isArray(response.data) && response.data.length > 0) {

@@ -1,25 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { ArrowUpRight } from "lucide-react";
+import { format } from "date-fns";
 import {
   useReservations,
   useUpdateReservationStatus,
 } from "@/hooks/useReservations";
 import { useAuth } from "@/contexts/AuthContext";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { useUserReviews } from "@/hooks/useReviews";
-import { format } from "date-fns";
-import { Star } from "lucide-react";
 import ReviewForm from "@/components/reviews/ReviewForm";
 
 export default function MyReservationsClient() {
@@ -66,21 +58,6 @@ export default function MyReservationsClient() {
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "confirmed":
-        return "bg-green-100 text-green-800";
-      case "pending":
-        return "bg-yellow-100 text-yellow-800";
-      case "cancelled":
-        return "bg-red-100 text-red-800";
-      case "completed":
-        return "bg-blue-100 text-blue-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
   const hasReviewForTour = (tourId?: string) => {
     if (!tourId) return false;
     return userReviews.some(
@@ -89,133 +66,140 @@ export default function MyReservationsClient() {
     );
   };
 
-  if (isLoading) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto mb-4" />
-          <p className="text-lg">Loading your reservations...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div className="container mx-auto px-4 py-8">
-      <Card>
-        <CardHeader>
-          <CardTitle>My Reservations</CardTitle>
-          <CardDescription>
-            View and manage your tour reservations
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {reservations.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-lg text-muted-foreground mb-4">
-                You don&apos;t have any reservations yet.
+    <main className="pt-20 pb-24 bg-background min-h-screen">
+      {/* Header */}
+      <section className="py-12 md:py-16 bg-card border-b border-border">
+        <div className="container">
+          <span className="editorial-kicker block">
+            TRAVELER EXPEDITION LEDGER
+          </span>
+          <h1 className="font-serif text-4xl sm:text-5xl text-foreground mt-2">
+            My Reservations & Dispatches
+          </h1>
+        </div>
+      </section>
+
+      <section className="py-12 md:py-16">
+        <div className="container">
+          {isLoading ? (
+            <div className="h-64 border border-border bg-muted/40 animate-pulse" />
+          ) : reservations.length === 0 ? (
+            <div className="border border-border bg-card p-12 text-center space-y-4 max-w-2xl mx-auto">
+              <span className="editorial-kicker block">EMPTY MANIFEST</span>
+              <h2 className="font-serif text-3xl text-foreground">
+                No Scheduled Reservations Found
+              </h2>
+              <p className="text-sm text-text-secondary max-w-md mx-auto">
+                Browse our six regional monographs and scheduled departures to reserve your place on an upcoming route.
               </p>
-              <Button onClick={() => router.push("/tours")}>Browse Tours</Button>
+              <Link href="/tours" className="btn-primary inline-flex mt-2">
+                <span>Browse Expedition Catalogue</span>
+                <ArrowUpRight className="ml-2 h-4 w-4" />
+              </Link>
             </div>
           ) : (
             <div className="space-y-6">
-              {reservations.map((reservation) => {
+              {reservations.map((reservation, idx) => {
                 const tourId = reservation.tourId || reservation.tour_id || "";
                 const numChildren =
                   reservation.numChildren ?? reservation.children ?? 0;
+
                 return (
-                  <div key={reservation.id} className="p-6 border rounded-lg">
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-3 mb-2">
-                          <h3 className="font-medium text-lg">
-                            {reservation.tour?.title ||
-                              reservation.tours?.name ||
-                              "Tour"}
-                          </h3>
-                          <Badge className={getStatusColor(reservation.status)}>
-                            {reservation.status?.charAt(0).toUpperCase() +
-                              reservation.status?.slice(1)}
-                          </Badge>
-                        </div>
-
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                          <div>
-                            <p>
-                              <strong>Date:</strong>{" "}
-                              {formatReservationDate(reservation)}
-                            </p>
-                            <p>
-                              <strong>Guests:</strong>{" "}
-                              {reservation.numAdults ?? reservation.adults ?? 0}{" "}
-                              adults
-                              {numChildren > 0 && `, ${numChildren} children`}
-                            </p>
-                            <p>
-                              <strong>Total:</strong> €
-                              {Number(
-                                reservation.totalPrice ??
-                                  reservation.total_price ??
-                                  0
-                              ).toFixed(2)}
-                            </p>
-                          </div>
-                          <div>
-                            <p>
-                              <strong>Guest Name:</strong>{" "}
-                              {[
-                                reservation.user?.first_name,
-                                reservation.user?.last_name,
-                              ]
-                                .filter(Boolean)
-                                .join(" ") ||
-                                reservation.guest_name ||
-                                user.email}
-                            </p>
-                            <p>
-                              <strong>Email:</strong>{" "}
-                              {reservation.user?.email ||
-                                reservation.guest_email ||
-                                user.email}
-                            </p>
-                            {reservation.guest_phone && (
-                              <p>
-                                <strong>Phone:</strong> {reservation.guest_phone}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-
-                        {reservation.special_requests && (
-                          <div className="mt-3">
-                            <p className="text-sm">
-                              <strong>Special Requests:</strong>{" "}
-                              {reservation.special_requests}
-                            </p>
-                          </div>
-                        )}
-
-                        <p className="text-xs text-muted-foreground mt-3">
-                          Booked:{" "}
-                          {formatReservationDate({
-                            booking_date: reservation.created_at,
-                          })}
-                        </p>
+                  <article
+                    key={reservation.id}
+                    className="border border-border bg-card"
+                  >
+                    <div className="px-6 py-4 border-b border-border bg-background/60 flex flex-wrap items-center justify-between gap-4">
+                      <div className="flex items-baseline gap-3">
+                        <span className="text-xs font-semibold uppercase tracking-[0.16em] text-primary tabular-nums">
+                          0{idx + 1} /
+                        </span>
+                        <h3 className="font-serif text-2xl text-foreground">
+                          {reservation.tour?.title ||
+                            reservation.tours?.name ||
+                            "Anatolian Field Route"}
+                        </h3>
                       </div>
 
-                      <div className="flex flex-col gap-2 ml-4">
+                      <span className="px-3 py-1 bg-foreground text-background text-[11px] uppercase tracking-[0.15em] font-semibold">
+                        {reservation.status || "Confirmed"}
+                      </span>
+                    </div>
+
+                    <div className="p-6 grid grid-cols-1 md:grid-cols-4 gap-6 text-xs tabular-nums">
+                      <div>
+                        <span className="block text-[10px] uppercase tracking-[0.14em] text-text-secondary">
+                          DEPARTURE DATE
+                        </span>
+                        <span className="font-medium text-foreground mt-1 block">
+                          {formatReservationDate(reservation)}
+                        </span>
+                      </div>
+
+                      <div>
+                        <span className="block text-[10px] uppercase tracking-[0.14em] text-text-secondary">
+                          PARTY SIZE
+                        </span>
+                        <span className="font-medium text-foreground mt-1 block">
+                          {reservation.numAdults ?? reservation.adults ?? 1}{" "}
+                          Adult(s)
+                          {numChildren > 0 && `, ${numChildren} Child(ren)`}
+                        </span>
+                      </div>
+
+                      <div>
+                        <span className="block text-[10px] uppercase tracking-[0.14em] text-text-secondary">
+                          LEAD TRAVELER
+                        </span>
+                        <span className="font-medium text-foreground mt-1 block">
+                          {[
+                            reservation.user?.first_name,
+                            reservation.user?.last_name,
+                          ]
+                            .filter(Boolean)
+                            .join(" ") ||
+                            reservation.guest_name ||
+                            user.email}
+                        </span>
+                      </div>
+
+                      <div>
+                        <span className="block text-[10px] uppercase tracking-[0.14em] text-text-secondary">
+                          TOTAL TARIFF
+                        </span>
+                        <span className="font-serif text-2xl text-primary mt-0.5 block">
+                          €
+                          {Number(
+                            reservation.totalPrice ??
+                              reservation.total_price ??
+                              0
+                          ).toFixed(2)}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="px-6 py-4 border-t border-border bg-background/40 flex flex-wrap items-center justify-between gap-4">
+                      <span className="text-xs text-text-secondary tabular-nums">
+                        Logged:{" "}
+                        {formatReservationDate({
+                          booking_date: reservation.created_at,
+                        })}
+                      </span>
+
+                      <div className="flex flex-wrap items-center gap-3">
                         {(reservation.status === "pending" ||
                           reservation.status === "confirmed") && (
-                          <Button
-                            variant="destructive"
-                            size="sm"
+                          <button
+                            type="button"
                             onClick={() =>
                               handleCancelReservation(reservation.id)
                             }
                             disabled={updateReservationStatus.isPending}
+                            className="px-4 py-2 border border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground text-xs uppercase tracking-[0.14em] font-semibold transition-colors"
                           >
                             Cancel Reservation
-                          </Button>
+                          </button>
                         )}
 
                         {reservation.status === "completed" &&
@@ -228,12 +212,14 @@ export default function MyReservationsClient() {
                               }
                             >
                               <DialogTrigger asChild>
-                                <Button variant="outline" size="sm">
-                                  <Star className="h-4 w-4 mr-2" />
-                                  Write Review
-                                </Button>
+                                <button
+                                  type="button"
+                                  className="btn-outline py-2 px-4"
+                                >
+                                  Submit Field Note
+                                </button>
                               </DialogTrigger>
-                              <DialogContent className="max-w-2xl">
+                              <DialogContent className="max-w-2xl rounded-none">
                                 <ReviewForm
                                   tourId={tourId}
                                   bookingId={reservation.id}
@@ -245,19 +231,19 @@ export default function MyReservationsClient() {
 
                         {reservation.status === "completed" &&
                           hasReviewForTour(tourId) && (
-                            <Badge variant="secondary" className="text-xs">
-                              Review Submitted
-                            </Badge>
+                            <span className="text-xs uppercase tracking-[0.14em] text-primary font-semibold">
+                              Field Note Logged
+                            </span>
                           )}
                       </div>
                     </div>
-                  </div>
+                  </article>
                 );
               })}
             </div>
           )}
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+      </section>
+    </main>
   );
 }

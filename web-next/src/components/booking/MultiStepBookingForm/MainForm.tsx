@@ -127,8 +127,8 @@ export default function MainForm({ preselectedTourId }: MultiStepBookingFormProp
   const handlePaymentAction = async (values: FormData) => {
     if (!checkInDate) {
       toast({
-        title: "Hata",
-        description: "Lütfen bir tarih seçin.",
+        title: "Departure Date Required",
+        description: "Please select a departure date before completing your reservation.",
         variant: "destructive",
       });
       return;
@@ -185,32 +185,21 @@ export default function MainForm({ preselectedTourId }: MultiStepBookingFormProp
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Book Your Adventure</h1>
-        <p className="text-muted-foreground">
-          Complete your booking in just a few simple steps
-        </p>
-      </div>
-
+    <div className="max-w-4xl mx-auto">
       <Form {...form}>
         <form onSubmit={(e) => e.preventDefault()}>
           <FormHeader tourName={selectedTour?.name} />
-          
-          <div className="flex items-center justify-between mb-4">
-            {/* Progress/Navigation */}
-            <StepNavigation
-              steps={formSteps}
-              currentStep={currentStep}
-              isMultiDayTour={isMultiDayTour}
-              onPrev={prevStep}
-              onNext={nextStep}
-              progress={progressPercentage}
-              isFirstStep={currentStep === 1}
-              isLastStep={currentStep === formSteps.length}
-            />
-          </div>
+
+          <StepNavigation
+            steps={formSteps}
+            currentStep={currentStep}
+            isMultiDayTour={isMultiDayTour}
+            onPrev={prevStep}
+            onNext={nextStep}
+            progress={progressPercentage}
+            isFirstStep={currentStep === 1}
+            isLastStep={currentStep === formSteps.length}
+          />
 
           {/* Step Content */}
           <StepCard
@@ -228,7 +217,7 @@ export default function MainForm({ preselectedTourId }: MultiStepBookingFormProp
               isMultiDayTour={isMultiDayTour}
               selectedTour={selectedTour}
               pricing={pricing}
-              roomPrices={pricing?.roomPrices || {}} // Oda fiyatlarını iletiyoruz
+              roomPrices={pricing?.roomPrices || {}}
               pricingLoading={pricingLoading}
               control={form.control}
               onAdultsChange={setAdults}
@@ -237,61 +226,69 @@ export default function MainForm({ preselectedTourId }: MultiStepBookingFormProp
               onCheckInSelect={setCheckInDate}
             />
           </StepCard>
-          {/* Navigation Buttons */}
-          <div className="flex justify-between mt-6">
-            <Button
+
+          {/* Navigation & Settlement Ledger Buttons */}
+          <div className="flex flex-wrap items-start justify-between gap-4 mt-8 pt-6 border-t border-border">
+            <button
               type="button"
-              variant="outline"
               onClick={prevStep}
               disabled={currentStep === 1}
+              className="btn-outline py-3.5 px-6 disabled:opacity-40 disabled:pointer-events-none"
             >
               <ChevronLeft className="w-4 h-4 mr-2" />
-              Previous
-            </Button>
+              Previous Stage
+            </button>
+
             {currentStep === formSteps.length ? (
-              <div className="flex flex-col gap-3 min-w-[220px]">
-                <Button
+              <div className="flex flex-col sm:flex-row flex-wrap gap-3">
+                <button
                   type="button"
-                  className="w-full flex items-center justify-center"
+                  className="btn-primary py-3.5 px-6"
                   disabled={isProcessingPayment || pricingLoading || !checkInDate}
-                  onClick={() => handleAction('full')}
+                  onClick={() => handleAction("full")}
                 >
                   <CreditCard className="w-4 h-4 mr-2" />
-                  {isProcessingPayment && currentAction === 'full' 
-                    ? "İşleniyor..." 
-                    : `Tam Ödeme - €${(pricing?.total ?? 0).toFixed(2)}`}
-                </Button>
-                
-                <Button
+                  {isProcessingPayment && currentAction === "full"
+                    ? "Processing..."
+                    : `Full Settlement — €${(pricing?.total ?? 0).toFixed(2)}`}
+                </button>
+
+                <button
                   type="button"
-                  variant="secondary"
-                  className="w-full flex items-center justify-center"
+                  className="btn-secondary py-3.5 px-6"
                   disabled={isProcessingPayment || pricingLoading || !checkInDate}
-                  onClick={() => handleAction('deposit')}
+                  onClick={() => handleAction("deposit")}
                 >
                   <Wallet className="w-4 h-4 mr-2" />
-                  {isProcessingPayment && currentAction === 'deposit'
-                    ? "İşleniyor..." 
-                    : `Depozito Öde - €${pricing?.deposit ? pricing.deposit.toFixed(2) : ((pricing?.total ?? 0) * 0.2).toFixed(2)}`}
-                </Button>
+                  {isProcessingPayment && currentAction === "deposit"
+                    ? "Processing..."
+                    : `20% Deposit — €${
+                        pricing?.deposit
+                          ? pricing.deposit.toFixed(2)
+                          : ((pricing?.total ?? 0) * 0.2).toFixed(2)
+                      }`}
+                </button>
 
-                <Button
+                <button
                   type="button"
-                  variant="outline"
-                  className="w-full"
+                  className="btn-outline py-3.5 px-6"
                   disabled={isProcessingPayment || !checkInDate}
-                  onClick={() => handleAction('reserve')}
+                  onClick={() => handleAction("reserve")}
                 >
-                  {isProcessingPayment && currentAction === 'reserve'
-                    ? "İşleniyor..." 
-                    : "Sadece Rezervasyon"}
-                </Button>
+                  {isProcessingPayment && currentAction === "reserve"
+                    ? "Processing..."
+                    : "Hold Reservation Only"}
+                </button>
               </div>
             ) : (
-              <Button type="button" onClick={nextStep}>
-                Next
+              <button
+                type="button"
+                onClick={nextStep}
+                className="btn-primary py-3.5 px-7"
+              >
+                Next Stage
                 <ChevronRight className="w-4 h-4 ml-2" />
-              </Button>
+              </button>
             )}
           </div>
         </form>

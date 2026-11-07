@@ -1,16 +1,9 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { CheckCircle, ArrowLeft, Info } from "lucide-react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { ArrowLeft, ArrowUpRight, Check } from "lucide-react";
 import { useVerifyPayment } from "@/hooks/usePayments";
 import { api } from "@/lib/api/client";
 
@@ -30,13 +23,11 @@ interface BookingDetails {
 
 export default function BookingSuccessClient() {
   const searchParams = useSearchParams();
-  const router = useRouter();
   const sessionId = searchParams.get("session_id");
   const bookingId = searchParams.get("booking_id");
   const isDemoParam = searchParams.get("demo") === "true";
   const verifyPayment = useVerifyPayment();
   const [bookingData, setBookingData] = useState<BookingDetails | null>(null);
-  const [isReservationOnly, setIsReservationOnly] = useState(false);
 
   const fetchReservationDetails = useCallback(
     async (id: string) => {
@@ -78,7 +69,7 @@ export default function BookingSuccessClient() {
             guest_name:
               [data.user?.first_name, data.user?.last_name]
                 .filter(Boolean)
-                .join(" ") || "N/A",
+                .join(" ") || "Traveler",
             guest_email: data.user?.email || "",
             booking_date: data.reservationDate,
             adults: data.numAdults,
@@ -113,31 +104,29 @@ export default function BookingSuccessClient() {
         },
       });
     } else if (bookingId && bookingId !== "undefined") {
-      setIsReservationOnly(true);
       fetchReservationDetails(bookingId);
     }
   }, [sessionId, bookingId, fetchReservationDetails]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!sessionId && (!bookingId || bookingId === "undefined")) {
     return (
-      <div className="flex-1 flex items-center justify-center pt-28 py-16">
-        <Card className="w-full max-w-md border-border">
-          <CardHeader>
-            <CardTitle className="text-center font-serif text-2xl">
-              No Booking Session Found
-            </CardTitle>
-            <CardDescription className="text-center">
-              Please select a journey from the tours catalog to begin a reservation.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button onClick={() => router.push("/tours")} className="w-full">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Explore Tours
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
+      <main className="pt-28 pb-24 bg-background min-h-screen flex items-center">
+        <div className="container">
+          <div className="max-w-lg mx-auto border border-border bg-card p-10 text-center space-y-4">
+            <span className="editorial-kicker block">NO ACTIVE MANIFEST</span>
+            <h1 className="font-serif text-3xl text-foreground">
+              No Reservation Session Found
+            </h1>
+            <p className="text-sm text-text-secondary">
+              Select a regional journey from our expedition catalogue to initiate a reservation dossier.
+            </p>
+            <Link href="/tours" className="btn-primary inline-flex mt-2">
+              <span>Explore Expedition Catalogue</span>
+              <ArrowUpRight className="ml-2 h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      </main>
     );
   }
 
@@ -147,147 +136,136 @@ export default function BookingSuccessClient() {
     Boolean(bookingId?.startsWith("DEMO-"));
 
   return (
-    <div className="pt-28 pb-20">
-      <section className="py-12">
-        <div className="container mx-auto px-4">
-          <div className="max-w-2xl mx-auto space-y-6">
-            {isDemoBooking && (
-              <div
-                role="status"
-                className="flex items-start gap-3 rounded-lg border border-primary/30 bg-primary/5 p-4 text-sm text-foreground"
-              >
-                <Info className="h-5 w-5 text-primary shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-semibold text-foreground">
-                    Template Demo Mode — Simulated Reservation
-                  </p>
-                  <p className="text-muted-foreground mt-1">
-                    This confirmation demonstrates the end-to-end NextStopTurkey
-                    booking flow using local sample data. No live payment was
-                    charged. Connect the Express/PostgreSQL backend and Stripe
-                    keys to process live reservations.
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {bookingData ? (
-              <Card className="border-border">
-                <CardHeader>
-                  <div className="flex items-center justify-center mb-4">
-                    <CheckCircle className="h-14 w-14 text-success" />
-                  </div>
-                  <CardTitle className="text-center font-serif text-3xl">
-                    {isDemoBooking
-                      ? "Demo Reservation Complete"
-                      : isReservationOnly
-                        ? "Reservation Confirmed"
-                        : "Payment & Booking Confirmed"}
-                  </CardTitle>
-                  <CardDescription className="text-center">
-                    {isDemoBooking
-                      ? "Your sample itinerary request has been recorded in this browser session."
-                      : "Your reservation details are summarized below."}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-6">
-                    <div className="bg-muted/40 p-6 rounded-lg border border-border/60">
-                      <h3 className="font-serif text-lg font-semibold mb-4">
-                        Booking Summary
-                      </h3>
-                      <dl className="space-y-2.5 text-sm">
-                        <div className="flex justify-between gap-4">
-                          <dt className="text-muted-foreground">Reference ID</dt>
-                          <dd className="font-mono font-medium text-foreground">
-                            {bookingData.id || "N/A"}
-                          </dd>
-                        </div>
-                        {bookingData.tour_title && (
-                          <div className="flex justify-between gap-4">
-                            <dt className="text-muted-foreground">Journey</dt>
-                            <dd className="font-medium text-right text-foreground">
-                              {bookingData.tour_title}
-                            </dd>
-                          </div>
-                        )}
-                        <div className="flex justify-between gap-4">
-                          <dt className="text-muted-foreground">Lead Traveler</dt>
-                          <dd className="font-medium text-foreground">
-                            {bookingData.guest_name || "N/A"}
-                          </dd>
-                        </div>
-                        {(bookingData.guest_email ||
-                          bookingData.contact_email) && (
-                          <div className="flex justify-between gap-4">
-                            <dt className="text-muted-foreground">Email</dt>
-                            <dd className="font-medium text-foreground">
-                              {bookingData.guest_email ||
-                                bookingData.contact_email}
-                            </dd>
-                          </div>
-                        )}
-                        <div className="flex justify-between gap-4">
-                          <dt className="text-muted-foreground">
-                            Departure Date
-                          </dt>
-                          <dd className="font-medium text-foreground tabular-nums">
-                            {bookingData.booking_date
-                              ? new Date(
-                                  bookingData.booking_date
-                                ).toLocaleDateString("en-GB", {
-                                  day: "2-digit",
-                                  month: "short",
-                                  year: "numeric",
-                                  timeZone: "UTC",
-                                })
-                              : "N/A"}
-                          </dd>
-                        </div>
-                        <div className="flex justify-between gap-4">
-                          <dt className="text-muted-foreground">Travelers</dt>
-                          <dd className="font-medium text-foreground tabular-nums">
-                            {bookingData.adults || 1} Adult
-                            {(bookingData.adults || 1) > 1 ? "s" : ""}
-                            {(bookingData.children ?? 0) > 0
-                              ? `, ${bookingData.children} Child${bookingData.children === 1 ? "" : "ren"}`
-                              : ""}
-                          </dd>
-                        </div>
-                        <div className="flex justify-between gap-4 pt-3 border-t border-border">
-                          <dt className="font-semibold text-foreground">
-                            Total Amount
-                          </dt>
-                          <dd className="font-serif text-lg font-semibold text-primary tabular-nums">
-                            €{bookingData.total_price || 0}
-                          </dd>
-                        </div>
-                      </dl>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <Button
-                        onClick={() => router.push("/tours")}
-                        className="w-full"
-                      >
-                        Explore More Journeys
-                      </Button>
-                      <Button
-                        onClick={() => router.push("/")}
-                        variant="outline"
-                        className="w-full"
-                      >
-                        <ArrowLeft className="h-4 w-4 mr-2" />
-                        Return to Atlas
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ) : null}
+    <main className="pt-24 pb-24 bg-background min-h-screen">
+      <div className="container max-w-3xl">
+        {isDemoBooking && (
+          <div
+            role="status"
+            className="mb-8 border border-primary bg-card p-5 text-xs leading-relaxed"
+          >
+            <span className="text-[10px] uppercase tracking-[0.16em] text-primary font-semibold block mb-1">
+              TEMPLATE PREVIEW MODE — SIMULATED RESERVATION MANIFEST
+            </span>
+            <p className="text-text-secondary">
+              This confirmation demonstrates the complete NextStopTurkey booking flow using local sample data. No live payment was charged. Connect the Express/PostgreSQL backend and Stripe keys to process live reservations.
+            </p>
           </div>
-        </div>
-      </section>
-    </div>
+        )}
+
+        {bookingData && (
+          <article className="border border-border bg-card">
+            {/* Dark Ink Header */}
+            <div className="p-8 sm:p-10 bg-foreground text-background flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+              <div className="space-y-2">
+                <span className="text-[10px] uppercase tracking-[0.18em] text-[#D89A8B] font-semibold block">
+                  DISPATCH CONFIRMATION · GALATA BUREAU
+                </span>
+                <h1 className="font-serif text-3xl sm:text-4xl text-background">
+                  {isDemoBooking
+                    ? "Expedition Dossier Logged"
+                    : "Reservation Confirmed"}
+                </h1>
+              </div>
+              <div className="w-12 h-12 bg-primary text-primary-foreground flex items-center justify-center shrink-0">
+                <Check className="h-6 w-6" />
+              </div>
+            </div>
+
+            {/* Tabular Manifest Details */}
+            <div className="p-8 sm:p-10 space-y-8">
+              <dl className="divide-y divide-border border-y border-border text-xs tabular-nums">
+                <div className="py-4 flex justify-between gap-4">
+                  <dt className="uppercase tracking-[0.14em] text-text-secondary">
+                    MANIFEST REFERENCE
+                  </dt>
+                  <dd className="font-mono font-semibold text-foreground">
+                    {bookingData.id || "N/A"}
+                  </dd>
+                </div>
+                {bookingData.tour_title && (
+                  <div className="py-4 flex justify-between gap-4">
+                    <dt className="uppercase tracking-[0.14em] text-text-secondary">
+                      EXPEDITION ROUTE
+                    </dt>
+                    <dd className="font-serif text-base text-right text-foreground">
+                      {bookingData.tour_title}
+                    </dd>
+                  </div>
+                )}
+                <div className="py-4 flex justify-between gap-4">
+                  <dt className="uppercase tracking-[0.14em] text-text-secondary">
+                    LEAD TRAVELER
+                  </dt>
+                  <dd className="font-medium text-foreground">
+                    {bookingData.guest_name || "Traveler"}
+                  </dd>
+                </div>
+                {(bookingData.guest_email || bookingData.contact_email) && (
+                  <div className="py-4 flex justify-between gap-4">
+                    <dt className="uppercase tracking-[0.14em] text-text-secondary">
+                      DISPATCH EMAIL
+                    </dt>
+                    <dd className="font-medium text-foreground">
+                      {bookingData.guest_email || bookingData.contact_email}
+                    </dd>
+                  </div>
+                )}
+                <div className="py-4 flex justify-between gap-4">
+                  <dt className="uppercase tracking-[0.14em] text-text-secondary">
+                    DEPARTURE DATE
+                  </dt>
+                  <dd className="font-medium text-foreground">
+                    {bookingData.booking_date
+                      ? new Date(bookingData.booking_date).toLocaleDateString(
+                          "en-GB",
+                          {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                            timeZone: "UTC",
+                          }
+                        )
+                      : "Scheduled"}
+                  </dd>
+                </div>
+                <div className="py-4 flex justify-between gap-4">
+                  <dt className="uppercase tracking-[0.14em] text-text-secondary">
+                    PARTY SIZE
+                  </dt>
+                  <dd className="font-medium text-foreground">
+                    {bookingData.adults || 1} Adult
+                    {(bookingData.adults || 1) > 1 ? "s" : ""}
+                    {(bookingData.children ?? 0) > 0
+                      ? `, ${bookingData.children} Child${
+                          bookingData.children === 1 ? "" : "ren"
+                        }`
+                      : ""}
+                  </dd>
+                </div>
+                <div className="py-4 flex justify-between items-baseline gap-4">
+                  <dt className="uppercase tracking-[0.14em] font-semibold text-foreground">
+                    TOTAL EXPEDITION TARIFF
+                  </dt>
+                  <dd className="font-serif text-3xl text-primary">
+                    €{bookingData.total_price || 0}
+                  </dd>
+                </div>
+              </dl>
+
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <Link href="/" className="btn-outline">
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Return to Atlas
+                </Link>
+                <Link href="/tours" className="btn-primary">
+                  <span>Explore More Routes</span>
+                  <ArrowUpRight className="ml-2 h-4 w-4" />
+                </Link>
+              </div>
+            </div>
+          </article>
+        )}
+      </div>
+    </main>
   );
 }

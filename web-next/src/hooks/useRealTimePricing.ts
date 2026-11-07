@@ -76,7 +76,7 @@ export const useRealTimePricing = (
       setIsLoading(true);
       setError(null);
 
-      if (isDemoMode() && demoMatch) {
+      if (demoMatch) {
         setPricing(
           buildPricingFromRates(
             demoMatch.price_adult,
