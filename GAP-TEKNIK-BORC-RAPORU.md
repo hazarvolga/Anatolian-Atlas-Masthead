@@ -13,7 +13,7 @@ Proje "Stable R5" olarak etiketlenmiş ve ana sayfa/tur/destinasyon listeleme DB
 
 | Metrik | Değer |
 |---|---|
-| Backend route handler | 49 |
+| Backend route handler | 57 |
 | Frontend'in çağırdığı farklı API yolu | 78 |
 | TypeScript hatası (`tsc --noEmit`) | **93** |
 | ESLint | **308 error / 23 warning** |
@@ -24,7 +24,7 @@ Proje "Stable R5" olarak etiketlenmiş ve ana sayfa/tur/destinasyon listeleme DB
 | CI workflow | **0** |
 | Production build | ✅ Geçiyor (tip kontrolü yapmıyor) |
 | Bundle | 1.462 kB JS (418 kB gzip), tek chunk |
-| Prisma modelleri | 17 · Migration dosyası: **2** (baseline + `add_page`) |
+| Prisma modelleri | 18 · Migration dosyası: **3** (baseline + `add_page` + `add_email_subscription`) |
 | Frontend LOC / backend LOC | ~39.900 / ~1.900 |
 
 **En kritik 5 bulgu**
@@ -119,6 +119,18 @@ Doğrulama: `npm run build` ✅; `node --check` ✅; değişen dosyalarda yeni t
 
 Doğrulama: `node --check` ✅; `npm run build` ✅. `backend/.env.example` test modu notlarıyla güncellendi (`sk_test_…`, `whsec_…` — `stripe listen`). Anahtarlar repoya işlenmiyor; `backend/.env` gitignored.
 
+### E-posta izinleri / abonelik — ✅ Tamamlandı (Sprint 1, altıncı adım)
+
+| # | Düzeltme | Dosya(lar) | Doğrulama |
+|---|---|---|---|
+| 39 | `EmailSubscription` modeli: e-posta + tür tekilliği, `is_subscribed`, `double_optin_confirmed`, onay zamanı, kaynak, IP/user-agent | `prisma/schema.prisma`, `prisma/migrations/20261107103000_add_email_subscription/` | `migrate deploy` ✅; `(email, subscription_type)` unique index oluştu |
+| 40 | İzin uçları: public durum sorgusu, sahibi/admin listeleme ve güncelleme; transactional kapatılamıyor, başka e-postaya erişim **403** | `backend/routes/emailSubscriptions.js` | `PUT` marketing → **200**; transactional off → **400**; başka e-posta → **403**; tokensiz token üretimi → **401** |
+| 41 | İmzalı unsubscribe ve double opt-in bağlantıları (JWT, 7 gün, amaç bağlı); süresi geçersiz/yanlış token **400** | `backend/routes/emailSubscriptions.js` | `confirm` → `double_optin_confirmed=true`; `unsubscribe` → `is_subscribed=false`; DB durumu doğrulandı |
+| 42 | `useEmailConsent` tüketicilerin beklediği sözleşmeye çekildi (`subscriptions`, `loading`, `fetchSubscriptions`, `unsubscribeViaToken`, `confirmDoubleOptin`, `generateUnsubscribeToken`) | `src/hooks/useEmailConsent.ts` | `/email-confirmation?token=…` → **"Email Confirmed!"** + e-posta/tür; `/unsubscribe?token=…` → **"Successfully Unsubscribed"** |
+| 43 | Admin **Consent & KVKK** sekmesi mock yerine gerçek veriyi okuyor; sayaçlar ve tablo canlı | `backend/routes/admin.js`, `src/components/admin/email/AdminEmailConsent.tsx` | Panelde 2 kayıt listelendi; sayaçlar **2 / 1 / 1 / 1**; konsolda hata yok |
+
+Doğrulama: `node --check` ✅; `npm run build` ✅; değişen frontend dosyalarında yeni lint hatası yok. Test abonelikleri ve test kullanıcısı silindi (`EmailSubscription` **0** satır). Gerçek gönderim (SMTP) hâlâ yok; şablon CRUD'u ve `emails/send` bu adımın dışında.
+
 ---
 
 
@@ -178,11 +190,12 @@ Doğrulanan canlı sonuçlar:
 - İlk bulgu: Frontend `usePayments.ts:25` → `/api/reservations`, sonra `useBookingSubmission.ts:89-93` "No payment URL received" fırlatıyor; `usePayments.ts:41` → `/api/payments/verify-session` (404); `BookingSuccess.tsx:45` Stripe `sessionId` bekliyor.
 - **Düzeltme:** Checkout Session, imzalı webhook, `verify-session` ve rezervasyon durum makinesi eklendi (bkz. #32–#38). Canlı kart testi, kullanıcı `sk_test_...` anahtarını `backend/.env`'e eklediğinde yapılacak.
 
-### P0-5 · E-posta altyapısı yok
+### P0-5 · E-posta altyapısı yok — ⏳ Kısmen düzeltildi
 - Backend'de nodemailer/SMTP kodu yok; `EmailTemplate`/`EmailLog` tabloları yalnızca şemada.
-- Frontend'in çağırdığı `/api/emails/send`, `/api/email-templates/*`, `/api/email-subscriptions/*`, `/api/send-welcome-account-email`, `/api/send-booking-guest-email` uçlarının **hiçbiri yok** (canlı 404).
+- Frontend'in çağırdığı `/api/emails/send`, `/api/email-templates/*`, `/api/send-welcome-account-email`, `/api/send-booking-guest-email` uçlarının **hiçbiri yok** (canlı 404).
+- ✅ **Düzeltildi:** `/api/email-subscriptions/*` (izin sorgu/güncelleme, imzalı unsubscribe ve double opt-in) ve admin listesi eklendi (bkz. #39–#43).
 - `src/emails/templates/*` React Email şablonları hiçbir yerden gönderilmiyor.
-- **Sonuç:** rezervasyon onayı, hoş geldin, bülten, unsubscribe akışlarının tamamı ölü.
+- **Sonuç:** izin/consent katmanı çalışıyor; rezervasyon onayı, hoş geldin, bülten gönderimi ve unsubscribe **e-postasının kendisi** SMTP olmadığı için hâlâ ölü.
 
 ### P0-6 · Public sayfa admin endpoint'ine gidiyor
 - `src/hooks/useSiteSettings.ts:44` → `/api/admin/site-settings` (auth gerekli).
@@ -289,7 +302,7 @@ Doğrulanan canlı sonuçlar:
 
 ### Sprint 1 — Ticari akış (3–5 gün)
 7. ✅ **Tamamlandı:** Stripe Checkout + webhook + `payments/verify-session`; rezervasyon durum makinesi (bkz. #32–#38). Canlı test anahtarı bekliyor.
-8. SMTP/nodemailer servisi + şablon gönderimi + rezervasyon onayı; bülten/consent ve unsubscribe uçları + şema modeli.
+8. ⏳ **Kısmen tamamlandı:** e-posta izin/abonelik katmanı + imzalı unsubscribe ve double opt-in hazır (bkz. #39–#43). SMTP/nodemailer servisi, şablon gönderimi ve bülten/consent uçlarının gönderim tarafı açık.
 9. Rol tekilliği: tek kaynak (`User.role` veya `UserRole`) seç; `req.user.id` tutarlılığı.
 10. JWT'yi httpOnly cookie'ye taşı; secret zorunluluğu ve prod config düzeltmesi.
 11. Rate limit'i endpoint bazlı yap (auth için sıkı, public read için gevşek).

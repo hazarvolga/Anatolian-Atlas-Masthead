@@ -1107,5 +1107,19 @@ router.put('/site-settings', adminMiddleware, async (req, res) => {
   }
 });
 
+// --- EMAIL SUBSCRIPTIONS --- //
+router.get('/email-subscriptions', async (req, res) => {
+  try {
+    const subscriptions = await prisma.emailSubscription.findMany({
+      orderBy: { consent_given_at: 'desc' },
+      take: 500,
+    });
+    res.json(subscriptions);
+  } catch (error) {
+    console.error('Failed to list email subscriptions:', error);
+    res.status(500).json({ message: 'Failed to retrieve email subscriptions.' });
+  }
+});
+
 
 export default router;
