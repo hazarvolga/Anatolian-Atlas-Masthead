@@ -32,7 +32,7 @@ export default function ReviewsTable({
 
   const handleApprove = async (reviewId: string) => {
     try {
-      await updateReviewStatus.mutateAsync({ reviewId, isVerified: true });
+      await updateReviewStatus.mutateAsync({ reviewId, is_verified: true });
     } catch (error) {
       console.error('Approve failed:', error);
     }
@@ -40,7 +40,7 @@ export default function ReviewsTable({
 
   const handleReject = async (reviewId: string) => {
     try {
-      await updateReviewStatus.mutateAsync({ reviewId, isVerified: false });
+      await updateReviewStatus.mutateAsync({ reviewId, is_verified: false });
     } catch (error) {
       console.error('Reject failed:', error);
     }

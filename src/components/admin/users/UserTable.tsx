@@ -21,7 +21,7 @@ export default function UserTable({ users, selectedUsers, onUserSelect }: UserTa
   const updateUserRole = useUpdateUserRole();
   
   const handleRoleChange = async (userId: string, newRole: 'admin' | 'moderator' | 'user' | 'super_admin') => {
-    await updateUserRole.mutateAsync({ userId, role: newRole });
+    await updateUserRole.mutateAsync({ userId, roleName: newRole });
   };
 
   const handleViewDetails = (user: any) => {

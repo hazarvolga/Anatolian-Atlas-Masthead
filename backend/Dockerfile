@@ -2,21 +2,20 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Build context is the repository root so the Prisma schema is available
+COPY backend/package*.json ./
+RUN npm install --no-audit --no-fund
 
-# Install dependencies (including dev dependencies for development)
-RUN npm config set registry https://registry.npmjs.org/
-RUN npm install --registry=https://registry.npmjs.org/ --prefer-offline --no-audit --progress=false
+COPY prisma ./prisma
+RUN DATABASE_URL="postgresql://placeholder:placeholder@localhost:5432/placeholder" \
+    npx prisma generate --schema ./prisma/schema.prisma
 
-# Copy source code
-COPY . .
+COPY backend/server.js ./
+COPY backend/config ./config
+COPY backend/middleware ./middleware
+COPY backend/routes ./routes
+COPY backend/scripts ./scripts
 
-# Create scripts directory if it doesn't exist
-RUN mkdir -p scripts
-
-# Expose port
 EXPOSE 3001
 
-# Start the development server
 CMD ["npm", "run", "dev"]

@@ -225,7 +225,7 @@ router.post('/tours', async (req, res) => {
                 metadata,
                 seo_title,
                 seo_description,
-                created_by_id: req.user.userId,
+                created_by_id: req.user.id,
             }
         });
         
@@ -825,11 +825,6 @@ router.get('/users', adminMiddleware, async (req, res) => {
             id: true,
           }
         },
-        userRoles: {
-          include: {
-            role: true,
-          }
-        }
       },
       orderBy: {
         created_at: 'desc'
@@ -844,7 +839,7 @@ router.get('/users', adminMiddleware, async (req, res) => {
       email_verified: user.email_verified,
       avatar_url: user.avatar_url,
       created_at: user.created_at,
-      role: user.userRoles[0]?.role?.name || 'user',
+      role: user.role,
       total_spent: user.reservations.reduce((acc, r) => acc + (r.totalPrice || 0), 0),
       reservation_count: user.reservations.length,
       review_count: user.reviews.length,
@@ -866,32 +861,16 @@ router.put('/users/:id/role', adminMiddleware, async (req, res) => {
     }
 
     try {
-        const role = await prisma.role.findUnique({ where: { name: roleName } });
-        if (!role) {
-            return res.status(404).json({ message: `Role '${roleName}' not found` });
+        const assignableRoles = ['user', 'guide', 'admin'];
+        if (!assignableRoles.includes(roleName)) {
+            return res.status(400).json({ message: `Invalid role: ${roleName}` });
         }
 
-        // Find if a user_role entry exists
-        const userRole = await prisma.userRole.findFirst({
-            where: { user_id: id },
+        await prisma.user.update({
+            where: { id },
+            data: { role: roleName },
         });
 
-        if (userRole) {
-            // Update existing role
-            await prisma.userRole.update({
-                where: { id: userRole.id },
-                data: { role_id: role.id },
-            });
-        } else {
-            // Create new role assignment
-            await prisma.userRole.create({
-                data: {
-                    user_id: id,
-                    role_id: role.id,
-                },
-            });
-        }
-        
         res.json({ message: `User role updated to ${roleName}` });
     } catch (error) {
         console.error(`Error updating user role for ${id}:`, error);
@@ -954,7 +933,7 @@ router.put('/site-settings', adminMiddleware, async (req, res) => {
     
     const updatedSettings = await prisma.siteSettings.update({
       where: { id: currentSettings.id },
-      data: settingsData,
+      data: { value: settingsData },
     });
     res.json(updatedSettings);
   } catch (error) {

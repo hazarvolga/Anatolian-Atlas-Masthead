@@ -80,7 +80,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signUp = async (email: string, password: string, firstName?: string, lastName?: string, phone?: string) => {
     try {
       setLoading(true);
-      const response = await axios.post(`${API_BASE_URL}/api/auth/register`, { email, password, firstName, lastName, phone });
+      const response = await axios.post(`${API_BASE_URL}/api/auth/register`, { email, password, first_name: firstName, last_name: lastName, phone });
       const { user: userData, token: authToken } = response.data;
 
       localStorage.setItem('authToken', authToken);

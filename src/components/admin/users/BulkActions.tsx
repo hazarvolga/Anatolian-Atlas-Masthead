@@ -41,7 +41,7 @@ export default function BulkActions({ users, selectedUsers, setSelectedUsers }: 
 
     try {
       for (const userId of selectedUsers) {
-        await updateUserRole.mutateAsync({ userId, role: bulkRole as any });
+        await updateUserRole.mutateAsync({ userId, roleName: bulkRole as any });
       }
       toast.success(`Updated ${selectedUsers.length} user(s) to ${bulkRole}`);
       setSelectedUsers([]);

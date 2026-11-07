@@ -15,7 +15,7 @@ echo "🐳 Building Docker images..."
 docker build -f Dockerfile.prod -t nextstopturkey-frontend:latest .
 
 # Build backend image
-docker build -t nextstopturkey-backend:latest ./backend
+docker build -f backend/Dockerfile -t nextstopturkey-backend:latest .
 
 # Create production docker-compose file
 cat > docker-compose.prod.yml << 'EOF'
@@ -33,7 +33,6 @@ services:
       - "5432:5432"
     volumes:
       - postgres_prod_data:/var/lib/postgresql/data
-      - ./backend/migrations:/docker-entrypoint-initdb.d
     networks:
       - tours-network
     restart: unless-stopped
@@ -52,6 +51,7 @@ services:
       - "3001:3001"
     depends_on:
       - postgres
+    command: sh -c "npx prisma migrate deploy --schema ./prisma/schema.prisma && npm start"
     networks:
       - tours-network
     restart: unless-stopped
@@ -83,7 +83,7 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm ci --no-audit --no-fund
 COPY . .
 RUN npm run build
 

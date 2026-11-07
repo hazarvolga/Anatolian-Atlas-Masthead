@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { useIsAdmin } from "@/hooks/useUserRole";
+import { useIsAdmin, useUserRole } from "@/hooks/useUserRole";
 import { Navigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -28,8 +28,9 @@ import EmailDeliverySettings from "@/components/admin/email/EmailDeliverySetting
 import EmailDeliveryTest from "@/components/admin/email/EmailDeliveryTest";
 
 export default function Admin() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const isAdmin = useIsAdmin();
+  const { isLoading: isRoleLoading } = useUserRole();
   const [searchParams, setSearchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState("stats");
 
@@ -51,8 +52,8 @@ export default function Admin() {
     setSearchParams({ tab });
   };
 
-  // Don't render anything while loading auth state
-  if (user === undefined) {
+  // Wait for auth and role state before deciding
+  if (loading || isRoleLoading) {
     return null;
   }
 

@@ -27,7 +27,7 @@ export const useUpdateReviewStatus = () => {
   
   return useMutation({
     mutationFn: async ({ reviewId, is_verified }: { reviewId: string, is_verified: boolean }) => {
-      const { data } = await axios.put(`${API_BASE_URL}/api/admin/reviews/${reviewId}/status`, { is_verified }, { headers: getAuthHeaders() });
+      const { data } = await axios.put(`${API_BASE_URL}/api/admin/reviews/${reviewId}/verify`, { is_verified }, { headers: getAuthHeaders() });
       return data;
     },
     onSuccess: () => {

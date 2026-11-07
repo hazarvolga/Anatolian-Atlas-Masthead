@@ -41,7 +41,7 @@ export function useSiteSettings() {
   const { data: settings, isLoading, error, refetch } = useQuery<SiteSettings | null>({
     queryKey: ["site-settings"],
     queryFn: async () => {
-      const { data } = await axios.get(`${API_BASE_URL}/api/admin/site-settings`, { headers: getAuthHeaders() });
+      const { data } = await axios.get(`${API_BASE_URL}/api/site-settings`);
       return data;
     },
   });

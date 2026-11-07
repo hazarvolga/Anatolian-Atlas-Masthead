@@ -22,9 +22,9 @@ export const useTours = () => {
           max_group_size: tour.max_participants || tour.max_group_size || 20,
           highlights: tour.includes || tour.highlights || [],
           rating: tour.rating || 4.5, // Default rating
-          difficulty: tour.difficulty_level || 'easy',
+          difficulty: tour.difficulty || 'easy',
           location: tour.destination_name || tour.location || 'Unknown',
-          price: parseFloat(tour.price) || 0,
+          price: parseFloat(tour.price_adult) || 0,
           destinations: tour.destination_id ? {
             id: tour.destination_id,
             name: tour.destination_name,

@@ -75,6 +75,16 @@ app.get('/health', async (req, res) => {
   }
 });
 
+// Public site settings (read-only)
+app.get('/api/site-settings', async (req, res) => {
+  try {
+    const settings = await prisma.siteSettings.findFirst();
+    res.json(settings?.value || {});
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch site settings' });
+  }
+});
+
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/tours', toursRoutes);

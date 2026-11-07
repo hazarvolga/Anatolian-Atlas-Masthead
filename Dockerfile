@@ -18,6 +18,3 @@ EXPOSE 5173
 
 # Start development server
 CMD ["npm", "run", "dev", "--", "--host"]
-
-# Start nginx
-CMD ["nginx", "-g", "daemon off;"]

@@ -14,14 +14,14 @@ router.get('/tour/:tourId', async (req, res) => {
       include: {
         user: {
           select: {
-            firstName: true,
-            lastName: true,
-            avatarUrl: true,
+            first_name: true,
+            last_name: true,
+            avatar_url: true,
           },
         },
       },
       orderBy: {
-        createdAt: 'desc',
+        created_at: 'desc',
       },
     });
     res.json(reviews);

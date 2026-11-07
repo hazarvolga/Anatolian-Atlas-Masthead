@@ -17,6 +17,9 @@ export default function SignupForm() {
     password: "",
     fullName: "",
     confirmPassword: "",
+    firstName: "",
+    lastName: "",
+    phone: "",
   });
 
   const handleSignup = async (e: React.FormEvent) => {

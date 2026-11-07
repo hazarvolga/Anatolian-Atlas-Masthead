@@ -36,7 +36,7 @@ export default function ReviewsBulkActions({
     try {
       await bulkUpdateReviews.mutateAsync({ 
         reviewIds: selectedReviews, 
-        isVerified: true 
+        is_verified: true 
       });
       setSelectedReviews([]);
     } catch (error) {
@@ -53,7 +53,7 @@ export default function ReviewsBulkActions({
     try {
       await bulkUpdateReviews.mutateAsync({ 
         reviewIds: selectedReviews, 
-        isVerified: false 
+        is_verified: false 
       });
       setSelectedReviews([]);
     } catch (error) {

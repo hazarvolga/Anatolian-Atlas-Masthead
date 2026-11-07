@@ -1,26 +1,18 @@
+import { spawnSync } from 'child_process';
 import fs from 'fs';
-import path from 'path';
-import { pool } from '../config/database.js';
 
-async function runMigrations() {
-  try {
-    console.log('🔄 Running database migrations...');
-    
-    const migrationFile = path.join(process.cwd(), 'migrations', '001_initial_schema.sql');
-    
-    if (fs.existsSync(migrationFile)) {
-      const sql = fs.readFileSync(migrationFile, 'utf8');
-      await pool.query(sql);
-      console.log('✅ Migrations completed successfully');
-    } else {
-      console.log('⚠️  No migration file found');
-    }
-  } catch (error) {
-    console.error('❌ Migration failed:', error);
-    process.exit(1);
-  } finally {
-    await pool.end();
-  }
+const schemas = ['prisma/schema.prisma', '../prisma/schema.prisma'];
+const schema = schemas.find((candidate) => fs.existsSync(candidate));
+
+if (!schema) {
+  console.error('❌ Prisma schema not found');
+  process.exit(1);
 }
 
-runMigrations();
+const result = spawnSync(
+  'npx',
+  ['prisma', 'migrate', 'deploy', '--schema', schema],
+  { stdio: 'inherit' }
+);
+
+process.exit(result.status ?? 1);

@@ -13,6 +13,8 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
+    "db:migrate": "prisma migrate deploy",
+    "db:generate": "prisma generate",
     "docker:dev": "docker-compose up -d --build",
     "docker:prod": "docker-compose -f docker-compose.prod.yml up -d --build",
     "docker:stop": "docker-compose down",

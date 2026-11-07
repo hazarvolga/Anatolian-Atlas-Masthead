@@ -12,13 +12,14 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./backend/migrations:/docker-entrypoint-initdb.d
     networks:
       - tours-network
 
   # Express.js Backend API
   backend:
-    build: ./backend
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
     container_name: tours-backend
     environment:
       NODE_ENV: development
@@ -31,10 +32,11 @@ services:
       - postgres
     volumes:
       - ./backend:/app
+      - ./prisma:/app/prisma:ro
       - /app/node_modules
     networks:
       - tours-network
-    command: npm run dev
+    command: sh -c "npx prisma migrate deploy --schema ./prisma/schema.prisma && npm run dev"
 
   # React Frontend (Vite)
   frontend:

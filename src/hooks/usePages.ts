@@ -45,6 +45,7 @@ export const usePage = (slug: string) => {
       }
     },
     enabled: !!slug,
+    retry: false,
   });
 };
 

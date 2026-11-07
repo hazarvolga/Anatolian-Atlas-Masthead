@@ -32,6 +32,8 @@ dist-ssr
 
 # Database and migration related files (from Supabase migration)
 *.sql
+# Prisma migrations must be versioned
+!prisma/migrations/**/*.sql
 progress_notes.md
 README_MIGRATION_NOTE.txt
 REMOVE_ME_MANUALLY.txt

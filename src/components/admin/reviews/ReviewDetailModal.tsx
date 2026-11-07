@@ -19,7 +19,7 @@ export default function ReviewDetailModal({ review, isOpen, onClose }: ReviewDet
 
   const handleApprove = async () => {
     try {
-      await updateReviewStatus.mutateAsync({ reviewId: review.id, isVerified: true });
+      await updateReviewStatus.mutateAsync({ reviewId: review.id, is_verified: true });
       onClose();
     } catch (error) {
       console.error('Approve failed:', error);
@@ -28,7 +28,7 @@ export default function ReviewDetailModal({ review, isOpen, onClose }: ReviewDet
 
   const handleReject = async () => {
     try {
-      await updateReviewStatus.mutateAsync({ reviewId: review.id, isVerified: false });
+      await updateReviewStatus.mutateAsync({ reviewId: review.id, is_verified: false });
       onClose();
     } catch (error) {
       console.error('Reject failed:', error);
