@@ -1,0 +1,508 @@
+/* Global styles for the Next.js App Router app.
+ * Generated from the legacy Vite stylesheets (src/styles/{themes,base,components,utilities}.css).
+ * The @tailwind directives were hoisted here because base.css used to own them.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===== src/styles/themes.css ===== */
+@layer base {
+  :root {
+    /* Modern Blue Theme - Light Mode */
+    
+    /* Primary Blue Color System */
+    --blue-light: 202 91% 88%; /* #9498F2 - Light Blue-Purple */
+    --blue-medium: 203 54% 32%; /* #115D8C - Medium Blue */
+    --blue-dark: 205 72% 20%; /* #0B3B59 - Dark Blue */
+    --blue-vibrant: 191 94% 49%; /* #05DBF2 - Vibrant Turquoise */
+    --neutral-light: 210 22% 95%; /* #F0F1F2 - Light Neutral */
+    
+    /* Base Colors */
+    --background: var(--neutral-light);
+    --foreground: var(--blue-dark);
+    
+    /* Surface Colors */
+    --card: var(--neutral-light);
+    --card-foreground: var(--blue-dark);
+    --popover: var(--neutral-light);
+    --popover-foreground: var(--blue-dark);
+    
+    /* Semantic Colors */
+    --primary: var(--blue-vibrant);
+    --primary-foreground: var(--neutral-light);
+    --secondary: var(--blue-light);
+    --secondary-foreground: var(--blue-dark);
+    --accent: var(--blue-vibrant);
+    --accent-foreground: var(--neutral-light);
+    
+    /* Text Hierarchy */
+    --text-primary: var(--blue-dark);
+    --text-secondary: var(--blue-medium);
+    --text-tertiary: var(--blue-light);
+    --text-disabled: 210 22% 70%;
+    
+    /* Interactive States */
+    --muted: var(--blue-light);
+    --muted-foreground: var(--blue-medium);
+    --border: var(--blue-light);
+    --input: var(--blue-light);
+    --ring: var(--blue-vibrant);
+    
+    /* Status Colors */
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: var(--neutral-light);
+    --success: 142.1 76.2% 36.3%;
+    --success-foreground: var(--neutral-light);
+    --warning: 47.9 95.8% 53.1%;
+    --warning-foreground: var(--blue-dark);
+    
+    /* Surface Variants */
+    --surface-elevated: 210 22% 98%;
+    --surface-container: var(--blue-light);
+    --surface-container-high: 202 91% 95%;
+    --surface-glass: 210 22% 95% / 0.8;
+    
+    /* Enhanced Shadows with Blue Tint */
+    --shadow-sm: 0 1px 2px 0 hsl(var(--blue-medium) / 0.05);
+    --shadow: 0 1px 3px 0 hsl(var(--blue-medium) / 0.1), 0 1px 2px -1px hsl(var(--blue-medium) / 0.1);
+    --shadow-md: 0 4px 6px -1px hsl(var(--blue-medium) / 0.1), 0 2px 4px -2px hsl(var(--blue-medium) / 0.1);
+    --shadow-lg: 0 10px 15px -3px hsl(var(--blue-medium) / 0.1), 0 4px 6px -4px hsl(var(--blue-medium) / 0.1);
+    --shadow-xl: 0 20px 25px -5px hsl(var(--blue-medium) / 0.1), 0 10px 10px -5px hsl(var(--blue-medium) / 0.04);
+    
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    /* Modern Blue Theme - Dark Mode */
+    
+    /* Base Colors */
+    --background: var(--blue-dark);
+    --foreground: var(--neutral-light);
+    
+    /* Surface Colors */
+    --card: var(--blue-medium);
+    --card-foreground: var(--neutral-light);
+    --popover: var(--blue-medium);
+    --popover-foreground: var(--neutral-light);
+    
+    /* Semantic Colors */
+    --primary: var(--blue-vibrant);
+    --primary-foreground: var(--blue-dark);
+    --secondary: var(--blue-medium);
+    --secondary-foreground: var(--blue-light);
+    --accent: var(--blue-vibrant);
+    --accent-foreground: var(--blue-dark);
+    
+    /* Text Hierarchy */
+    --text-primary: var(--neutral-light);
+    --text-secondary: var(--blue-light);
+    --text-tertiary: var(--blue-medium);
+    --text-disabled: 205 72% 45%;
+    
+    /* Interactive States */
+    --muted: var(--blue-medium);
+    --muted-foreground: var(--blue-light);
+    --border: var(--blue-light);
+    --input: var(--blue-dark);
+    --ring: var(--blue-vibrant);
+    
+    /* Status Colors */
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: var(--neutral-light);
+    --success: 142.1 80% 45%;
+    --success-foreground: var(--blue-dark);
+    --warning: 47.9 95.8% 53.1%;
+    --warning-foreground: var(--blue-dark);
+    
+    /* Surface Variants */
+    --surface-elevated: 205 72% 25%;
+    --surface-container: var(--blue-medium);
+    --surface-container-high: 205 72% 30%;
+    --surface-glass: var(--blue-medium) / 0.8;
+    
+    /* Enhanced Dark Shadows */
+    --shadow-sm: 0 1px 2px 0 hsl(var(--blue-dark) / 0.3);
+    --shadow: 0 1px 3px 0 hsl(var(--blue-dark) / 0.4), 0 1px 2px -1px hsl(var(--blue-dark) / 0.4);
+    --shadow-md: 0 4px 6px -1px hsl(var(--blue-dark) / 0.4), 0 2px 4px -2px hsl(var(--blue-dark) / 0.4);
+    --shadow-lg: 0 10px 15px -3px hsl(var(--blue-dark) / 0.4), 0 4px 6px -4px hsl(var(--blue-dark) / 0.4);
+    --shadow-xl: 0 20px 25px -5px hsl(var(--blue-dark) / 0.4), 0 10px 10px -5px hsl(var(--blue-dark) / 0.04);
+  }
+}
+
+/* ===== src/styles/base.css (without @import/@tailwind) ===== */
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family: var(--font-sans), 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    transition: background-color 300ms ease, color 300ms ease;
+    line-height: 1.7;
+    font-feature-settings: "cv11", "cv04", "cv03", "cv02";
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* Modern Typography Hierarchy */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-serif), 'Playfair Display', 'Poppins', 'Inter', serif;
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.025em;
+    @apply text-text-primary;
+  }
+
+  h1 {
+    @apply text-4xl md:text-5xl lg:text-6xl xl:text-7xl;
+    font-weight: 800;
+  }
+
+  h2 {
+    @apply text-3xl md:text-4xl lg:text-5xl xl:text-6xl;
+    font-weight: 700;
+  }
+
+  h3 {
+    @apply text-2xl md:text-3xl lg:text-4xl;
+    font-weight: 600;
+  }
+
+  h4 {
+    @apply text-xl md:text-2xl lg:text-3xl;
+    font-weight: 600;
+  }
+
+  h5 {
+    @apply text-lg md:text-xl lg:text-2xl;
+    font-weight: 500;
+  }
+
+  h6 {
+    @apply text-base md:text-lg lg:text-xl;
+    font-weight: 500;
+  }
+
+  p {
+    line-height: 1.7;
+    @apply text-text-secondary;
+    font-weight: 400;
+  }
+
+  /* Enhanced theme transitions */
+  *,
+  *::before,
+  *::after {
+    transition: background-color 300ms ease, border-color 300ms ease, color 300ms ease, box-shadow 300ms ease, transform 200ms ease;
+  }
+
+  /* Modern Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-muted/50 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-primary/60 rounded-full;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-primary/80;
+  }
+
+  /* Selection colors */
+  ::selection {
+    @apply bg-primary/20 text-primary;
+  }
+
+  /* Focus indicators */
+  :focus-visible {
+    @apply outline-2 outline-primary/50 outline-offset-2;
+  }
+
+  /* Link styles */
+  a {
+    @apply text-primary hover:text-primary/80 transition-colors duration-200;
+  }
+
+  /* Button reset */
+  button {
+    font-family: inherit;
+  }
+
+  /* Input placeholders */
+  input::placeholder,
+  textarea::placeholder {
+    @apply text-text-tertiary;
+  }
+
+  /* Modern glass effects */
+  .glass-effect {
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+  }
+
+  /* Gradient text */
+  .gradient-text {
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+/* ===== src/styles/components.css ===== */
+@layer components {
+  .container {
+    @apply px-4 md:px-6 lg:px-8 mx-auto max-w-7xl;
+  }
+  
+  /* Modern Blue Theme Button System */
+  .btn-primary {
+    @apply bg-primary text-primary-foreground 
+           rounded-xl px-8 py-4 font-semibold text-base transition-all duration-300 
+           shadow-lg hover:shadow-xl hover:shadow-primary/25 hover:bg-primary/90 
+           active:scale-[0.98] transform hover:-translate-y-0.5
+           focus:outline-none focus:ring-2 focus:ring-primary/50;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary text-secondary-foreground 
+           rounded-xl px-8 py-4 font-semibold text-base transition-all duration-300 
+           shadow-md hover:shadow-lg hover:shadow-secondary/20 hover:bg-secondary/90 
+           active:scale-[0.98] transform hover:-translate-y-0.5
+           focus:outline-none focus:ring-2 focus:ring-secondary/50;
+  }
+
+  .btn-outline {
+    @apply border-2 border-primary text-primary bg-transparent 
+           rounded-xl px-8 py-4 font-semibold text-base transition-all duration-300 
+           hover:bg-primary hover:text-primary-foreground hover:shadow-lg hover:shadow-primary/25
+           active:scale-[0.98] transform hover:-translate-y-0.5
+           focus:outline-none focus:ring-2 focus:ring-primary/50;
+  }
+
+  .btn-ghost {
+    @apply text-primary bg-transparent hover:bg-primary/10 
+           rounded-xl px-6 py-3 font-medium transition-all duration-300 
+           active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-primary/50;
+  }
+  
+  /* Modern Card System with Blue Theme */
+  .card-elevated {
+    @apply bg-card border border-border/50 rounded-2xl shadow-lg 
+           hover:shadow-2xl hover:shadow-primary/10 transition-all duration-500
+           hover:-translate-y-2 transform;
+  }
+
+  .card-container {
+    @apply bg-card border border-border/30 rounded-2xl shadow-sm 
+           hover:shadow-lg hover:shadow-primary/5 transition-all duration-300
+           hover:-translate-y-1 transform;
+  }
+
+  .glass-card {
+    @apply bg-card/80 backdrop-blur-xl border border-border/20 
+           rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-500
+           hover:-translate-y-2 transform;
+  }
+
+  .glass-navbar {
+    @apply bg-background/80 backdrop-blur-xl border-b border-border/20;
+  }
+  
+  /* Enhanced Section Spacing */
+  .section {
+    @apply py-20 md:py-24 lg:py-32;
+  }
+
+  .section-sm {
+    @apply py-16 md:py-20 lg:py-24;
+  }
+
+  /* Modern Form Elements */
+  .form-input {
+    @apply w-full px-6 py-4 rounded-xl border-2 border-border/50 bg-surface-elevated
+           focus:border-primary focus:ring-4 focus:ring-primary/20
+           transition-all duration-300 placeholder:text-text-tertiary
+           text-text-primary font-medium;
+  }
+
+  .form-label {
+    @apply block text-sm font-bold text-text-primary mb-3 tracking-wide;
+  }
+
+  /* Premium Tour Card Design */
+  .tour-card {
+    @apply relative overflow-hidden rounded-2xl bg-card border border-border/30
+           shadow-lg hover:shadow-2xl hover:shadow-primary/15
+           transition-all duration-500 hover:-translate-y-3 transform
+           cursor-pointer;
+  }
+
+  .tour-card-image {
+    @apply relative overflow-hidden h-64 md:h-72;
+  }
+
+  .tour-card-overlay {
+    @apply absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/80
+           transition-all duration-500 group-hover:to-black/60;
+  }
+
+  .tour-card-content {
+    @apply absolute bottom-0 left-0 right-0 p-6 text-white z-10;
+  }
+
+  .tour-card-title {
+    @apply text-xl md:text-2xl font-bold mb-2 line-clamp-2;
+  }
+
+  .tour-card-price {
+    @apply text-2xl md:text-3xl font-bold text-primary mb-4;
+  }
+
+  .tour-card-features {
+    @apply flex flex-wrap gap-2 mb-4;
+  }
+
+  .tour-card-feature {
+    @apply px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-sm font-medium;
+  }
+
+  /* Enhanced Admin Styles */
+  .admin-sidebar {
+    @apply bg-surface-elevated border-r border-border/30 h-full;
+  }
+
+  .admin-content {
+    @apply bg-background min-h-screen;
+  }
+
+  .admin-card {
+    @apply bg-surface-elevated border border-border/30 rounded-2xl shadow-sm
+           hover:shadow-lg hover:shadow-primary/5 transition-all duration-300;
+  }
+
+  /* Modern Data Table */
+  .data-table {
+    @apply bg-surface-elevated rounded-2xl border border-border/30 overflow-hidden;
+  }
+
+  .data-table-header {
+    @apply bg-surface-container px-6 py-4 border-b border-border/30;
+  }
+
+  .data-table-row {
+    @apply border-b border-border/20 hover:bg-surface-container/50 transition-colors duration-200;
+  }
+
+  .data-table-cell {
+    @apply px-6 py-4 text-sm;
+  }
+
+  /* Hero Section Styles */
+  .hero-gradient {
+    @apply bg-gradient-to-br from-background via-surface-container to-surface-container-high;
+  }
+
+  .hero-title {
+    @apply text-4xl md:text-5xl lg:text-6xl font-bold text-text-primary mb-6;
+  }
+
+  .hero-subtitle {
+    @apply text-xl md:text-2xl text-text-secondary mb-8 max-w-2xl;
+  }
+
+  /* Filter Styles */
+  .filter-container {
+    @apply bg-surface-container rounded-2xl p-6 border border-border/30;
+  }
+
+  .filter-item {
+    @apply p-3 rounded-xl border border-border/30 hover:border-primary/50 
+           transition-all duration-200 cursor-pointer;
+  }
+
+  .filter-item.active {
+    @apply border-primary bg-primary/10 text-primary;
+  }
+
+  /* Navigation Styles */
+  .nav-link {
+    @apply px-4 py-2 rounded-lg font-medium text-text-secondary 
+           hover:text-primary hover:bg-primary/10 transition-all duration-200;
+  }
+
+  .nav-link.active {
+    @apply text-primary bg-primary/10;
+  }
+}
+
+/* ===== src/styles/utilities.css ===== */
+@layer components {
+  /* Text Utilities */
+  .text-primary {
+    @apply text-text-primary;
+  }
+
+  .text-secondary {
+    @apply text-text-secondary;
+  }
+
+  .text-tertiary {
+    @apply text-text-tertiary;
+  }
+
+  .text-disabled {
+    @apply text-text-disabled;
+  }
+
+  /* Animation Utilities */
+  .animate-fade-in {
+    animation: fadeIn 0.6s ease-out;
+  }
+
+  .animate-slide-up {
+    animation: slideUp 0.6s ease-out;
+  }
+
+  .animate-scale-in {
+    animation: scaleIn 0.4s ease-out;
+  }
+
+  /* Focus States */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent;
+  }
+
+  /* Hover States */
+  .hover-lift {
+    @apply hover:transform hover:-translate-y-1 transition-transform duration-300;
+  }
+}
+
+/* Keyframes */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(40px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}

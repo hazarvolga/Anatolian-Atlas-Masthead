@@ -1,0 +1,123 @@
+
+@layer base {
+  :root {
+    /* Modern Blue Theme - Light Mode */
+    
+    /* Primary Blue Color System */
+    --blue-light: 202 91% 88%; /* #9498F2 - Light Blue-Purple */
+    --blue-medium: 203 54% 32%; /* #115D8C - Medium Blue */
+    --blue-dark: 205 72% 20%; /* #0B3B59 - Dark Blue */
+    --blue-vibrant: 191 94% 49%; /* #05DBF2 - Vibrant Turquoise */
+    --neutral-light: 210 22% 95%; /* #F0F1F2 - Light Neutral */
+    
+    /* Base Colors */
+    --background: var(--neutral-light);
+    --foreground: var(--blue-dark);
+    
+    /* Surface Colors */
+    --card: var(--neutral-light);
+    --card-foreground: var(--blue-dark);
+    --popover: var(--neutral-light);
+    --popover-foreground: var(--blue-dark);
+    
+    /* Semantic Colors */
+    --primary: var(--blue-vibrant);
+    --primary-foreground: var(--neutral-light);
+    --secondary: var(--blue-light);
+    --secondary-foreground: var(--blue-dark);
+    --accent: var(--blue-vibrant);
+    --accent-foreground: var(--neutral-light);
+    
+    /* Text Hierarchy */
+    --text-primary: var(--blue-dark);
+    --text-secondary: var(--blue-medium);
+    --text-tertiary: var(--blue-light);
+    --text-disabled: 210 22% 70%;
+    
+    /* Interactive States */
+    --muted: var(--blue-light);
+    --muted-foreground: var(--blue-medium);
+    --border: var(--blue-light);
+    --input: var(--blue-light);
+    --ring: var(--blue-vibrant);
+    
+    /* Status Colors */
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: var(--neutral-light);
+    --success: 142.1 76.2% 36.3%;
+    --success-foreground: var(--neutral-light);
+    --warning: 47.9 95.8% 53.1%;
+    --warning-foreground: var(--blue-dark);
+    
+    /* Surface Variants */
+    --surface-elevated: 210 22% 98%;
+    --surface-container: var(--blue-light);
+    --surface-container-high: 202 91% 95%;
+    --surface-glass: 210 22% 95% / 0.8;
+    
+    /* Enhanced Shadows with Blue Tint */
+    --shadow-sm: 0 1px 2px 0 hsl(var(--blue-medium) / 0.05);
+    --shadow: 0 1px 3px 0 hsl(var(--blue-medium) / 0.1), 0 1px 2px -1px hsl(var(--blue-medium) / 0.1);
+    --shadow-md: 0 4px 6px -1px hsl(var(--blue-medium) / 0.1), 0 2px 4px -2px hsl(var(--blue-medium) / 0.1);
+    --shadow-lg: 0 10px 15px -3px hsl(var(--blue-medium) / 0.1), 0 4px 6px -4px hsl(var(--blue-medium) / 0.1);
+    --shadow-xl: 0 20px 25px -5px hsl(var(--blue-medium) / 0.1), 0 10px 10px -5px hsl(var(--blue-medium) / 0.04);
+    
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    /* Modern Blue Theme - Dark Mode */
+    
+    /* Base Colors */
+    --background: var(--blue-dark);
+    --foreground: var(--neutral-light);
+    
+    /* Surface Colors */
+    --card: var(--blue-medium);
+    --card-foreground: var(--neutral-light);
+    --popover: var(--blue-medium);
+    --popover-foreground: var(--neutral-light);
+    
+    /* Semantic Colors */
+    --primary: var(--blue-vibrant);
+    --primary-foreground: var(--blue-dark);
+    --secondary: var(--blue-medium);
+    --secondary-foreground: var(--blue-light);
+    --accent: var(--blue-vibrant);
+    --accent-foreground: var(--blue-dark);
+    
+    /* Text Hierarchy */
+    --text-primary: var(--neutral-light);
+    --text-secondary: var(--blue-light);
+    --text-tertiary: var(--blue-medium);
+    --text-disabled: 205 72% 45%;
+    
+    /* Interactive States */
+    --muted: var(--blue-medium);
+    --muted-foreground: var(--blue-light);
+    --border: var(--blue-light);
+    --input: var(--blue-dark);
+    --ring: var(--blue-vibrant);
+    
+    /* Status Colors */
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: var(--neutral-light);
+    --success: 142.1 80% 45%;
+    --success-foreground: var(--blue-dark);
+    --warning: 47.9 95.8% 53.1%;
+    --warning-foreground: var(--blue-dark);
+    
+    /* Surface Variants */
+    --surface-elevated: 205 72% 25%;
+    --surface-container: var(--blue-medium);
+    --surface-container-high: 205 72% 30%;
+    --surface-glass: var(--blue-medium) / 0.8;
+    
+    /* Enhanced Dark Shadows */
+    --shadow-sm: 0 1px 2px 0 hsl(var(--blue-dark) / 0.3);
+    --shadow: 0 1px 3px 0 hsl(var(--blue-dark) / 0.4), 0 1px 2px -1px hsl(var(--blue-dark) / 0.4);
+    --shadow-md: 0 4px 6px -1px hsl(var(--blue-dark) / 0.4), 0 2px 4px -2px hsl(var(--blue-dark) / 0.4);
+    --shadow-lg: 0 10px 15px -3px hsl(var(--blue-dark) / 0.4), 0 4px 6px -4px hsl(var(--blue-dark) / 0.4);
+    --shadow-xl: 0 20px 25px -5px hsl(var(--blue-dark) / 0.4), 0 10px 10px -5px hsl(var(--blue-dark) / 0.04);
+  }
+}
