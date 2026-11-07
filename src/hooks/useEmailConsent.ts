@@ -100,6 +100,37 @@ export const useEmailConsent = () => {
     }
   };
 
+  const unsubscribeTypes = async (email: string, subscriptionTypes: string[]): Promise<boolean> => {
+    try {
+      setLoading(true);
+      await Promise.all(
+        subscriptionTypes.map((type) =>
+          axios.put(
+            `${API_BASE_URL}/api/email-subscriptions/${encodeURIComponent(email)}/${type}`,
+            { is_subscribed: false },
+            { headers: getAuthHeaders() }
+          )
+        )
+      );
+
+      toast({
+        title: 'Success',
+        description: 'Your email preferences were updated',
+      });
+      return true;
+    } catch (error) {
+      console.error('Error unsubscribing:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update email preferences',
+        variant: 'destructive',
+      });
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const checkConsent = async (email: string, subscriptionType: string): Promise<boolean> => {
     try {
       const response = await axios.get(
@@ -165,6 +196,7 @@ export const useEmailConsent = () => {
     fetchUserConsents,
     fetchSubscriptions,
     updateConsent,
+    unsubscribeTypes,
     checkConsent,
     unsubscribeViaToken,
     confirmDoubleOptin,

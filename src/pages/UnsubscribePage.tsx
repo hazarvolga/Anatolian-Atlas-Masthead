@@ -4,17 +4,23 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useEmailConsent } from "@/hooks/useEmailConsent";
-import { CheckCircle, XCircle, Mail, Shield } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { CheckCircle, XCircle, Mail, Shield, Loader2 } from "lucide-react";
 
 export default function UnsubscribePage() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
-  const { unsubscribeViaToken, loading } = useEmailConsent();
+  const { unsubscribeViaToken, unsubscribeTypes, loading } = useEmailConsent();
+  const { user } = useAuth();
   
   const [status, setStatus] = useState<'loading' | 'success' | 'error' | 'form'>('loading');
-  const [subscriptionInfo, setSubscriptionInfo] = useState<any>(null);
   const [selectedTypes, setSelectedTypes] = useState<string[]>([]);
+  const [email, setEmail] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
 
   useEffect(() => {
     if (token) {
@@ -23,6 +29,39 @@ export default function UnsubscribePage() {
       setStatus('form');
     }
   }, [token]);
+
+  useEffect(() => {
+    if (user?.email) {
+      setEmail(user.email);
+    }
+  }, [user?.email]);
+
+  const handleManualUnsubscribe = async () => {
+    if (selectedTypes.length === 0 || isSubmitting) return;
+
+    const normalizedEmail = email.trim().toLowerCase();
+    if (!normalizedEmail) {
+      setFormError("Enter the email address you subscribed with.");
+      return;
+    }
+    if (!user) {
+      setFormError("Please sign in, or use the unsubscribe link in an email from us.");
+      return;
+    }
+
+    setFormError(null);
+    setIsSubmitting(true);
+    try {
+      const updated = await unsubscribeTypes(normalizedEmail, selectedTypes);
+      if (updated) {
+        setStatus('success');
+      } else {
+        setFormError("Your preferences could not be updated. Please try again.");
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   const handleTokenUnsubscribe = async () => {
     if (!token) return;
@@ -142,6 +181,21 @@ export default function UnsubscribePage() {
           </CardHeader>
           
           <CardContent className="space-y-6">
+            <div className="space-y-2">
+              <Label htmlFor="unsubscribe-email">Email address</Label>
+              <Input
+                id="unsubscribe-email"
+                type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                placeholder="you@example.com"
+                autoComplete="email"
+              />
+              <p className="text-xs text-muted-foreground">
+                We only update preferences for this address. Signed-in users can update their own subscriptions.
+              </p>
+            </div>
+
             <div className="space-y-4">
               <h3 className="font-medium">Email Preferences</h3>
               <p className="text-sm text-muted-foreground">
@@ -192,12 +246,20 @@ export default function UnsubscribePage() {
               </div>
             </div>
 
+            {formError && (
+              <p className="text-sm text-destructive" role="alert">
+                {formError}
+              </p>
+            )}
+
             <div className="flex flex-col sm:flex-row gap-3">
               <Button 
                 variant="destructive" 
-                disabled={selectedTypes.length === 0}
+                disabled={selectedTypes.length === 0 || isSubmitting}
                 className="flex-1"
+                onClick={handleManualUnsubscribe}
               >
+                {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Unsubscribe Selected ({selectedTypes.length})
               </Button>
               <Button 

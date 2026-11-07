@@ -128,6 +128,7 @@ Doğrulama: `node --check` ✅; `npm run build` ✅. `backend/.env.example` test
 | 41 | İmzalı unsubscribe ve double opt-in bağlantıları (JWT, 7 gün, amaç bağlı); süresi geçersiz/yanlış token **400** | `backend/routes/emailSubscriptions.js` | `confirm` → `double_optin_confirmed=true`; `unsubscribe` → `is_subscribed=false`; DB durumu doğrulandı |
 | 42 | `useEmailConsent` tüketicilerin beklediği sözleşmeye çekildi (`subscriptions`, `loading`, `fetchSubscriptions`, `unsubscribeViaToken`, `confirmDoubleOptin`, `generateUnsubscribeToken`) | `src/hooks/useEmailConsent.ts` | `/email-confirmation?token=…` → **"Email Confirmed!"** + e-posta/tür; `/unsubscribe?token=…` → **"Successfully Unsubscribed"** |
 | 43 | Admin **Consent & KVKK** sekmesi mock yerine gerçek veriyi okuyor; sayaçlar ve tablo canlı | `backend/routes/admin.js`, `src/components/admin/email/AdminEmailConsent.tsx` | Panelde 2 kayıt listelendi; sayaçlar **2 / 1 / 1 / 1**; konsolda hata yok |
+| 49 | Manuel unsubscribe formu çalışır hale geldi: e-posta alanı (oturumdan ön dolu), seçilen türler için `PUT /api/email-subscriptions/:email/:type`; oturum yoksa imzalı bağlantı yönlendirmesi, hata satır içi gösteriliyor | `src/pages/UnsubscribePage.tsx`, `src/hooks/useEmailConsent.ts` | Oturumlu: newsletter **false** oldu + başarı ekranı; oturumsuz: e-posta/sign-in uyarısı; test kaydı silindi |
 | 44 | Footer bülten formu `POST /api/email-subscriptions` ucuna bağlandı; e-posta/tür doğrulaması, IP + user-agent kaydı, onaylanmış kaydı düşürmeyen idempotent upsert, gönderim sırasında pasif buton, 4 dilde başarı/hata mesajı | `backend/routes/emailSubscriptions.js`, `src/components/Footer.tsx`, `src/locales/*.ts` | İlk kayıt **201**, tekrar **200**; geçersiz e-posta ve transactional tür **400**; onaylı kayıt yeniden gönderimde onaylı kalıyor; tarayıcıda başarı toast'ı + input temizliği, hata toast'ında input korunuyor |
 
 Doğrulama: `node --check` ✅; `npm run build` ✅; değişen frontend dosyalarında yeni tip/lint hatası yok. Test abonelikleri ve test kullanıcısı silindi (`EmailSubscription` **0** satır). Gerçek gönderim (SMTP) hâlâ yok; şablon CRUD'u ve `emails/send` bu adımın dışında.
@@ -285,7 +286,7 @@ Doğrulanan canlı sonuçlar:
 - `Gallery.tsx:9` hardcoded Unsplash listesi.
 - `AdminStats.tsx:21-24` trend yüzdeleri mock.
 - `EmailTemplateManager.tsx:28-29` "TourCo" mock site ayarları.
-- ✅ **Düzeltildi:** Contact formu `POST /api/contact-messages`'a, footer bülten formu `POST /api/email-subscriptions`'a bağlandı (bkz. #44, #45–#48). `UnsubscribePage.tsx:196-202` butonu hâlâ `onClick`'siz.
+- ✅ **Düzeltildi:** Contact formu `POST /api/contact-messages`'a, footer bülten formu `POST /api/email-subscriptions`'a, manuel unsubscribe formu `PUT /api/email-subscriptions/:email/:type`'a bağlandı (bkz. #44, #45–#49).
 - `BookingSuccess.tsx:53-63` sahte misafir fallback'i (`email@example.com`).
 - `StockImageSelector.tsx:4-8` tur görseli olarak laptop/devre kartı öneriyor.
 
